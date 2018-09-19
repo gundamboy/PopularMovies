@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <!-- Strings for network/internet errors -->
+    <string name="no_movies">That\'s odd, it looks like there are no movies to show you. </string>
+    <string name="no_internet">Ah nuts, it looks like there is a problem with your internet connection. You should probably get that fixed.</string>
+
+    <string name="settings_order_by_label">Order Movies By</string>
+    <string name="settings_order_by_key" translatable="false">order_by</string>
+    <string name="settings_order_by_default" translatable="false">popularity.desc</string>
+    <!--SORTING VALUES:
+    popularity.asc, popularity.desc, release_date.asc, release_date.desc, revenue.asc, revenue.desc, primary_release_date.asc, primary_release_date.desc, original_title.asc, original_title.desc, vote_average.asc, vote_average.desc, vote_count.asc, vote_count.desc-->
+
+
+</resources>
