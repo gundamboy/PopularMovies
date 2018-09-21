@@ -5,34 +5,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
-    <!--<androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
-        <!--android:id="@+id/swipe_refresh"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintLeft_toLeftOf="parent"-->
-        <!--app:layout_constraintRight_toRightOf="parent">-->
-        <!--<androidx.recyclerview.widget.RecyclerView-->
-            <!--android:id="@+id/movie_poster_recyclerview"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--tools:listitem="@layout/movie_poster_recycler_item"/>-->
-    <!--</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/movie_poster_recyclerview"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/movie_poster_recycler_item"
-        tools:layoutManiger="androidx.widget.GridLayoutManager"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/movie_poster_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/movie_poster_recycler_item"
+            tools:spanCount="2"
+            tools:layoutManager="android.support.v7.widget.GridLayoutManager" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/no_network"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible">
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/internet_out_message"
