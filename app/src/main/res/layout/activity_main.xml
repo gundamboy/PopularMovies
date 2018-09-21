@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:listitem="@layout/movie_poster_recycler_item"
-            tools:spanCount="2git "
+            tools:spanCount="2"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager" />
     </android.support.v4.widget.SwipeRefreshLayout>
 

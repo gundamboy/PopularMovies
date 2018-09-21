@@ -16,14 +16,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import com.charlesrowland.popularmovies.interfaces.ApiInterface;
 import com.charlesrowland.popularmovies.interfaces.MovieAdapter;
-import com.charlesrowland.popularmovies.model.Movie;
-import com.charlesrowland.popularmovies.model.Result;
+import com.charlesrowland.popularmovies.model.MovieSortingWrapper;
+import com.charlesrowland.popularmovies.model.MovieInfoResult;
 import com.charlesrowland.popularmovies.network.ApiClient;
 
 import retrofit2.Call;
@@ -36,11 +35,10 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MOVIE_DB_API_URL = "https://api.themoviedb.org/3/";
     private final static String POSTER_SAVE_STATE = "poster_save_state";
-    private final static String API_KEY = BuildConfig.ApiKey;
 
     private RecyclerView mMoviePosterRecyclerView;
     private MovieAdapter mAdapter;
-    private List<Result> results;
+    private List<MovieInfoResult> results;
     private ConstraintLayout noNetwork;
     private GridLayoutManager gridLayoutManager;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -64,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             showNoNetwork();
         }
+
+        //TODO: setup the swipe to refresh shit
     }
 
     private void showPosters() {
@@ -92,19 +92,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void buildAdapter() {
         ApiInterface api = ApiClient.getRetrofit().create(ApiInterface.class);
-        Call<Movie> call = api.getPopularMovies(API_KEY);
-        call.enqueue(new Callback<Movie>() {
+        Call<MovieSortingWrapper> call = api.getPopularMovies();
+        call.enqueue(new Callback<MovieSortingWrapper>() {
             @Override
-            public void onResponse(Call<Movie> call, Response<Movie> response) {
-                Movie movie = response.body();
+            public void onResponse(Call<MovieSortingWrapper> call, Response<MovieSortingWrapper> response) {
+                MovieSortingWrapper movie = response.body();
                 mAdapter = new MovieAdapter(results);
                 mAdapter.setData(movie.getResults());
                 mMoviePosterRecyclerView.setAdapter(mAdapter);
             }
 
             @Override
-            public void onFailure(Call<Movie> call, Throwable t) {
-
+            public void onFailure(Call<MovieSortingWrapper> call, Throwable t) {
+                showNoNetwork();
             }
         });
     }
@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
             public void onRefresh() {
                 if (checkNetworkStatus()) {
                     showPosters();
+                    buildAdapter();
                 } else {
                     showNoNetwork();
                 }

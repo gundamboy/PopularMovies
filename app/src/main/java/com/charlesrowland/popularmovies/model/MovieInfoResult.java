@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Result implements Parcelable{
+/**
+ * This Class
+ */
+public class MovieInfoResult implements Parcelable{
 
     @SerializedName("vote_count")
     @Expose
@@ -94,7 +97,7 @@ public class Result implements Parcelable{
         dest.writeValue(this.voteAverage);
     }
 
-    protected Result(Parcel in) {
+    protected MovieInfoResult(Parcel in) {
         this.posterPath = in.readString();
         this.adult = in.readByte() != 0;
         this.overview = in.readString();
@@ -114,13 +117,13 @@ public class Result implements Parcelable{
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
-        public Result createFromParcel(Parcel source) {
-            return new Result(source);
+        public MovieInfoResult createFromParcel(Parcel source) {
+            return new MovieInfoResult(source);
         }
 
         @Override
-        public Result[] newArray(int size) {
-            return new Result[size];
+        public MovieInfoResult[] newArray(int size) {
+            return new MovieInfoResult[size];
         }
     };
 

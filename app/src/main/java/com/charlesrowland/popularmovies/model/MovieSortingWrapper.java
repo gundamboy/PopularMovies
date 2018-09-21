@@ -1,18 +1,16 @@
 package com.charlesrowland.popularmovies.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Movie {
-    private static final String TAG = Movie.class.getSimpleName() + " fart";
+/**
+ * This Class is a wrapper for calling popular movies, top rated movies, related movies,
+ */
+public class MovieSortingWrapper {
 
     @SerializedName("page")
     @Expose
@@ -28,7 +26,7 @@ public class Movie {
 
     @SerializedName("results")
     @Expose
-    private List<Result> results = null;
+    private List<MovieInfoResult> results = null;
 
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -56,11 +54,11 @@ public class Movie {
         this.totalPages = totalPages;
     }
 
-    public List<Result> getResults() {
+    public List<MovieInfoResult> getResults() {
         return results;
     }
 
-    public void setResults(List<Result> results) {
+    public void setResults(List<MovieInfoResult> results) {
         this.results = results;
     }
 
@@ -71,7 +69,5 @@ public class Movie {
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
-
-
 
 }
