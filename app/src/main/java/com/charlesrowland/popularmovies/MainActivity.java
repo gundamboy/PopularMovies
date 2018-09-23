@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
         mMoviePosterRecyclerView.setLayoutManager(gridLayoutManager);
 
         buildAdapter();
-
     }
 
     private void buildAdapter() {
@@ -133,7 +132,13 @@ public class MainActivity extends AppCompatActivity {
                 mAdapter = new MovieAdapter(results);
                 mAdapter.setData(movie.getResults());
                 mMoviePosterRecyclerView.setAdapter(mAdapter);
-                mAdapter.notifyDataSetChanged();
+
+                mAdapter.setOnClickListener(new MovieAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(int position) {
+                        Toast.makeText(MainActivity.this, "poster at position: " + position + " was clicked", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override

@@ -16,6 +16,15 @@ import java.util.List;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder> {
     private static final String TAG = MovieAdapter.class.getSimpleName() + " fart";
     List<MovieInfoResult> results;
+    private OnItemClickListener mListener;
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public void setOnClickListener(OnItemClickListener listener) {
+        mListener = listener;
+    }
 
     public MovieAdapter(List<MovieInfoResult> results) {
         this.results = results;
@@ -25,7 +34,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
     @Override
     public MovieHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_poster_recycler_item, parent, false);
-        return new MovieHolder(view);
+        return new MovieHolder(view, mListener);
     }
 
     @Override
@@ -46,10 +55,23 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
     class MovieHolder extends RecyclerView.ViewHolder {
         ImageView poster;
 
-        public MovieHolder(View itemView) {
+        public MovieHolder(View itemView, final OnItemClickListener listener) {
             super(itemView);
 
             poster = itemView.findViewById(R.id.movie_poster);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+
+                    if (position != RecyclerView.NO_POSITION) {
+                        //listener.onItemClick(position, db_id);
+                        listener.onItemClick(position);
+                    }
+                }
+            });
         }
     }
 
