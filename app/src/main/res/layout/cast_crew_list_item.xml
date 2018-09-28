@@ -22,14 +22,14 @@
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
+        style="@style/DetailsTextMedium"
         tools:text="Alden Ehrenreich"/>
 
     <TextView
         android:id="@+id/character"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
+        style="@style/DetailsTextMedium"
         android:textStyle="italic"
         tools:text="Han Solo"/>
 </LinearLayout>

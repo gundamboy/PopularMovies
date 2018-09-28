@@ -185,7 +185,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
             }
 
             if (cast_member.getOrder() <= 8) {
-                mCredits.add(new Credit(cast_member.getProfile_path(), cast_member.getName(), cast_member.getCharacter()));
+                if(cast_member.getProfile_path() != null) {
+                    mCredits.add(new Credit(cast_member.getProfile_path(), cast_member.getName(), cast_member.getCharacter()));
+                }
             }
         }
 
