@@ -5,6 +5,9 @@
     <string name="no_movies">That\'s odd, it looks like there are no movies to show you. </string>
     <string name="no_internet">Ah nuts, it looks like there is a problem with your internet connection. You should probably get that fixed.</string>
 
+    <string name="backdrop_url">https://image.tmdb.org/t/p/w500</string>
+    <string name="poster_url">https://image.tmdb.org/t/p/w185</string>
+
     <string name="menu_title_options">Options</string>
     <string name="menu_dialog_title">Options</string>
 
@@ -16,5 +19,20 @@
 
     <string name="settings_order_by_toprated_label">Top Rated</string>
     <string name="settings_order_by_toprated_value" translatable="false">top rated</string>
+
+    <!--<string name="title_activity_movie_details">MovieDetailsActivity</string>-->
+    <string name="title_activity_movie_details">Movie Details</string>
+    <string name="details_overview_header">Overview:</string>
+    <string name="details_tagline_header">Tagline:</string>
+    <string name="details_cast_header">Cast:</string>
+    <string name="details_crew_header">Crew:</string>
+    <string name="details_runtime_min_abbr"> min</string>
+    <string name="details_out_of_10">/10</string>
+    <string name="details_release_date">Release Date: </string>
+    <string name="details_director">Director: </string>
+    <string name="details_staring">Stars: </string>
+
+    <string name="action_settings">Settings</string>
+    <string name="parcelable_intent_key">movie_info</string>
 
 </resources>

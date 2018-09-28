@@ -17,7 +17,7 @@ public interface ApiInterface {
     @GET("movie/top_rated?api_key="+API_KEY)
     Call<MovieSortingWrapper> getTopRatedMovies();
 
-    @GET("movie/{movie_id}?api_key="+API_KEY+"&append_to_response=videos,credits,similar,reviews")
+    @GET("movie/{movie_id}?api_key="+API_KEY+"&append_to_response=credits,videos,reviews,similar")
     Call<MovieAllDetailsResult> getAllMovieDetails(@Path("movie_id") int id);
 
 }

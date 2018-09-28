@@ -22,7 +22,7 @@ public class MovieInfoResult implements Parcelable{
 
     @SerializedName("id")
     @Expose
-    private Integer id;
+    private Integer movieId;
 
     @SerializedName("video")
     @Expose
@@ -81,38 +81,13 @@ public class MovieInfoResult implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.posterPath);
-        dest.writeByte(this.adult ? (byte) 1 : (byte) 0);
-        dest.writeString(this.overview);
-        dest.writeString(this.releaseDate);
-        dest.writeList(this.genreIds);
-        dest.writeValue(this.id);
+        dest.writeValue(this.movieId);
         dest.writeString(this.originalTitle);
-        dest.writeString(this.originalLanguage);
-        dest.writeString(this.title);
-        dest.writeString(this.backdropPath);
-        dest.writeValue(this.popularity);
-        dest.writeValue(this.voteCount);
-        dest.writeValue(this.video);
-        dest.writeValue(this.voteAverage);
     }
 
     protected MovieInfoResult(Parcel in) {
-        this.posterPath = in.readString();
-        this.adult = in.readByte() != 0;
-        this.overview = in.readString();
-        this.releaseDate = in.readString();
-        this.genreIds = new ArrayList();
-        in.readList(this.genreIds, Integer.class.getClassLoader());
-        this.id = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.movieId = (Integer) in.readValue(Integer.class.getClassLoader());
         this.originalTitle = in.readString();
-        this.originalLanguage = in.readString();
-        this.title = in.readString();
-        this.backdropPath = in.readString();
-        this.popularity = (Double) in.readValue(Double.class.getClassLoader());
-        this.voteCount = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.video = (Boolean) in.readValue(Boolean.class.getClassLoader());
-        this.voteAverage = (Double) in.readValue(Double.class.getClassLoader());
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -135,12 +110,12 @@ public class MovieInfoResult implements Parcelable{
         this.voteCount = voteCount;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getMovieId() {
+        return movieId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setMovieId(Integer id) {
+        this.movieId = id;
     }
 
     public Boolean getVideo() {

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MovieDetailsActivity"
+    tools:showIn="@layout/activity_movie_details">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/movie_poster"
+            android:layout_width="105dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_8"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/solo_w342" />
+
+        <TextView
+            android:id="@+id/movie_title"
+            android:layout_width="@dimen/baseline_0"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_8"
+            android:textSize="@dimen/text18"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/movie_poster"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Solo: A Star Wars Story" />
+
+        <TextView
+            android:id="@+id/genres"
+            android:layout_width="@dimen/baseline_0"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_2"
+            android:textSize="@dimen/text12"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/movie_poster"
+            app:layout_constraintTop_toBottomOf="@+id/movie_title"
+            tools:text="Action, Adventure, Science Fiction" />
+
+        <TextView
+            android:id="@+id/runtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_8"
+            android:textSize="@dimen/text12"
+            app:layout_constraintStart_toEndOf="@+id/movie_poster"
+            app:layout_constraintTop_toBottomOf="@+id/genres"
+            tools:text="135 min"
+            android:text="@string/details_runtime_min_abbr"/>
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            style="@android:style/Widget.DeviceDefault.Light.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_8"
+            android:numStars="10"
+            android:rating="3.35"
+            android:scaleX="0.9"
+            android:scaleY="0.9"
+            android:stepSize="0.01"
+            app:layout_constraintStart_toEndOf="@+id/runtime"
+            app:layout_constraintTop_toBottomOf="@+id/genres" />
+
+        <TextView
+            android:id="@+id/rating_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_8"
+            android:textSize="@dimen/text12"
+            app:layout_constraintStart_toEndOf="@+id/ratingBar"
+            app:layout_constraintTop_toBottomOf="@+id/genres"
+            tools:text="7.1" />
+
+        <TextView
+            android:id="@+id/out_of_ten"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:textSize="@dimen/text08"
+            app:layout_constraintBottom_toBottomOf="@+id/rating_text"
+            app:layout_constraintStart_toEndOf="@+id/rating_text"
+            android:text="@string/details_out_of_10" />
+
+        <TextView
+            android:id="@+id/release_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/text10"
+            android:textSize="@dimen/text12"
+            app:layout_constraintStart_toEndOf="@+id/movie_poster"
+            app:layout_constraintTop_toBottomOf="@+id/runtime"
+            tools:text="Release Date: 2018-05-15"
+            android:text="@string/details_release_date"/>
+
+        <TextView
+            android:id="@+id/director"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_8"
+            android:textSize="@dimen/text12"
+            app:layout_constraintStart_toEndOf="@+id/movie_poster"
+            app:layout_constraintTop_toBottomOf="@+id/release_date"
+            tools:text="Director: Ron Howard"
+            android:text="@string/details_director"/>
+
+        <TextView
+            android:id="@+id/cast_intro"
+            android:layout_width="@dimen/baseline_0"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_8"
+            android:textSize="@dimen/text12"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/movie_poster"
+            app:layout_constraintTop_toBottomOf="@+id/director"
+            tools:text="Stars: Alden Ehrenreich, Joonas Suotamo, Woody Harrelson, Emilia Clarke"
+            android:text="@string/details_staring"/>
+
+        <TextView
+            android:id="@+id/overview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_16"
+            android:layout_marginTop="@dimen/margins_16"
+            android:lineSpacingMultiplier="1.15"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/movie_poster"
+            tools:text="Through a series of daring escapades deep within a dark and dangerous criminal underworld, Han Solo meets his mighty future copilot Chewbacca and encounters the notorious gambler Lando Calrissian." />
+
+        <TextView
+            android:id="@+id/cast_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_24"
+            android:text="@string/details_cast_header"
+            android:textSize="@dimen/text18"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/overview" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/cast_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_8"
+            android:fadingEdge="horizontal"
+            android:fadingEdgeLength="@dimen/baseline_14"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cast_header"
+            tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:listitem="@layout/cast_crew_list_item" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v4.widget.NestedScrollView>

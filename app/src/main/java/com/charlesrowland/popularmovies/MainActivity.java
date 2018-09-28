@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.net.ConnectivityManager;
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         mMoviePosterRecyclerView = findViewById(R.id.movie_poster_recyclerview);
         noNetwork = findViewById(R.id.no_network);
-        gridLayoutManager = new GridLayoutManager(this, 2);
+        gridLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span_count));
         mMoviePosterRecyclerView.setLayoutManager(gridLayoutManager);
 
         buildAdapter();
@@ -116,8 +117,6 @@ public class MainActivity extends AppCompatActivity {
         Call<MovieSortingWrapper> call;
         ApiInterface api = ApiClient.getRetrofit().create(ApiInterface.class);
 
-        Log.i(TAG, "buildAdapter: orderby: " + getSharedPreferenceOrderbyValue());
-
         if (getSharedPreferenceOrderbyValue().equals(getResources().getString(R.string.settings_order_by_default))) {
             call = api.getPopularMovies();
         } else {
@@ -127,8 +126,7 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<MovieSortingWrapper>() {
             @Override
             public void onResponse(Call<MovieSortingWrapper> call, Response<MovieSortingWrapper> response) {
-                Log.i(TAG, "onResponse: hello?");
-                MovieSortingWrapper movie = response.body();
+                final MovieSortingWrapper movie = response.body();
                 mAdapter = new MovieAdapter(results);
                 mAdapter.setData(movie.getResults());
                 mMoviePosterRecyclerView.setAdapter(mAdapter);
@@ -136,7 +134,9 @@ public class MainActivity extends AppCompatActivity {
                 mAdapter.setOnClickListener(new MovieAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(int position) {
-                        Toast.makeText(MainActivity.this, "poster at position: " + position + " was clicked", Toast.LENGTH_SHORT).show();
+                        Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
+                        intent.putExtra(getResources().getString(R.string.parcelable_intent_key), movie.getResults().get(position));
+                        startActivity(intent);
                     }
                 });
             }

@@ -1,5 +1,6 @@
 package com.charlesrowland.popularmovies.interfaces;
 
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -39,7 +40,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
 
     @Override
     public void onBindViewHolder(@NonNull MovieHolder holder, int position) {
-        String posterUrl = "https://image.tmdb.org/t/p/w185"+results.get(position).getPosterPath();
+        Resources res = holder.itemView.getContext().getResources();
+        String posterUrl = res.getString(R.string.poster_url) + results.get(position).getPosterPath();
         Picasso.get().load(posterUrl).placeholder(R.color.colorAccent).into(holder.poster);
     }
 

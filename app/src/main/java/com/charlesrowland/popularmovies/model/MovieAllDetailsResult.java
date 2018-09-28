@@ -3,6 +3,7 @@ package com.charlesrowland.popularmovies.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieAllDetailsResult {
@@ -25,7 +26,7 @@ public class MovieAllDetailsResult {
 
     @SerializedName("id")
     @Expose
-    private Integer id;
+    private Integer movieId;
 
     @SerializedName("imdb_id")
     @Expose
@@ -75,21 +76,21 @@ public class MovieAllDetailsResult {
     @Expose
     private Integer voteCount;
 
-    @SerializedName("videos")
-    @Expose
-    private List<MovieVideoResult> videos = null;
-
     @SerializedName("credits")
     @Expose
-    private List<MovieCreditsCast> credits = null;
+    private CreditsWrapper credits = null;
+
+    @SerializedName("videos")
+    @Expose
+    private VideosWrapper videos = null;
 
     @SerializedName("similar")
     @Expose
-    private List<MovieSortingWrapper> similar = null;
+    private SimilarWrapper similar = null;
 
     @SerializedName("reviews")
     @Expose
-    private List<MovieReviewResults> reviews = null;
+    private ReviewsWrapper reviews = null;
 
     // getters and setters
     public String getBackdrop_path() {
@@ -124,12 +125,12 @@ public class MovieAllDetailsResult {
         this.homepage = homepage;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getmovieId() {
+        return movieId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setmovieId(Integer id) {
+        this.movieId = id;
     }
 
     public String getImdb_id() {
@@ -228,41 +229,94 @@ public class MovieAllDetailsResult {
         this.voteCount = voteCount;
     }
 
-    public List<MovieVideoResult> getVideos() {
-        return videos;
-    }
-
-    public void setVideos(List<MovieVideoResult> videos) {
-        this.videos = videos;
-    }
-
-    public List<MovieCreditsCast> getCredits() {
+    public CreditsWrapper getCredits() {
         return credits;
     }
 
-    public void setCredits(List<MovieCreditsCast> credits) {
+    public void setCredits(CreditsWrapper credits) {
         this.credits = credits;
     }
 
-    public List<MovieSortingWrapper> getSimilar() {
+    public VideosWrapper getVideos() {
+        return videos;
+    }
+
+    public void setVideos(VideosWrapper videos) {
+        this.videos = videos;
+    }
+
+    public SimilarWrapper getSimilar() {
         return similar;
     }
 
-    public void setSimilar(List<MovieSortingWrapper> similar) {
+    public void setSimilar(SimilarWrapper similar) {
         this.similar = similar;
     }
 
-    public List<MovieReviewResults> getReviews() {
+    public ReviewsWrapper getReviews() {
         return reviews;
     }
 
-    public void setReviews(List<MovieReviewResults> reviews) {
+    public void setReviews(ReviewsWrapper reviews) {
         this.reviews = reviews;
     }
 
     // classes for nested json
-    public class MovieCreditsCast {
+    // private List<MovieGenreResult> genres = null;
+    public class MovieGenreResult {
 
+        @SerializedName("id")
+        @Expose
+        private Integer id;
+
+        @SerializedName("name")
+        @Expose
+        private String name;
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public class CreditsWrapper {
+        @SerializedName("cast")
+        @Expose
+        private List<CastResults> cast = null;
+
+        @SerializedName("crew")
+        @Expose
+        private List<CrewResults> crew = null;
+
+        public List<CastResults> getCast() {
+            return cast;
+        }
+
+        public void setCast(List<CastResults> cast) {
+            this.cast = cast;
+        }
+
+        public List<CrewResults> getCrew() {
+            return crew;
+        }
+
+        public void setCrew(List<CrewResults> crew) {
+            this.crew = crew;
+        }
+    }
+
+    public class CastResults {
         @SerializedName("cast_id")
         @Expose
         private Integer cast_id;
@@ -360,77 +414,63 @@ public class MovieAllDetailsResult {
         }
     }
 
-    public class MovieGenreResult {
-
-        @SerializedName("id")
+    public class CrewResults {
+        @SerializedName("job")
         @Expose
-        private Integer id;
+        private String job;
 
         @SerializedName("name")
         @Expose
-        private String name;
+        private String crew_name;
 
-        public Integer getId() {
-            return id;
+        @SerializedName("profile_path")
+        @Expose
+        private String crew_image;
+
+        public String getJob() {
+            return job;
         }
 
-        public void setId(Integer id) {
-            this.id = id;
+        public void setJob(String job) {
+            this.job = job;
         }
 
-        public String getName() {
-            return name;
+        public String getCrew_name() {
+            return crew_name;
         }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
-
-    public class MovieReviewResults {
-        String author;
-        String content;
-        String id;
-        String url;
-
-        public String getAuthor() {
-            return author;
+        public void setCrew_name(String crew_name) {
+            this.crew_name = crew_name;
         }
 
-        public void setAuthor(String author) {
-            this.author = author;
+        public String getCrew_image() {
+            return crew_image;
         }
 
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
+        public void setCrew_image(String crew_image) {
+            this.crew_image = crew_image;
         }
     }
 
-    public class MovieVideoResult {
+    public class VideosWrapper {
+        @SerializedName("results")
+        @Expose
+        private List<VideoResults> results = null;
+
+        public List<VideoResults> getResults() {
+            return results;
+        }
+
+        public void setResults(List<VideoResults> results) {
+            this.results = results;
+        }
+    }
+
+    public class VideoResults {
 
         @SerializedName("id")
         @Expose
-        private String id;
+        private String videoId;
 
         @SerializedName("iso_639_1")
         @Expose
@@ -461,11 +501,11 @@ public class MovieAllDetailsResult {
         private String type;
 
         public String getId() {
-            return id;
+            return videoId;
         }
 
         public void setId(String id) {
-            this.id = id;
+            this.videoId = id;
         }
 
         public String getIso_639_1() {
@@ -525,4 +565,119 @@ public class MovieAllDetailsResult {
         }
     }
 
+    public class SimilarWrapper {
+        @SerializedName("results")
+        @Expose
+        private List<SimilarResults> results = null;
+
+        public List<SimilarResults> getResults() {
+            return results;
+        }
+
+        public void setResults(List<SimilarResults> results) {
+            this.results = results;
+        }
+    }
+
+    public class SimilarResults {
+        @SerializedName("id")
+        @Expose
+        private Integer id;
+
+        @SerializedName("title")
+        @Expose
+        private String title;
+
+        @SerializedName("poster_path")
+        @Expose
+        private String posterPath;
+
+        public Integer getMovieId() {
+            return id;
+        }
+
+        public void setMovieId(Integer id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getPosterPath() {
+            return posterPath;
+        }
+
+        public void setPosterPath(String posterPath) {
+            this.posterPath = posterPath;
+        }
+    }
+
+    public class ReviewsWrapper {
+        @SerializedName("results")
+        @Expose
+        private List<ReviewResults> results = null;
+
+        public List<ReviewResults> getResults() {
+            return results;
+        }
+
+        public void setResults(List<ReviewResults> results) {
+            this.results = results;
+        }
+    }
+
+    public class ReviewResults {
+        @SerializedName("author")
+        @Expose
+        String author;
+
+        @SerializedName("content")
+        @Expose
+        String content;
+
+        @SerializedName("id")
+        @Expose
+        String id;
+
+        @SerializedName("url")
+        @Expose
+        String url;
+
+        public String getAuthor() {
+            return author;
+        }
+
+        public void setAuthor(String author) {
+            this.author = author;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+    }
 }
