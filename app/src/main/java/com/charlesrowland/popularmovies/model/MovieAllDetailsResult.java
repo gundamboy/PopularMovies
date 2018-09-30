@@ -1,10 +1,15 @@
 package com.charlesrowland.popularmovies.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MovieAllDetailsResult {
 
@@ -580,25 +585,97 @@ public class MovieAllDetailsResult {
     }
 
     public class SimilarResults {
+        @SerializedName("vote_count")
+        @Expose
+        private Integer voteCount;
+
         @SerializedName("id")
         @Expose
-        private Integer id;
+        private Integer movieId;
+
+        @SerializedName("video")
+        @Expose
+        private Boolean video;
+
+        @SerializedName("vote_average")
+        @Expose
+        private Double voteAverage;
 
         @SerializedName("title")
         @Expose
         private String title;
 
+        @SerializedName("popularity")
+        @Expose
+        private Double popularity;
+
         @SerializedName("poster_path")
         @Expose
         private String posterPath;
 
+        @SerializedName("original_language")
+        @Expose
+        private String originalLanguage;
+
+        @SerializedName("original_title")
+        @Expose
+        private String originalTitle;
+
+        @SerializedName("genre_ids")
+        @Expose
+        private List<Integer> genreIds = null;
+
+        @SerializedName("backdrop_path")
+        @Expose
+        private String backdropPath;
+
+        @SerializedName("adult")
+        @Expose
+        private Boolean adult;
+
+        @SerializedName("overview")
+        @Expose
+        private String overview;
+
+        @SerializedName("release_date")
+        @Expose
+        private String releaseDate;
+
+        private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+        public Integer getVoteCount() {
+            return voteCount;
+        }
+
+        public void setVoteCount(Integer voteCount) {
+            this.voteCount = voteCount;
+        }
+
         public Integer getMovieId() {
-            return id;
+            return movieId;
         }
 
         public void setMovieId(Integer id) {
-            this.id = id;
+            this.movieId = id;
         }
+
+        public Boolean getVideo() {
+            return video;
+        }
+
+        public void setVideo(Boolean video) {
+            this.video = video;
+        }
+
+
+        public Double getVoteAverage() {
+            return voteAverage;
+        }
+
+        public void setVoteAverage(Double voteAverage) {
+            this.voteAverage = voteAverage;
+        }
+
 
         public String getTitle() {
             return title;
@@ -608,12 +685,91 @@ public class MovieAllDetailsResult {
             this.title = title;
         }
 
+
+        public Double getPopularity() {
+            return popularity;
+        }
+
+        public void setPopularity(Double popularity) {
+            this.popularity = popularity;
+        }
+
+
         public String getPosterPath() {
             return posterPath;
         }
 
         public void setPosterPath(String posterPath) {
             this.posterPath = posterPath;
+        }
+
+
+        public String getOriginalLanguage() {
+            return originalLanguage;
+        }
+
+        public void setOriginalLanguage(String originalLanguage) {
+            this.originalLanguage = originalLanguage;
+        }
+
+
+        public String getOriginalTitle() {
+            return originalTitle;
+        }
+
+        public void setOriginalTitle(String originalTitle) {
+            this.originalTitle = originalTitle;
+        }
+
+
+        public List<Integer> getGenreIds() {
+            return genreIds;
+        }
+
+        public void setGenreIds(List<Integer> genreIds) {
+            this.genreIds = genreIds;
+        }
+
+
+        public String getBackdropPath() {
+            return backdropPath;
+        }
+
+        public void setBackdropPath(String backdropPath) {
+            this.backdropPath = backdropPath;
+        }
+
+
+        public Boolean getAdult() {
+            return adult;
+        }
+
+        public void setAdult(Boolean adult) {
+            this.adult = adult;
+        }
+
+        public String getOverview() {
+            return overview;
+        }
+
+        public void setOverview(String overview) {
+            this.overview = overview;
+        }
+
+        public String getReleaseDate() {
+            return releaseDate;
+        }
+
+        public void setReleaseDate(String releaseDate) {
+            this.releaseDate = releaseDate;
+        }
+
+        public Map<String, Object> getAdditionalProperties() {
+            return this.additionalProperties;
+        }
+
+        public void setAdditionalProperty(String name, Object value) {
+            this.additionalProperties.put(name, value);
         }
     }
 

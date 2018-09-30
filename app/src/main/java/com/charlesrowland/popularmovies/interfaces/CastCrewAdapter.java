@@ -32,7 +32,6 @@ public class CastCrewAdapter extends RecyclerView.Adapter<CastCrewAdapter.CastCr
         CastCrewViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            Log.i(TAG, "CastCrewViewHolder: in the adapter?");
         }
     }
 
@@ -54,7 +53,6 @@ public class CastCrewAdapter extends RecyclerView.Adapter<CastCrewAdapter.CastCr
 
     @Override
     public void onBindViewHolder(@NonNull CastCrewViewHolder holder, int position) {
-        Log.i(TAG, "onBindViewHolder: shit should be happening right now what gives");
         Credit currentCredit = mCredits.get(position);
         Resources res = holder.itemView.getContext().getResources();
         String profilePath = res.getString(R.string.poster_url) + currentCredit.getmProfilePath();

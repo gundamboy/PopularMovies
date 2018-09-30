@@ -18,11 +18,20 @@
     </style>
 
     <style name="TextStyles" parent="@style/AppTheme">
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/textContent</item>
     </style>
 
-    <style name="DetailsTextLarge" parent="@style/TextStyles">
-        <item name="android:textSize">@dimen/text18</item>
+    <style name="NoNetwork" parent="@style/TextStyles">
+        <item name="android:textSize">@dimen/text14</item>
+    </style>
+
+    <style name="DetailsTextTitle" parent="@style/TextStyles">
+        <item name="android:textSize">@dimen/text16</item>
+        <item name="android:textColor">@color/textTitles</item>
+    </style>
+
+    <style name="DetailsTextOverview" parent="@style/TextStyles">
+        <item name="android:textSize">@dimen/text14</item>
     </style>
 
     <style name="DetailsTextMedium" parent="@style/TextStyles">
@@ -39,7 +48,7 @@
 
     <style name="ExpandedToolbar" parent="@android:style/TextAppearance.DeviceDefault.Medium">
         <item name="android:textColor">@color/colorTransparent</item>
-        <item name="android:textSize">@dimen/text24</item>
+        <item name="android:textSize">@dimen/text20</item>
     </style>
 
     <style name="CollapsedToolbar" parent="@android:style/TextAppearance.DeviceDefault.Medium">

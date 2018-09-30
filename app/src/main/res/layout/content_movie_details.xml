@@ -22,7 +22,7 @@
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/solo_w342" />
+            tools:src="@drawable/no_poster" />
 
         <TextView
             android:id="@+id/movie_title"
@@ -31,7 +31,7 @@
             android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_8"
-            style="@style/DetailsTextLarge"
+            style="@style/DetailsTextTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/movie_poster"
             app:layout_constraintTop_toTopOf="parent"
@@ -69,10 +69,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_8"
-            android:numStars="10"
+            android:numStars="5"
             android:rating="3.35"
-            android:scaleX="0.9"
-            android:scaleY="0.9"
             android:stepSize="0.01"
             app:layout_constraintStart_toEndOf="@+id/runtime"
             app:layout_constraintTop_toBottomOf="@+id/genres" />
@@ -143,6 +141,7 @@
             android:layout_marginStart="@dimen/margins_16"
             android:layout_marginTop="@dimen/margins_16"
             android:lineSpacingMultiplier="1.15"
+            style="@style/DetailsTextOverview"
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/movie_poster"
@@ -156,7 +155,7 @@
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_24"
             android:text="@string/details_cast_header"
-            style="@style/DetailsTextLarge"
+            style="@style/DetailsTextTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/overview" />
@@ -166,8 +165,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margins_8"
-            android:layout_marginStart="@dimen/margins_8"
-            android:layout_marginTop="@dimen/margins_8"
+            android:layout_marginStart="@dimen/baseline_0"
+            android:layout_marginTop="@dimen/margins_4"
             android:fadingEdge="horizontal"
             android:fadingEdgeLength="@dimen/baseline_14"
             android:orientation="horizontal"
@@ -176,6 +175,62 @@
             app:layout_constraintTop_toBottomOf="@+id/cast_header"
             tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
             tools:listitem="@layout/cast_crew_list_item" />
+
+        <TextView
+            android:id="@+id/crew_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_24"
+            android:text="@string/details_crew_header"
+            style="@style/DetailsTextTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cast_recyclerview" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/crew_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/baseline_0"
+            android:layout_marginTop="@dimen/margins_4"
+            android:fadingEdge="horizontal"
+            android:fadingEdgeLength="@dimen/baseline_14"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/crew_header"
+            tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:listitem="@layout/cast_crew_list_item" />
+
+        <TextView
+            android:id="@+id/similar_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_24"
+            android:text="@string/details_similar_header"
+            style="@style/DetailsTextTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/crew_recyclerview" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/similar_movies_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/movie_poster_recycler_item"
+            tools:spanCount="2"
+            tools:layoutManager="android.support.v7.widget.GridLayoutManager"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/similar_header"/>
 
     </android.support.constraint.ConstraintLayout>
 

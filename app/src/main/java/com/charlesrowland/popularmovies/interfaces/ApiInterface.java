@@ -20,4 +20,6 @@ public interface ApiInterface {
     @GET("movie/{movie_id}?api_key="+API_KEY+"&append_to_response=credits,videos,reviews,similar")
     Call<MovieAllDetailsResult> getAllMovieDetails(@Path("movie_id") int id);
 
+
+
 }

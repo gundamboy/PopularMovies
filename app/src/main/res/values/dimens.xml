@@ -6,6 +6,7 @@
     <dimen name="margins_2">2dp</dimen>
     <dimen name="margins_4">4dp</dimen>
     <dimen name="margins_8">8dp</dimen>
+    <dimen name="margins_12">12dp</dimen>
     <dimen name="margins_14">14dp</dimen>
     <dimen name="margins_16">16dp</dimen>
     <dimen name="margins_24">24dp</dimen>
@@ -15,13 +16,18 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="expand_title_margin">16dp</dimen>
+    <dimen name="text0">0sp</dimen>
     <dimen name="text08">8sp</dimen>
     <dimen name="text10">10sp</dimen>
     <dimen name="text12">12sp</dimen>
+    <dimen name="text14">14sp</dimen>
     <dimen name="text16">16sp</dimen>
     <dimen name="text18">18sp</dimen>
     <dimen name="text20">20sp</dimen>
     <dimen name="text24">24sp</dimen>
     <dimen name="text28">28sp</dimen>
     <dimen name="text32">32sp</dimen>
+
+    <!--this is to avoid colliding with the floating poster in the details view -->
+    <dimen name="details_poster_push_margin_start">125dp</dimen>
 </resources>
