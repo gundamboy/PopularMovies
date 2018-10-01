@@ -31,6 +31,8 @@
     <string name="details_out_of_10">/10</string>
     <string name="details_release_date">Release Date: </string>
     <string name="details_director">Director: </string>
+    <string name="details_writers">Writers: </string>
+    <string name="details_producers">Producers: </string>
     <string name="details_staring">Stars: </string>
 
     <string name="action_settings">Settings</string>

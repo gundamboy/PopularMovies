@@ -71,17 +71,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private ArrayList<Credit> mCreditsCrew = new ArrayList<>();
 
     String mGenreString = "";
+    String mpaaRating = "";
+
     private static final String MOVIE_ID = "movie_id";
     private static final String MOVIE_TITLE = "original_title";
     private String mMovieTitle;
 
+    // TODO: set a view for tagline or add it to the start of the overview. Set tagline in setTextViews()
+    // TODO: set views for writers and producers in the 'quick info' next to the poster. this may requier a wider poster. i want to try and keep it squared up
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
 
-        // this is just for testing
+        // this is just for testing while using the DetailsActivity as the starting activity
         mMovieId = 348350;
         mMovieTitle = "Solo: A Star Wars Story";
 
@@ -145,6 +149,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 // get the reviews
                 mReviews = mMovieInfo.getReviews().getResults();
 
+                // the MPAA rating is a massive PITA to get. its nested 3 levels deep.
+                List<MovieAllDetailsResult.ReleaseDatesResults> rdWrapper = mMovieInfo.getRelease_dates().getResults();
+                List<MovieAllDetailsResult.ReleaseDatesResultsContent> content;
+                for(MovieAllDetailsResult.ReleaseDatesResults rd : rdWrapper) {
+                    if (rd.getIso_3166_1().equals("US")) {
+                        content = rd.getReleaseDateContents();
+                        for(MovieAllDetailsResult.ReleaseDatesResultsContent inner_contents : content) {
+                            mpaaRating = inner_contents.getCertification();
+                            break;
+                        }
+                    }
+                }
+
                 setImageViews();
                 setTextViews();
                 setRatingBar();
@@ -172,6 +189,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         String releaseDate = getResources().getString(R.string.details_release_date) + " " + mMovieInfo.getReleaseDate();
         mReleaseDate.setText(releaseDate);
+
+        String tagLine = mMovieInfo.getTagline();
 
         mOverview.setText(mMovieInfo.getOverview());
 
@@ -209,50 +228,39 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void setCrewMembers() {
         String director = getResources().getString(R.string.details_director) +  " ";
-        Boolean foundDirector = false;
+        String writers = getResources().getString(R.string.details_writers) +  " ";;
+        String producers = getResources().getString(R.string.details_producers) +  " ";
 
         int count = 0;
         for (MovieAllDetailsResult.CrewResults crew_member : mCrew) {
-            if (count <=7 && crew_member.getCrew_image() != null) {
+            if (count <=7 && crew_member.getCrew_image() != null && !crew_member.getJob().equals("Director")) {
                 // why are you incrementing up to you ask...
                 // because reasons. and science. see the director notes below. and ACTION!
+                mCreditsCrew.add(new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
                 count++;
+            }
 
-                if(crew_member.getJob().equals("Director")) {
-                    foundDirector = true;
-                    // i want a total of 8. if the directory was found i want them at the start
-                    // if the directory was not found, i need to add them later
-                    count--;
-                    director += crew_member.getCrew_name();
-                    mCreditsCrew.add(0,new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
-                } else {
-                    mCreditsCrew.add(new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
-                }
+            if(crew_member.getJob().equals("Story") || crew_member.getJob().equals("Screenplay")) {
+                writers += crew_member.getCrew_name() + ", ";
+            }
+
+            if(crew_member.getJob().equals("Producer") || crew_member.getJob().equals("Executive Producer")) {
+                producers += crew_member.getCrew_name() + ", ";
+            }
+
+            if(crew_member.getJob().equals("Director")) {
+                // i want a total of 8. if the directory was found i want them at the start
+                // if the directory was not found, i need to add them later
+                director += crew_member.getCrew_name();
+                mCreditsCrew.add(0,new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
             }
         }
 
-        for (MovieAllDetailsResult.CrewResults crew_member : mCrew) {
-            if (!foundDirector) {
-                if(crew_member.getJob().equals("Director")) {
-                    director += crew_member.getCrew_name();
-                    mCreditsCrew.add(0, new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
-                    foundDirector = true;
-                }
-            }
-        }
-
-        Log.i(TAG, "setCrewMembers: crew memeber size: " + mCreditsCrew.size());
+        writers = writers.substring(0, writers.length()-2);
+        producers = producers.substring(0, producers.length()-2);
 
         mDirector.setText(director);
         crewRecyclerViewSetup();
-    }
-
-    private void setSimilarMovies() {
-        int count = 0;
-
-        for (MovieAllDetailsResult.SimilarResults sm : mSimilarMovies) {
-
-        }
     }
 
     private void castRecyclerViewSetup() {

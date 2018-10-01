@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.sql.Wrapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +81,10 @@ public class MovieAllDetailsResult {
     @SerializedName("vote_count")
     @Expose
     private Integer voteCount;
+
+    @SerializedName("release_dates")
+    @Expose
+    private ReleaseDatesWrapper singleMovieReleaseDates = null;
 
     @SerializedName("credits")
     @Expose
@@ -233,6 +238,20 @@ public class MovieAllDetailsResult {
     public void setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
     }
+
+
+
+
+    public ReleaseDatesWrapper getRelease_dates() {
+        return singleMovieReleaseDates;
+    }
+
+    public void setRelease_dates(ReleaseDatesWrapper singleMovieReleaseDates) {
+        this.singleMovieReleaseDates = singleMovieReleaseDates;
+    }
+
+
+
 
     public CreditsWrapper getCredits() {
         return credits;
@@ -834,6 +853,128 @@ public class MovieAllDetailsResult {
 
         public void setUrl(String url) {
             this.url = url;
+        }
+    }
+
+    public class ReleaseDatesWrapper {
+
+        @SerializedName("results")
+        @Expose
+        private List<ReleaseDatesResults> results;
+
+
+        public List<ReleaseDatesResults> getResults ()
+        {
+            return results;
+        }
+
+        public void setResults (List<ReleaseDatesResults> results)
+        {
+            this.results = results;
+        }
+    }
+
+    public class ReleaseDatesResults {
+
+        @SerializedName("release_dates")
+        @Expose
+        private List<ReleaseDatesResultsContent> releaseDateContents;
+
+        @SerializedName("iso_3166_1")
+        @Expose
+        private String iso_3166_1;
+
+        public List<ReleaseDatesResultsContent> getReleaseDateContents ()
+        {
+            return releaseDateContents;
+        }
+
+        public void setReleaseDateContents (List<ReleaseDatesResultsContent> release_dates)
+        {
+            this.releaseDateContents = release_dates;
+        }
+
+        public String getIso_3166_1 ()
+        {
+            return iso_3166_1;
+        }
+
+        public void setIso_3166_1 (String iso_3166_1)
+        {
+            this.iso_3166_1 = iso_3166_1;
+        }
+    }
+
+    public class ReleaseDatesResultsContent {
+        @SerializedName("iso_639_1")
+        @Expose
+        private String iso_639_1;
+
+        @SerializedName("certification")
+        @Expose
+        private String certification;
+
+        @SerializedName("release_date")
+        @Expose
+        private String release_date;
+
+        @SerializedName("type")
+        @Expose
+        private String type;
+
+        @SerializedName("note")
+        @Expose
+        private String note;
+
+
+        public String getIso_639_1 ()
+        {
+            return iso_639_1;
+        }
+
+        public void setIso_639_1 (String iso_639_1)
+        {
+            this.iso_639_1 = iso_639_1;
+        }
+
+        public String getCertification ()
+        {
+            return certification;
+        }
+
+        public void setCertification (String certification)
+        {
+            this.certification = certification;
+        }
+
+        public String getRelease_date ()
+        {
+            return release_date;
+        }
+
+        public void setRelease_date (String release_date)
+        {
+            this.release_date = release_date;
+        }
+
+        public String getType ()
+        {
+            return type;
+        }
+
+        public void setType (String type)
+        {
+            this.type = type;
+        }
+
+        public String getNote ()
+        {
+            return note;
+        }
+
+        public void setNote (String note)
+        {
+            this.note = note;
         }
     }
 }
