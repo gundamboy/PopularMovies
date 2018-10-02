@@ -1,19 +1,13 @@
 package com.charlesrowland.popularmovies;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Movie;
 import android.os.Bundle;
-import android.provider.BaseColumns;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -21,12 +15,10 @@ import android.widget.TextView;
 import com.charlesrowland.popularmovies.interfaces.ApiInterface;
 import com.charlesrowland.popularmovies.interfaces.CastCrewAdapter;
 import com.charlesrowland.popularmovies.interfaces.Credit;
-import com.charlesrowland.popularmovies.interfaces.EqualSpacingItemDecoration;
-import com.charlesrowland.popularmovies.interfaces.MovieAdapter;
+import com.charlesrowland.popularmovies.ui.EqualSpacingItemDecoration;
 import com.charlesrowland.popularmovies.interfaces.SimilarMoviesAdapter;
 import com.charlesrowland.popularmovies.model.MovieAllDetailsResult;
 import com.charlesrowland.popularmovies.model.MovieInfoResult;
-import com.charlesrowland.popularmovies.model.MovieSortingWrapper;
 import com.charlesrowland.popularmovies.network.ApiClient;
 import com.squareup.picasso.Picasso;
 
@@ -47,7 +39,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.movie_title) TextView mTitle;
     @BindView(R.id.genres) TextView mGenres;
     @BindView(R.id.runtime) TextView mRuntime;
-    @BindView(R.id.ratingBar) RatingBar mRatingBar;
     @BindView(R.id.rating_text) TextView mRatingText;
     @BindView(R.id.release_date) TextView mReleaseDate;
     @BindView(R.id.director) TextView mDirector;
@@ -79,6 +70,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     // TODO: set a view for tagline or add it to the start of the overview. Set tagline in setTextViews()
     // TODO: set views for writers and producers in the 'quick info' next to the poster. this may requier a wider poster. i want to try and keep it squared up
+    // TODO: write method to convert date (2018-05-05) into an array, then get the month and set the release date display: May 27, 2018
+    // TODO: write method for converting runtime from minutes to hours and minutes. here: https://stackoverflow.com/questions/5387371/how-to-convert-minutes-to-hours-and-minutes-hhmm-in-java
+    // TODO: set the mpaa rating textview background to the proper drawable based on the rating.
+    // TODO: store the imdb link so it can be set as an intent on the imdb textview: https://www.imdb.com/title/{imdb_id}/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,7 +159,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 setImageViews();
                 setTextViews();
-                setRatingBar();
                 setCastMembers();
                 setCrewMembers();
                 similarMovieViewSetup();
@@ -299,13 +293,5 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    private void setRatingBar() {
-        // the rating comes back based on 10. We have 5 stars. 5 is half of 10 so divide by 2
-        // to get the 5 star rating. ITS MATHEMATICAL!
-        Double ratingNum = mMovieInfo.getVoteAverage() / 2;
-        String rating= ratingNum.toString() ;
-        mRatingBar.setRating(Float.parseFloat(rating));
     }
 }

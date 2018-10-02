@@ -1,4 +1,4 @@
-package com.charlesrowland.popularmovies.interfaces;
+package com.charlesrowland.popularmovies.ui;
 
 import android.graphics.Rect;
 import android.support.v7.widget.GridLayoutManager;
