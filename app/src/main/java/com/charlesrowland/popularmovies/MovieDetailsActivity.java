@@ -1,13 +1,23 @@
 package com.charlesrowland.popularmovies;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -22,8 +32,12 @@ import com.charlesrowland.popularmovies.model.MovieInfoResult;
 import com.charlesrowland.popularmovies.network.ApiClient;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,8 +54,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.genres) TextView mGenres;
     @BindView(R.id.runtime) TextView mRuntime;
     @BindView(R.id.rating_text) TextView mRatingText;
+    @BindView(R.id.imdb_link) TextView mIMDB;
+    @BindView(R.id.mpaa_rating) TextView mMpaaRating;
     @BindView(R.id.release_date) TextView mReleaseDate;
     @BindView(R.id.director) TextView mDirector;
+    @BindView(R.id.producers) TextView mProducers;
+    @BindView(R.id.writers) TextView mWriters;
     @BindView(R.id.cast_intro) TextView mCastIntro;
     @BindView(R.id.overview) TextView mOverview;
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
@@ -63,17 +81,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     String mGenreString = "";
     String mpaaRating = "";
+    String imdb_path_id = "";
 
     private static final String MOVIE_ID = "movie_id";
     private static final String MOVIE_TITLE = "original_title";
     private String mMovieTitle;
 
     // TODO: set a view for tagline or add it to the start of the overview. Set tagline in setTextViews()
-    // TODO: set views for writers and producers in the 'quick info' next to the poster. this may requier a wider poster. i want to try and keep it squared up
-    // TODO: write method to convert date (2018-05-05) into an array, then get the month and set the release date display: May 27, 2018
-    // TODO: write method for converting runtime from minutes to hours and minutes. here: https://stackoverflow.com/questions/5387371/how-to-convert-minutes-to-hours-and-minutes-hhmm-in-java
-    // TODO: set the mpaa rating textview background to the proper drawable based on the rating.
-    // TODO: store the imdb link so it can be set as an intent on the imdb textview: https://www.imdb.com/title/{imdb_id}/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +158,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 // get the reviews
                 mReviews = mMovieInfo.getReviews().getResults();
 
+                imdb_path_id = mMovieInfo.getImdb_id();
+
                 // the MPAA rating is a massive PITA to get. its nested 3 levels deep.
                 List<MovieAllDetailsResult.ReleaseDatesResults> rdWrapper = mMovieInfo.getRelease_dates().getResults();
                 List<MovieAllDetailsResult.ReleaseDatesResultsContent> content;
@@ -173,21 +189,70 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void setTextViews() {
+        Drawable mpaaBackground;
+
         mTitle.setText(mMovieInfo.getOriginalTitle());
         mGenres.setText(mGenreString);
 
-        String runtime = mMovieInfo.getRuntime() + getResources().getString(R.string.details_runtime_min_abbr);
+        String runtime = convertRuntime(mMovieInfo.getRuntime());
         mRuntime.setText(runtime);
 
         mRatingText.setText(String.valueOf(mMovieInfo.getVoteAverage()));
 
-        String releaseDate = getResources().getString(R.string.details_release_date) + " " + mMovieInfo.getReleaseDate();
-        mReleaseDate.setText(releaseDate);
+        String releaseDate = mMovieInfo.getReleaseDate();
+        mReleaseDate.setText(convertReleaseDate(releaseDate));
 
         String tagLine = mMovieInfo.getTagline();
 
         mOverview.setText(mMovieInfo.getOverview());
 
+        // if the movie is rated R make the background red. other wise its green, which is on the
+        // textview by default.
+        if (mpaaRating.equals("R")) {
+            mpaaBackground = ContextCompat.getDrawable(this, R.drawable.rounded_corners_mpaa_r);
+            mMpaaRating.setBackground(mpaaBackground);
+        }
+
+        mMpaaRating.setText(mpaaRating);
+
+        mIMDB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToImdb(imdb_path_id);
+            }
+        });
+
+    }
+
+    private String convertReleaseDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        try {
+            Date releaseDate = dateFormat.parse(date);
+            dateFormat.applyPattern("M d, yyyy");
+            return dateFormat.format(releaseDate);
+        } catch (ParseException e) {
+            Log.e(TAG, "Problem formatting the date: ", e);
+            return null;
+        }
+    }
+
+    private String convertRuntime(int fullMinutes ) {
+        int hours = fullMinutes / 60;
+        int minutes = fullMinutes % 60;
+        return String.valueOf(hours) + "h " + String.valueOf(minutes) + "min";
+    }
+
+    private void goToImdb(String imdb_id) {
+        String imdb_link = "https://www.imdb.com/title/" + imdb_id + "/";
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(imdb_link));
+        startActivity(i);
+    }
+
+    private int getSpannableCount(String str) {
+        String[] parts = str.split(":");
+        return parts[0].length();
     }
 
     private void setImageViews() {
@@ -253,7 +318,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
         writers = writers.substring(0, writers.length()-2);
         producers = producers.substring(0, producers.length()-2);
 
-        mDirector.setText(director);
+        final SpannableString producersSpan = new SpannableString(producers);
+        mProducers.setText(producersSpan, TextView.BufferType.SPANNABLE);
+        int spannableCount = getSpannableCount(producers);
+        producersSpan.setSpan(new StyleSpan(Typeface.BOLD),0,spannableCount,0);
+
+        final SpannableString writersSpan = new SpannableString(writers);
+        mWriters.setText(writersSpan, TextView.BufferType.SPANNABLE);
+        spannableCount = getSpannableCount(writers);
+        writersSpan.setSpan(new StyleSpan(Typeface.BOLD),0,spannableCount,0);
+
+        final SpannableString directorSpan = new SpannableString(writers);
+        mDirector.setText(director, TextView.BufferType.SPANNABLE);
+        spannableCount = getSpannableCount(director);
+        directorSpan.setSpan(new StyleSpan(Typeface.BOLD),0,spannableCount,0);
+
         crewRecyclerViewSetup();
     }
 

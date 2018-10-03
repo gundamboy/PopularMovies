@@ -6,7 +6,7 @@
     <color name="windowBackground">#f2ece7</color>
     <color name="textColorPrimary">#181818</color>
     <color name="textTitles">#181818</color>
-    <color name="textContent">#9b948c</color>
+    <color name="textContent">#424242</color>
     <color name="colorToolbarExpanded">#fcfcfc</color>
     <color name="colorToolbarCollapsed">#181818</color>
     <color name="colorTransparent">#00FFFFFF</color>

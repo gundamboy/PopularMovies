@@ -9,7 +9,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="cardViewStyle">@style/CardView</item>
         <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item>
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/flat_gray</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

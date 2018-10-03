@@ -26,12 +26,12 @@
 
         <TextView
             android:id="@+id/movie_title"
+            style="@style/DetailsTextTitle"
             android:layout_width="@dimen/baseline_0"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_8"
-            style="@style/DetailsTextTitle"
+            android:layout_marginEnd="@dimen/margins_8"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/movie_poster"
             app:layout_constraintTop_toTopOf="parent"
@@ -42,9 +42,9 @@
             style="@style/DetailsTextMedium"
             android:layout_width="@dimen/baseline_0"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="8dp"
             android:layout_marginTop="@dimen/margins_2"
+            android:layout_marginEnd="@dimen/margins_8"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/movie_poster"
             app:layout_constraintTop_toBottomOf="@+id/movie_title"
@@ -57,10 +57,13 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="@dimen/margins_8"
+            android:layout_marginBottom="8dp"
             android:text="@string/details_runtime_min_abbr"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/imdb_link"
             app:layout_constraintStart_toEndOf="@+id/release_date"
             app:layout_constraintTop_toBottomOf="@+id/genres"
-            tools:text="135 min" />
+            tools:text="2h 14min" />
 
         <TextView
             android:id="@+id/rating_text"
@@ -68,9 +71,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
             app:layout_constraintStart_toEndOf="@+id/movie_poster"
-            app:layout_constraintTop_toBottomOf="@+id/release_date"
             tools:text="7.1" />
 
         <TextView
@@ -78,10 +81,10 @@
             style="@style/DetailsTextMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:text="@string/details_out_of_10"
-            app:layout_constraintStart_toEndOf="@+id/rating_text"
-            app:layout_constraintTop_toBottomOf="@+id/release_date" />
+            app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
+            app:layout_constraintStart_toEndOf="@+id/rating_text" />
 
         <TextView
             android:id="@+id/imdb_link"
@@ -89,12 +92,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_corners_imdb"
+            android:clickable="true"
+            android:focusable="true"
             android:text="@string/details_imdb_link"
             android:textColor="@color/textColorPrimary"
-            android:background="@drawable/rounded_corners_imdb"
-            app:layout_constraintStart_toEndOf="@+id/out_of_ten"
-            app:layout_constraintTop_toBottomOf="@+id/release_date" />
+            app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
+            app:layout_constraintStart_toEndOf="@+id/out_of_ten" />
 
         <TextView
             android:id="@+id/mpaa_rating"
@@ -102,9 +107,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_corners_mpaa_general"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
             app:layout_constraintStart_toEndOf="@+id/imdb_link"
-            app:layout_constraintTop_toBottomOf="@+id/release_date"
             tools:text="PG-13" />
 
         <TextView
@@ -114,6 +121,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/imdb_link"
             app:layout_constraintStart_toEndOf="@+id/movie_poster"
             app:layout_constraintTop_toBottomOf="@+id/genres"
             tools:text="May 15, 2018" />
@@ -128,46 +137,84 @@
             android:text="@string/details_director"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/movie_poster"
-            tools:text="Director: Ron Howard" />
+            tools:text="Director:" />
+
+        <TextView
+            android:id="@+id/producers"
+            style="@style/DetailsTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/details_producers"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/director"
+            tools:text="Producers:" />
+
+        <TextView
+            android:id="@+id/writers"
+            style="@style/DetailsTextMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/details_writers"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/producers"
+            tools:text="Writers:" />
 
         <TextView
             android:id="@+id/cast_intro"
             style="@style/DetailsTextMedium"
             android:layout_width="@dimen/baseline_0"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="@dimen/margins_8"
             android:text="@string/details_staring"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/director"
-            tools:text="Stars: Alden Ehrenreich, Joonas Suotamo, Woody Harrelson, Emilia Clarke" />
+            app:layout_constraintTop_toBottomOf="@+id/writers"
+            tools:text="Stars: " />
+
+        <TextView
+            android:id="@+id/tagline"
+            style="@style/DetailsTextOverview"
+            android:layout_width="@dimen/baseline_0"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:text="@string/details_staring"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cast_intro"
+            tools:text="Never tell him the odds." />
 
         <TextView
             android:id="@+id/overview"
             style="@style/DetailsTextOverview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
             android:lineSpacingMultiplier="1.15"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cast_intro"
+            app:layout_constraintTop_toBottomOf="@+id/tagline"
             tools:text="Through a series of daring escapades deep within a dark and dangerous criminal underworld, Han Solo meets his mighty future copilot Chewbacca and encounters the notorious gambler Lando Calrissian." />
 
         <TextView
             android:id="@+id/cast_header"
+            style="@style/DetailsTextTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_24"
+            android:layout_marginEnd="@dimen/margins_8"
             android:text="@string/details_cast_header"
-            style="@style/DetailsTextTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/overview" />
@@ -176,9 +223,9 @@
             android:id="@+id/cast_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="@dimen/baseline_0"
             android:layout_marginTop="@dimen/margins_4"
+            android:layout_marginEnd="@dimen/margins_8"
             android:fadingEdge="horizontal"
             android:fadingEdgeLength="@dimen/baseline_14"
             android:orientation="horizontal"
@@ -190,13 +237,13 @@
 
         <TextView
             android:id="@+id/crew_header"
+            style="@style/DetailsTextTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_24"
+            android:layout_marginEnd="@dimen/margins_8"
             android:text="@string/details_crew_header"
-            style="@style/DetailsTextTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cast_recyclerview" />
@@ -205,9 +252,9 @@
             android:id="@+id/crew_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="@dimen/baseline_0"
             android:layout_marginTop="@dimen/margins_4"
+            android:layout_marginEnd="@dimen/margins_8"
             android:fadingEdge="horizontal"
             android:fadingEdgeLength="@dimen/baseline_14"
             android:orientation="horizontal"
@@ -219,13 +266,13 @@
 
         <TextView
             android:id="@+id/similar_header"
+            style="@style/DetailsTextTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_24"
+            android:layout_marginEnd="@dimen/margins_8"
             android:text="@string/details_similar_header"
-            style="@style/DetailsTextTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/crew_recyclerview" />
@@ -234,15 +281,15 @@
             android:id="@+id/similar_movies_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/movie_poster_recycler_item"
-            tools:spanCount="2"
-            tools:layoutManager="android.support.v7.widget.GridLayoutManager"
-            android:layout_marginEnd="@dimen/margins_8"
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_4"
+            android:layout_marginEnd="@dimen/margins_8"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/similar_header"/>
+            app:layout_constraintTop_toBottomOf="@+id/similar_header"
+            tools:layoutManager="android.support.v7.widget.GridLayoutManager"
+            tools:listitem="@layout/movie_poster_recycler_item"
+            tools:spanCount="2" />
 
     </android.support.constraint.ConstraintLayout>
 
