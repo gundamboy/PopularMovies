@@ -4,6 +4,7 @@
     <!-- Strings for network/internet errors -->
     <string name="no_movies">That\'s odd, it looks like there are no movies to show you. </string>
     <string name="no_internet">Ah nuts, it looks like there is a problem with your internet connection. You should probably get that fixed.</string>
+    <string name="getting_movies">Currently getting all the latest movies for you. Sit back and relax, this won\'t take long.</string>
 
     <string name="backdrop_url">https://image.tmdb.org/t/p/w500</string>
     <string name="poster_url">https://image.tmdb.org/t/p/w185</string>

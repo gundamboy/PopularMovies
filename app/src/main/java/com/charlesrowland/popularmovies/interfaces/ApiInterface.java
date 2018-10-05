@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 public interface ApiInterface {
     String API_KEY = BuildConfig.ApiKey;
 
-    @GET("movie/popular?api_key="+API_KEY)
+    @GET("movie/popular?language=en-US&api_key="+API_KEY)
     Call<MovieSortingWrapper> getPopularMovies();
 
     @GET("movie/top_rated?api_key="+API_KEY)

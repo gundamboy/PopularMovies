@@ -29,7 +29,7 @@
         android:id="@+id/character"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/DetailsTextMedium"
+        style="@style/DetailsTextSmall"
         android:textStyle="italic"
         tools:text="Han Solo"/>
 </LinearLayout>

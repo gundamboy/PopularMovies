@@ -34,6 +34,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -75,7 +76,10 @@ public class MainActivity extends AppCompatActivity {
         s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.textColorPrimary)), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         getSupportActionBar().setTitle(s);
 
-        //TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
+        // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
+        // TODO: add a view that indicates data is being fetched. hide this view in the show posters method. only show this view if the network check passes.
+        // TODO: add the film reel vector to the drawables folders. uses this for the splash screen and the new fetching data screen.
+        // TODO: for the love of god stop adding more shit! be done already!
 
         noInternetTextView = findViewById(R.id.internet_out_message);
 
@@ -86,9 +90,7 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
 
         // check the network/internet status and show the proper layout
-        if (checkNetworkStatus()) {
-            showPosters();
-        } else {
+        if (!checkNetworkStatus()) {
             showNoNetwork();
         }
     }
@@ -136,9 +138,26 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<MovieSortingWrapper>() {
             @Override
             public void onResponse(Call<MovieSortingWrapper> call, Response<MovieSortingWrapper> response) {
+                // we have a response so show the posters
+                showPosters();
+
                 final MovieSortingWrapper movie = response.body();
+                results = movie.getResults();
+
+                // wtf is this about! I am removing all results that are not english movies.
+                // this isn't because I don't like non english movies though. Some of the movies
+                // from other countries have various pieces of data missing and its crashing the app
+                List<MovieInfoResult> non_english_results = new ArrayList<>();
+                for (MovieInfoResult m : results) {
+                    if (!m.getOriginalLanguage().equals("en")) {
+                        non_english_results.add(m);
+                    }
+                }
+
+                results.removeAll(non_english_results);
+
                 mAdapter = new MovieAdapter(results);
-                mAdapter.setData(movie.getResults());
+                mAdapter.setData(results);
                 mMoviePosterRecyclerView.setAdapter(mAdapter);
 
                 mAdapter.setOnClickListener(new MovieAdapter.OnItemClickListener() {

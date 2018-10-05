@@ -289,7 +289,7 @@
             app:layout_constraintTop_toBottomOf="@+id/similar_header"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager"
             tools:listitem="@layout/movie_poster_recycler_item"
-            tools:spanCount="2" />
+            tools:spanCount="3" />
 
     </android.support.constraint.ConstraintLayout>
 

@@ -87,16 +87,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String MOVIE_TITLE = "original_title";
     private String mMovieTitle;
 
-    // TODO: set a view for tagline or add it to the start of the overview. Set tagline in setTextViews()
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
 
         // this is just for testing while using the DetailsActivity as the starting activity
-        mMovieId = 348350;
-        mMovieTitle = "Solo: A Star Wars Story";
+//        mMovieId = 348350;
+//        mMovieTitle = "Solo: A Star Wars Story";
 
         Intent intent = getIntent();
         MovieInfoResult passedInfo = intent.getParcelableExtra(getResources().getString(R.string.parcelable_intent_key));
@@ -130,6 +128,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MovieAllDetailsResult> call, Response<MovieAllDetailsResult> response) {
                 mMovieInfo = response.body();
+
+                Log.e(TAG, "onResponse: MOVIE ID:" + mMovieInfo.getmovieId() );
 
                 // get the genres and built the genre string
                 // the genres come back as an array of objects, genres: [ {...}, {...}, etc ]
@@ -167,8 +167,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     if (rd.getIso_3166_1().equals("US")) {
                         content = rd.getReleaseDateContents();
                         for(MovieAllDetailsResult.ReleaseDatesResultsContent inner_contents : content) {
-                            mpaaRating = inner_contents.getCertification();
-                            break;
+                            String cert = inner_contents.getCertification();
+                            if (cert != null && !cert.isEmpty()) {
+                                if (cert.equals("G") || cert.equals("PG") || cert.equals("PG-13") || cert.equals("R") || cert.equals("NC-17")) {
+                                    mpaaRating = inner_contents.getCertification();
+                                    break;
+                                }
+                            }
+
                         }
                     }
                 }
@@ -194,8 +200,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mTitle.setText(mMovieInfo.getOriginalTitle());
         mGenres.setText(mGenreString);
 
-        String runtime = convertRuntime(mMovieInfo.getRuntime());
-        mRuntime.setText(runtime);
+        int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
+        String runtimeString = convertRuntime(runtime);
+        mRuntime.setText(runtimeString);
 
         mRatingText.setText(String.valueOf(mMovieInfo.getVoteAverage()));
 
@@ -206,14 +213,18 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         mOverview.setText(mMovieInfo.getOverview());
 
-        // if the movie is rated R make the background red. other wise its green, which is on the
-        // textview by default.
-        if (mpaaRating.equals("R")) {
-            mpaaBackground = ContextCompat.getDrawable(this, R.drawable.rounded_corners_mpaa_r);
-            mMpaaRating.setBackground(mpaaBackground);
-        }
+        if (mpaaRating != null && !mpaaRating.isEmpty()) {
+            // if the movie is rated R make the background red. other wise its green, which is on the
+            // textview by default.
+            if (mpaaRating.equals("R")) {
+                mpaaBackground = ContextCompat.getDrawable(this, R.drawable.rounded_corners_mpaa_r);
+                mMpaaRating.setBackground(mpaaBackground);
+            }
 
-        mMpaaRating.setText(mpaaRating);
+            mMpaaRating.setText(mpaaRating);
+        } else {
+            mMpaaRating.setVisibility(View.GONE);
+        }
 
         mIMDB.setOnClickListener(new View.OnClickListener() {
             @Override
