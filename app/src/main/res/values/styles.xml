@@ -22,7 +22,7 @@
     </style>
 
     <style name="fetchingMovies" parent="@style/TextStyles">
-        <item name="android:textSize">@dimen/text26</item>
+        <item name="android:textSize">@dimen/text14</item>
     </style>
 
     <style name="splashText" parent="@style/TextStyles">

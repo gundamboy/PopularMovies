@@ -8,6 +8,7 @@
     <color name="textTitles">#181818</color>
     <color name="textContent">#424242</color>
     <color name="textStartCredits">#4f4d4c</color>
+    <color name="flat_gray">#4f4d4c</color>
     <color name="colorToolbarExpanded">#fcfcfc</color>
     <color name="colorToolbarCollapsed">#181818</color>
     <color name="colorTransparent">#00FFFFFF</color>
