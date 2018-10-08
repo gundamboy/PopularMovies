@@ -5,6 +5,7 @@ public class Credit {
     private String mName;
     private String mCharacter;
 
+    // this class is used to make a list of Credits for the Cast and Crew recycler view
     public Credit(String mProfilePath, String mName, String mCharacter) {
         this.mProfilePath = mProfilePath;
         this.mName = mName;

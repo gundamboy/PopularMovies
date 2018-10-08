@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This Class
+ * Holds retrofit api results
  */
 public class MovieInfoResult implements Parcelable{
 

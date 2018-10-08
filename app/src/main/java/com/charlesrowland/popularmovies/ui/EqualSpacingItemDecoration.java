@@ -5,6 +5,10 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+/**
+ * This class is used to add equal spacing around recycler view items.
+ * https://gist.github.com/alexfu/f7b8278009f3119f523a
+ */
 public class EqualSpacingItemDecoration extends RecyclerView.ItemDecoration {
     private final int spacing;
     private int displayMode;

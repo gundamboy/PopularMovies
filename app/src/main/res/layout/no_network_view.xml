@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/no_network"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/no_network_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margins_8"
+        android:layout_marginEnd="@dimen/margins_8"
+        android:layout_marginStart="@dimen/margins_8"
+        android:layout_marginTop="@dimen/margins_8"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/film_reel" />
+
+    <TextView
+        android:id="@+id/internet_out_message"
+        style="@style/NoNetwork"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margins_16"
+        android:layout_marginStart="@dimen/margins_16"
+        android:layout_marginBottom="@dimen/margins_16"
+        android:gravity="center_horizontal"
+        android:text="@string/no_internet"
+        app:layout_constraintBottom_toTopOf="@+id/no_network_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

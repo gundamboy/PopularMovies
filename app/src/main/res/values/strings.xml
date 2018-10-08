@@ -1,10 +1,12 @@
 <resources>
-    <string name="app_name">Popular Movies</string>
+    <string name="app_name">Movie Night</string>
 
     <!-- Strings for network/internet errors -->
     <string name="no_movies">That\'s odd, it looks like there are no movies to show you. </string>
-    <string name="no_internet">Ah nuts, it looks like there is a problem with your internet connection. You should probably get that fixed.</string>
+    <string name="no_internet">The movie Gods cannot smile upon you as it looks like there is a problem with your internet connection. You should probably get that fixed.</string>
+    <string name="no_results">The movie Gods do not smile upon you. They have no results for you right now. Perhaps if you try later you will be smiled upon and given the gift of entertainment.</string>
     <string name="getting_movies">Currently getting all the latest movies for you. Sit back and relax, this won\'t take long.</string>
+    <string name="contacting_gods">Contacting the movie Gods</string>
 
     <string name="backdrop_url">https://image.tmdb.org/t/p/w500</string>
     <string name="poster_url">https://image.tmdb.org/t/p/w185</string>
@@ -39,5 +41,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="parcelable_intent_key">movie_info</string>
+    <string name="movie_camera_image_content_description">movie camera image</string>
+    <string name="app_description_title_screen">Popular and top rated movie information in one convenient place</string>
 
 </resources>

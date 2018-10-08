@@ -12,6 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This holds results from the retrofit api calls. This is AAAAALLLLLL the movie info you could
+ * every need
+ */
 public class MovieAllDetailsResult {
 
     @SerializedName("backdrop_path")
@@ -239,9 +243,6 @@ public class MovieAllDetailsResult {
         this.voteCount = voteCount;
     }
 
-
-
-
     public ReleaseDatesWrapper getRelease_dates() {
         return singleMovieReleaseDates;
     }
@@ -249,9 +250,6 @@ public class MovieAllDetailsResult {
     public void setRelease_dates(ReleaseDatesWrapper singleMovieReleaseDates) {
         this.singleMovieReleaseDates = singleMovieReleaseDates;
     }
-
-
-
 
     public CreditsWrapper getCredits() {
         return credits;

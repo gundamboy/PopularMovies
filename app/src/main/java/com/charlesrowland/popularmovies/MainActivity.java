@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -44,6 +45,8 @@ import com.charlesrowland.popularmovies.model.MovieSortingWrapper;
 import com.charlesrowland.popularmovies.model.MovieInfoResult;
 import com.charlesrowland.popularmovies.network.ApiClient;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -52,16 +55,22 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName() + " fart";
 
+    // quick intro to ButterKnife here: @BindView gets the views,
+    // ButterKnife.bind() sets them. That is all.
+
     public static final String MOVIE_DB_API_URL = "https://api.themoviedb.org/3/";
     private final static String POSTER_SAVE_STATE = "poster_save_state";
 
-    private RecyclerView mMoviePosterRecyclerView;
+    @BindView(R.id.fetching_movies) ConstraintLayout fetchMoviesView;
+    @BindView(R.id.no_network) ConstraintLayout noNetwork;
+    @BindView(R.id.no_results) ConstraintLayout noResults;
+    @BindView(R.id.movie_poster_recyclerview) RecyclerView mMoviePosterRecyclerView;
+    @BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.dots) pl.tajchert.waitingdots.DotsTextView dots;
+
     private MovieAdapter mAdapter;
     private List<MovieInfoResult> results;
-    private ConstraintLayout noNetwork;
     private GridLayoutManager gridLayoutManager;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private TextView noInternetTextView;
     private View alertLayout;
     private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
@@ -71,19 +80,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ButterKnife.bind(this);
+
         String title = getResources().getString(R.string.app_name);
         SpannableString s = new SpannableString(title);
         s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.textColorPrimary)), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         getSupportActionBar().setTitle(s);
 
         // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
-        // TODO: add a view that indicates data is being fetched. hide this view in the show posters method. only show this view if the network check passes.
         // TODO: add the film reel vector to the drawables folders. uses this for the splash screen and the new fetching data screen.
         // TODO: for the love of god stop adding more shit! be done already!
 
-        noInternetTextView = findViewById(R.id.internet_out_message);
-
-        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        // you want to refresh? i got your refresh right here buddy!
         setSwipeRefreshLayout();
 
         // separate method for RecyclerView setup
@@ -96,20 +104,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showPosters() {
-        noNetwork.setVisibility(View.INVISIBLE);
+        noNetwork.setVisibility(View.GONE);
+        noResults.setVisibility(View.GONE);
         mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
+        hideFetchingMovies();
     }
+
     private void showNoNetwork() {
         noNetwork.setVisibility(View.VISIBLE);
-        mMoviePosterRecyclerView.setVisibility(View.INVISIBLE);
+        mMoviePosterRecyclerView.setVisibility(View.GONE);
+        noResults.setVisibility(View.GONE);
+        hideFetchingMovies();
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void showNoResults() {
+        noResults.setVisibility(View.VISIBLE);
+        noNetwork.setVisibility(View.GONE);
+        mMoviePosterRecyclerView.setVisibility(View.GONE);
+        hideFetchingMovies();
+    }
+
+    private void hideFetchingMovies() {
+        if (fetchMoviesView.getVisibility() == View.VISIBLE) {
+            fetchMoviesView.setVisibility(View.GONE);
+        }
+
+        if (dots.isPlaying()) {
+            dots.stop();
+        }
     }
 
     private void setSwipeRefreshLayout() {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                buildAdapter();
+                if (checkNetworkStatus()) {
+                    showPosters();
+                    buildAdapter();
+                } else {
+                    showNoNetwork();
+                }
             }
         });
     }
@@ -138,6 +173,14 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<MovieSortingWrapper>() {
             @Override
             public void onResponse(Call<MovieSortingWrapper> call, Response<MovieSortingWrapper> response) {
+
+                // i found an issue with some errors coming back and not triggering onFailure so this
+                // was my solution.
+                if(response.code() != 200) {
+                    showNoResults();
+                    return;
+                }
+
                 // we have a response so show the posters
                 showPosters();
 
@@ -147,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
                 // wtf is this about! I am removing all results that are not english movies.
                 // this isn't because I don't like non english movies though. Some of the movies
                 // from other countries have various pieces of data missing and its crashing the app
+                // adding in region=US in the api call is supposed to do this, but guess what, it
+                // doesn't always work....
                 List<MovieInfoResult> non_english_results = new ArrayList<>();
                 for (MovieInfoResult m : results) {
                     if (!m.getOriginalLanguage().equals("en")) {
@@ -155,7 +200,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 results.removeAll(non_english_results);
-
                 mAdapter = new MovieAdapter(results);
                 mAdapter.setData(results);
                 mMoviePosterRecyclerView.setAdapter(mAdapter);
@@ -172,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<MovieSortingWrapper> call, Throwable t) {
-                showNoNetwork();
+                showNoResults();
             }
         });
     }
@@ -195,20 +239,6 @@ public class MainActivity extends AppCompatActivity {
             hasNetworkConn = true;
         }
         return hasNetworkConn;
-    }
-
-    private void setSwipeRefreshListener() {
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if (checkNetworkStatus()) {
-                    showPosters();
-                    buildAdapter();
-                } else {
-                    showNoNetwork();
-                }
-            }
-        });
     }
 
     @Override

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#f2ece7</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryDark">#181818</color>
     <color name="colorAccent">#ce5938</color>
     <color name="windowBackground">#f2ece7</color>
     <color name="textColorPrimary">#181818</color>
     <color name="textTitles">#181818</color>
     <color name="textContent">#424242</color>
+    <color name="textStartCredits">#4f4d4c</color>
     <color name="colorToolbarExpanded">#fcfcfc</color>
     <color name="colorToolbarCollapsed">#181818</color>
     <color name="colorTransparent">#00FFFFFF</color>
@@ -15,7 +16,6 @@
     <color name="beige">#EDE7DF</color>
     <color name="smoke_black">#282828</color>
     <color name="dim_gray">#7D6962</color>
-    <color name="flat_gray">#424242</color>
     <color name="translucent_scrim_top">#26000000</color>
     <color name="translucent_scrim_top_center">#0C000000</color>
     <color name="translucent_scrim_bottom">#80000000</color>

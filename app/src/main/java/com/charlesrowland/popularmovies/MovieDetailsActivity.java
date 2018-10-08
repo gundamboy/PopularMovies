@@ -2,6 +2,7 @@ package com.charlesrowland.popularmovies;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -45,9 +47,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
 public class MovieDetailsActivity extends AppCompatActivity {
     private static final String TAG = MovieDetailsActivity.class.getSimpleName() + " fart";
 
+    @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.backdrop) ImageView mBackdrop;
     @BindView(R.id.movie_poster) ImageView mPoster;
     @BindView(R.id.movie_title) TextView mTitle;
@@ -62,6 +66,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.writers) TextView mWriters;
     @BindView(R.id.cast_intro) TextView mCastIntro;
     @BindView(R.id.overview) TextView mOverview;
+    @BindView(R.id.tagline) TextView mTagline;
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
@@ -113,9 +118,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
 
         ButterKnife.bind(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(mMovieTitle);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.textColorPrimary), PorterDuff.Mode.SRC_ATOP);
+        getSupportActionBar().setTitle(mMovieTitle);
 
         getMovieInfo();
     }
@@ -128,8 +134,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MovieAllDetailsResult> call, Response<MovieAllDetailsResult> response) {
                 mMovieInfo = response.body();
-
-                Log.e(TAG, "onResponse: MOVIE ID:" + mMovieInfo.getmovieId() );
 
                 // get the genres and built the genre string
                 // the genres come back as an array of objects, genres: [ {...}, {...}, etc ]
@@ -210,6 +214,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mReleaseDate.setText(convertReleaseDate(releaseDate));
 
         String tagLine = mMovieInfo.getTagline();
+        mTagline.setText(tagLine);
 
         mOverview.setText(mMovieInfo.getOverview());
 
@@ -268,10 +273,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void setImageViews() {
         String backdropUrl = getResources().getString(R.string.backdrop_url) + mMovieInfo.getBackdrop_path();
-        Picasso.get().load(backdropUrl).placeholder(R.color.colorAccent).into(mBackdrop);
+        Picasso.get().load(backdropUrl).placeholder(R.color.windowBackground).into(mBackdrop);
 
         String posterUrl = getResources().getString(R.string.backdrop_url) + mMovieInfo.getPosterPath();
-        Picasso.get().load(posterUrl).placeholder(R.color.colorAccent).into(mPoster);
+        Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(mPoster);
     }
 
     private void setCastMembers() {
@@ -291,7 +296,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
 
         top_stars = top_stars.substring(0, top_stars.length()-2);
-        mCastIntro.setText(top_stars);
+
+        SpannableString topStarsSpan = new SpannableString(top_stars);
+        topStarsSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(top_stars),0);
+        mCastIntro.setText(topStarsSpan, TextView.BufferType.SPANNABLE);
 
         castRecyclerViewSetup();
     }
@@ -321,28 +329,35 @@ public class MovieDetailsActivity extends AppCompatActivity {
             if(crew_member.getJob().equals("Director")) {
                 // i want a total of 8. if the directory was found i want them at the start
                 // if the directory was not found, i need to add them later
-                director += crew_member.getCrew_name();
+                director += crew_member.getCrew_name() + ", ";
                 mCreditsCrew.add(0,new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
             }
         }
 
+        // removes the last comma from the strings
         writers = writers.substring(0, writers.length()-2);
         producers = producers.substring(0, producers.length()-2);
+        director = director.substring(0, director.length()-2);
 
-        final SpannableString producersSpan = new SpannableString(producers);
+        // some movies have more than 1 director. Adjust the "Director" text to be "Directors" if so
+        if (director.contains(",")) {
+            StringBuilder sb = new StringBuilder(director);
+            sb.insert(getSpannableCount(director), "s");
+            director = sb.toString();
+        }
+
+        // makes the Director: Producers: etc bold
+        SpannableString producersSpan = new SpannableString(producers);
+        producersSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(producers),0);
         mProducers.setText(producersSpan, TextView.BufferType.SPANNABLE);
-        int spannableCount = getSpannableCount(producers);
-        producersSpan.setSpan(new StyleSpan(Typeface.BOLD),0,spannableCount,0);
 
-        final SpannableString writersSpan = new SpannableString(writers);
+        SpannableString writersSpan = new SpannableString(writers);
+        writersSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(writers),0);
         mWriters.setText(writersSpan, TextView.BufferType.SPANNABLE);
-        spannableCount = getSpannableCount(writers);
-        writersSpan.setSpan(new StyleSpan(Typeface.BOLD),0,spannableCount,0);
 
-        final SpannableString directorSpan = new SpannableString(writers);
-        mDirector.setText(director, TextView.BufferType.SPANNABLE);
-        spannableCount = getSpannableCount(director);
-        directorSpan.setSpan(new StyleSpan(Typeface.BOLD),0,spannableCount,0);
+        SpannableString directorSpan = new SpannableString(director);
+        directorSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(director),0);
+        mDirector.setText(directorSpan, TextView.BufferType.SPANNABLE);
 
         crewRecyclerViewSetup();
     }
@@ -353,7 +368,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         castRecyclerView.addItemDecoration(new EqualSpacingItemDecoration(36, EqualSpacingItemDecoration.HORIZONTAL));
         mCastAdapter = new CastCrewAdapter(mCreditsCast);
         castRecyclerView.setAdapter(mCastAdapter);
-
     }
 
     private void crewRecyclerViewSetup() {
@@ -374,7 +388,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mSimilarMoviesAdapter.setOnClickListener(new SimilarMoviesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position, int movieId, String title) {
-                Intent intent =  new Intent(MovieDetailsActivity.this, MovieDetailsActivity.class);
+                Intent intent = new Intent(MovieDetailsActivity.this, MovieDetailsActivity.class);
                 intent.putExtra(MOVIE_ID, movieId);
                 intent.putExtra(MOVIE_TITLE, title);
 
@@ -383,5 +397,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+
+        switch(item.getItemId()){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

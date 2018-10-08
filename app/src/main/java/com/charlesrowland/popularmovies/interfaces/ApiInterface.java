@@ -3,16 +3,17 @@ package com.charlesrowland.popularmovies.interfaces;
 import com.charlesrowland.popularmovies.BuildConfig;
 import com.charlesrowland.popularmovies.model.MovieAllDetailsResult;
 import com.charlesrowland.popularmovies.model.MovieSortingWrapper;
-import com.charlesrowland.popularmovies.model.PersonDetailResult;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
 public interface ApiInterface {
+    // gets the api key from the super secret hidden file
     String API_KEY = BuildConfig.ApiKey;
 
-    @GET("movie/popular?language=en-US&api_key="+API_KEY)
+    // these methods are for retrofit 2. they do the api calls
+    @GET("movie/popular?region=US&api_key="+API_KEY)
     Call<MovieSortingWrapper> getPopularMovies();
 
     @GET("movie/top_rated?api_key="+API_KEY)
@@ -20,8 +21,5 @@ public interface ApiInterface {
 
     @GET("movie/{movie_id}?api_key="+API_KEY+"&append_to_response=release_dates,credits,videos,reviews,similar")
     Call<MovieAllDetailsResult> getAllMovieDetails(@Path("movie_id") int id);
-
-    @GET("person/{person_id}?api_key="+API_KEY)
-    Call<PersonDetailResult> getPersonDetails(@Path("person_id") int id);
 
 }

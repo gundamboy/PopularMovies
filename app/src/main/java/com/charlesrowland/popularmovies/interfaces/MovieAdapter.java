@@ -14,6 +14,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder> {
     private static final String TAG = MovieAdapter.class.getSimpleName() + " fart";
     List<MovieInfoResult> results;
@@ -40,9 +43,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
 
     @Override
     public void onBindViewHolder(@NonNull MovieHolder holder, int position) {
+        // set all the views... one view.. just the poster.
         Resources res = holder.itemView.getContext().getResources();
         String posterUrl = res.getString(R.string.poster_url) + results.get(position).getPosterPath();
-        Picasso.get().load(posterUrl).placeholder(R.color.colorAccent).into(holder.poster);
+        Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(holder.poster);
     }
 
     public void setData(List<MovieInfoResult> results) {
@@ -55,13 +59,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
     }
 
     class MovieHolder extends RecyclerView.ViewHolder {
-        ImageView poster;
+        @BindView(R.id.movie_poster) ImageView poster;
 
         public MovieHolder(View itemView, final OnItemClickListener listener) {
             super(itemView);
+            ButterKnife.bind(this, itemView);
 
-            poster = itemView.findViewById(R.id.movie_poster);
-
+            // sends some info out of the adapter into the parent activity for handling clicks
             itemView.setOnClickListener(new View.OnClickListener() {
 
                 @Override

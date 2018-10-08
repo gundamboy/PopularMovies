@@ -16,6 +16,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdapter.MovieHolder> {
     private static final String TAG = SimilarMoviesAdapter.class.getSimpleName() + " fart";
     List<MovieAllDetailsResult.SimilarResults> results;
@@ -45,7 +48,7 @@ public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdap
         Resources res = holder.itemView.getContext().getResources();
 
         String posterUrl = res.getString(R.string.poster_url) + results.get(position).getPosterPath();
-        Picasso.get().load(posterUrl).placeholder(R.color.colorAccent).into(holder.poster);
+        Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(holder.poster);
 
         holder.theMovieId.setText(String.valueOf(results.get(position).getMovieId()));
         holder.titleView.setText(results.get(position).getOriginalTitle());
@@ -62,18 +65,15 @@ public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdap
     }
 
     class MovieHolder extends RecyclerView.ViewHolder {
-        ImageView poster;
-        TextView theMovieId;
-        TextView titleView;
+        @BindView(R.id.movie_poster) ImageView poster;
+        @BindView(R.id.theMovieId) TextView theMovieId;
+        @BindView(R.id.titleView) TextView titleView;
 
         public MovieHolder(View itemView, final SimilarMoviesAdapter.OnItemClickListener listener) {
             super(itemView);
+            ButterKnife.bind(this, itemView);
 
-            poster = itemView.findViewById(R.id.movie_poster);
-            theMovieId = itemView.findViewById(R.id.theMovieId);
-            titleView = itemView.findViewById(R.id.titleView);
-
-
+            // send info out to handle clicks.
             itemView.setOnClickListener(new View.OnClickListener() {
 
                 @Override

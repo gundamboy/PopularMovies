@@ -53,13 +53,15 @@ public class CastCrewAdapter extends RecyclerView.Adapter<CastCrewAdapter.CastCr
 
     @Override
     public void onBindViewHolder(@NonNull CastCrewViewHolder holder, int position) {
+        // this is pretty self explanatory stuff. Sets all the list item views
+
         Credit currentCredit = mCredits.get(position);
         Resources res = holder.itemView.getContext().getResources();
         String profilePath = res.getString(R.string.poster_url) + currentCredit.getmProfilePath();
         String name = currentCredit.getmName();
         String character = currentCredit.getmCharacter();
 
-        Picasso.get().load(profilePath).placeholder(R.color.colorAccent).into(holder.profileImage);
+        Picasso.get().load(profilePath).placeholder(R.color.windowBackground).into(holder.profileImage);
         holder.name.setText(name);
         holder.character.setText(character);
     }
