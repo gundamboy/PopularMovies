@@ -9,7 +9,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="cardViewStyle">@style/CardView</item>
         <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item>
-        <item name="android:textColor">@color/flat_gray</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -25,8 +26,8 @@
         <item name="android:textSize">@dimen/text14</item>
     </style>
 
-    <style name="splashText" parent="@style/TextStyles">
-        <item name="android:textSize">@dimen/text24</item>
+    <style name="SplashScreen" parent="AppTheme.NoActionBar">
+        <item name="android:windowBackground">@drawable/main_background</item>
     </style>
 
     <style name="NoNetwork" parent="@style/TextStyles">
