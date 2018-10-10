@@ -11,6 +11,9 @@
     <string name="backdrop_url">https://image.tmdb.org/t/p/w500</string>
     <string name="poster_url">https://image.tmdb.org/t/p/w185</string>
 
+    <string name="appBarTitle_popular">Popular Movies</string>
+    <string name="appBarTitle_toprated">Top Rated Movies</string>
+
     <string name="menu_title_options">Options</string>
     <string name="menu_dialog_title">Options</string>
 

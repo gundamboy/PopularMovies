@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private View alertLayout;
     private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
+    private String appBarTitle = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,14 +83,12 @@ public class MainActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        String title = getResources().getString(R.string.app_name);
-        SpannableString s = new SpannableString(title);
-        s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.textColorPrimary)), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        getSupportActionBar().setTitle(s);
-
         // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
         // TODO: add the film reel vector to the drawables folders. uses this for the splash screen and the new fetching data screen.
         // TODO: for the love of god stop adding more shit! be done already!
+
+        hideTitle();
+        appBarTitle = getResources().getString(R.string.appBarTitle_popular);
 
         // you want to refresh? i got your refresh right here buddy!
         setSwipeRefreshLayout();
@@ -103,14 +102,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setTitle() {
+        SpannableString s = new SpannableString(appBarTitle);
+        s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.textColorPrimary)), 0, appBarTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        getSupportActionBar().setTitle(s);
+    }
+
+    private void hideTitle() {
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
     private void showPosters() {
+        setTitle();
         noNetwork.setVisibility(View.GONE);
         noResults.setVisibility(View.GONE);
+        setTitle();
         mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
         hideFetchingMovies();
     }
 
     private void showNoNetwork() {
+        hideTitle();
         noNetwork.setVisibility(View.VISIBLE);
         mMoviePosterRecyclerView.setVisibility(View.GONE);
         noResults.setVisibility(View.GONE);
@@ -119,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showNoResults() {
+        hideTitle();
         noResults.setVisibility(View.VISIBLE);
         noNetwork.setVisibility(View.GONE);
         mMoviePosterRecyclerView.setVisibility(View.GONE);
@@ -166,8 +179,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (getSharedPreferenceOrderbyValue().equals(getResources().getString(R.string.settings_order_by_default))) {
             call = api.getPopularMovies();
+            appBarTitle = getResources().getString(R.string.appBarTitle_popular);
         } else {
             call = api.getTopRatedMovies();
+            appBarTitle = getResources().getString(R.string.appBarTitle_toprated);
         }
         
         call.enqueue(new Callback<MovieSortingWrapper>() {
