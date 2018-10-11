@@ -62,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private final static String POSTER_SAVE_STATE = "poster_save_state";
 
     @BindView(R.id.fetching_movies) ConstraintLayout fetchMoviesView;
-    @BindView(R.id.no_network) ConstraintLayout noNetwork;
-    @BindView(R.id.no_results) ConstraintLayout noResults;
+    @BindView(R.id.no_network) View noNetwork;
+    @BindView(R.id.no_results) View noResults;
     @BindView(R.id.movie_poster_recyclerview) RecyclerView mMoviePosterRecyclerView;
     @BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.dots) pl.tajchert.waitingdots.DotsTextView dots;
@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     private void setTitle() {
         SpannableString s = new SpannableString(appBarTitle);
         s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.textColorPrimary)), 0, appBarTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        Log.i(TAG, "setTitle: s:: " + s);
         getSupportActionBar().setTitle(s);
     }
 
@@ -116,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         setTitle();
         noNetwork.setVisibility(View.GONE);
         noResults.setVisibility(View.GONE);
-        setTitle();
         mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
         hideFetchingMovies();
     }

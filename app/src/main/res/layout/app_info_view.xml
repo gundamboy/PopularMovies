@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/credits_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_28"
+        android:layout_marginEnd="@dimen/margins_24"
+        android:layout_marginStart="@dimen/margins_24"
+        android:fontFamily="@font/credit_block"
+        android:text="charles rowland presents “movie night” in association with udacity as part of the android develoer nanodegree an app by charles rowland art direction lillian rowland and charles rowland distractions by ethan rowland emotional support daisey the dog development music a lot of heavy metal and always remember thanos did nothing wrong"
+        android:textAlignment="center"
+        android:textColor="@color/textStartCredits"
+        android:textSize="@dimen/text18"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
