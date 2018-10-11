@@ -9,7 +9,10 @@
     <dimen name="margins_12">12dp</dimen>
     <dimen name="margins_14">14dp</dimen>
     <dimen name="margins_16">16dp</dimen>
+    <dimen name="margins_18">18dp</dimen>
+    <dimen name="margins_20">20dp</dimen>
     <dimen name="margins_24">24dp</dimen>
+
     <dimen name="margins_text_match_dots">48dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="sheet_text_scrim_height_top">100dp</dimen>

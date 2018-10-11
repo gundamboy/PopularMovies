@@ -1,6 +1,8 @@
 package com.charlesrowland.popularmovies;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -10,11 +12,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -27,6 +35,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -54,6 +63,8 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName() + " fart";
+    public static int FADE_DELAY = 600;
+    public static int START_DELAY = 5000;
 
     // quick intro to ButterKnife here: @BindView gets the views,
     // ButterKnife.bind() sets them. That is all.
@@ -61,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String MOVIE_DB_API_URL = "https://api.themoviedb.org/3/";
     private final static String POSTER_SAVE_STATE = "poster_save_state";
 
-    @BindView(R.id.fetching_movies) ConstraintLayout fetchMoviesView;
+    @BindView(R.id.fetching_movies) View fetchMoviesView;
     @BindView(R.id.no_network) View noNetwork;
     @BindView(R.id.no_results) View noResults;
     @BindView(R.id.movie_poster_recyclerview) RecyclerView mMoviePosterRecyclerView;
@@ -77,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
     private String appBarTitle = "";
 
     @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -84,10 +100,9 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
-        // TODO: add the film reel vector to the drawables folders. uses this for the splash screen and the new fetching data screen.
         // TODO: for the love of god stop adding more shit! be done already!
 
-        hideTitle();
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         appBarTitle = getResources().getString(R.string.appBarTitle_popular);
 
         // you want to refresh? i got your refresh right here buddy!
@@ -105,16 +120,11 @@ public class MainActivity extends AppCompatActivity {
     private void setTitle() {
         SpannableString s = new SpannableString(appBarTitle);
         s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.textColorPrimary)), 0, appBarTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        Log.i(TAG, "setTitle: s:: " + s);
         getSupportActionBar().setTitle(s);
-    }
-
-    private void hideTitle() {
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
     }
 
     private void showPosters() {
-        setTitle();
         noNetwork.setVisibility(View.GONE);
         noResults.setVisibility(View.GONE);
         mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
@@ -122,29 +132,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showNoNetwork() {
-        hideTitle();
         noNetwork.setVisibility(View.VISIBLE);
         mMoviePosterRecyclerView.setVisibility(View.GONE);
         noResults.setVisibility(View.GONE);
-        hideFetchingMovies();
         swipeRefreshLayout.setRefreshing(false);
     }
 
     private void showNoResults() {
-        hideTitle();
         noResults.setVisibility(View.VISIBLE);
         noNetwork.setVisibility(View.GONE);
         mMoviePosterRecyclerView.setVisibility(View.GONE);
-        hideFetchingMovies();
     }
 
     private void hideFetchingMovies() {
         if (fetchMoviesView.getVisibility() == View.VISIBLE) {
-            fetchMoviesView.setVisibility(View.GONE);
-        }
+            mMoviePosterRecyclerView.setAlpha(0f);
+            mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
 
-        if (dots.isPlaying()) {
-            dots.stop();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setTitle();
+                    fetchMoviesView.animate().alpha(0f).setDuration(FADE_DELAY).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            fetchMoviesView.setVisibility(View.GONE);
+                            if (dots.isPlaying()) {
+                                dots.stop();
+                            }
+                        }
+                    });
+                }
+            }, START_DELAY);
+
+            mMoviePosterRecyclerView.animate().alpha(1f).setDuration(FADE_DELAY).setListener(null);
         }
     }
 

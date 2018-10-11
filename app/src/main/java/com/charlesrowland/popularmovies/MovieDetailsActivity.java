@@ -394,7 +394,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 startActivity(intent);
                 MovieDetailsActivity.this.finish();
-
             }
         });
     }

@@ -9,7 +9,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent goToStart = new Intent(SplashActivity.this, StartScreenActivity.class);
+        Intent goToStart = new Intent(SplashActivity.this, MainActivity.class);
         startActivity(goToStart);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
