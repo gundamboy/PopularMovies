@@ -3,6 +3,7 @@ package com.charlesrowland.popularmovies;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -34,6 +35,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.CheckBox;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName() + " fart";
     public static int FADE_DELAY = 600;
     public static int START_DELAY = 5000;
+    public static int POSTER_FADE_OUT_DELAY = 400;
 
     // quick intro to ButterKnife here: @BindView gets the views,
     // ButterKnife.bind() sets them. That is all.
@@ -161,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
                             if (dots.isPlaying()) {
                                 dots.stop();
                             }
+                            mMoviePosterRecyclerView.setClickable(true);
                         }
                     });
                 }
@@ -242,11 +246,51 @@ public class MainActivity extends AppCompatActivity {
                 mMoviePosterRecyclerView.setAdapter(mAdapter);
 
                 mAdapter.setOnClickListener(new MovieAdapter.OnItemClickListener() {
+                    @SuppressLint("ClickableViewAccessibility")
                     @Override
                     public void onItemClick(int position) {
-                        Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
-                        intent.putExtra(getResources().getString(R.string.parcelable_intent_key), movie.getResults().get(position));
-                        startActivity(intent);
+//                        Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
+//                        intent.putExtra(getResources().getString(R.string.parcelable_intent_key), movie.getResults().get(position));
+//                        startActivity(intent);
+
+                        // prevents the user from scrolling after a touch, not that they would have the time to.
+                        // anyway, if they DID get to scroll, it would load more items into view because that's
+                        // how a recyclerview works.
+                        mMoviePosterRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                return true;
+                            }
+                        });
+
+                        int total = mAdapter.getItemCount();
+                        View selectedView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(position);
+                        float parentCenterX = mMoviePosterRecyclerView.getX() + mMoviePosterRecyclerView.getWidth()/2;
+                        float parentCenterY = mMoviePosterRecyclerView.getY() + mMoviePosterRecyclerView.getHeight()/2;
+
+                        // no clicking on the poster again or it might cause a singularity and a black hole will swallow
+                        // you and chew you into mush and then the app would probably crash. maybe. take no chances.
+                        selectedView.setClickable(false);
+
+                        // animates the selected view to move into the center of the window
+                        selectedView.animate().translationX(parentCenterX - selectedView.getWidth()/2 - selectedView.getX()).translationY(parentCenterY - selectedView.getHeight()/2 - selectedView.getY());
+
+                        // fade out all the other visible recyclerview items. screw 'em at this point.
+                        for (int i = 0; i < total; i++) {
+                            final View itemView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(i);
+                            if (itemView != null && i != position) {
+                                itemView.animate().alpha(0f).setDuration(POSTER_FADE_OUT_DELAY).setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        itemView.setVisibility(View.INVISIBLE);
+                                    }
+                                });
+                            }
+                        }
+
+
+
                     }
                 });
             }
