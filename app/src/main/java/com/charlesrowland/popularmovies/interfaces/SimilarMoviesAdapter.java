@@ -65,7 +65,7 @@ public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdap
     }
 
     class MovieHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.movie_poster) ImageView poster;
+        @BindView(R.id.movie_poster_view) ImageView poster;
         @BindView(R.id.theMovieId) TextView theMovieId;
         @BindView(R.id.titleView) TextView titleView;
 

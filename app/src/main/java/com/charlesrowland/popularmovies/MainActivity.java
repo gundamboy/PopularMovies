@@ -21,9 +21,11 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -66,13 +68,12 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName() + " fart";
     public static int FADE_DELAY = 600;
-    public static int START_DELAY = 5000;
+    public static int START_DELAY = 1000;
     public static int POSTER_FADE_OUT_DELAY = 400;
 
     // quick intro to ButterKnife here: @BindView gets the views,
     // ButterKnife.bind() sets them. That is all.
 
-    public static final String MOVIE_DB_API_URL = "https://api.themoviedb.org/3/";
     private final static String POSTER_SAVE_STATE = "poster_save_state";
 
     @BindView(R.id.fetching_movies) View fetchMoviesView;
@@ -104,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
         // TODO: for the love of god stop adding more shit! be done already!
+
+//        getWindow().setSharedElementReturnTransition(null);
+//        getWindow().setSharedElementReenterTransition(null);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         appBarTitle = getResources().getString(R.string.appBarTitle_popular);
@@ -249,48 +253,17 @@ public class MainActivity extends AppCompatActivity {
                     @SuppressLint("ClickableViewAccessibility")
                     @Override
                     public void onItemClick(int position) {
-//                        Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
-//                        intent.putExtra(getResources().getString(R.string.parcelable_intent_key), movie.getResults().get(position));
-//                        startActivity(intent);
-
-                        // prevents the user from scrolling after a touch, not that they would have the time to.
-                        // anyway, if they DID get to scroll, it would load more items into view because that's
-                        // how a recyclerview works.
-                        mMoviePosterRecyclerView.setOnTouchListener(new View.OnTouchListener() {
-                            @Override
-                            public boolean onTouch(View v, MotionEvent event) {
-                                return true;
-                            }
-                        });
-
                         int total = mAdapter.getItemCount();
                         View selectedView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(position);
-                        float parentCenterX = mMoviePosterRecyclerView.getX() + mMoviePosterRecyclerView.getWidth()/2;
-                        float parentCenterY = mMoviePosterRecyclerView.getY() + mMoviePosterRecyclerView.getHeight()/2;
+                        ImageView imageView = selectedView.findViewById(R.id.movie_poster_view);
 
-                        // no clicking on the poster again or it might cause a singularity and a black hole will swallow
-                        // you and chew you into mush and then the app would probably crash. maybe. take no chances.
-                        selectedView.setClickable(false);
+                        Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
+                        intent.putExtra(getResources().getString(R.string.parcelable_intent_key), results.get(position));
 
-                        // animates the selected view to move into the center of the window
-                        selectedView.animate().translationX(parentCenterX - selectedView.getWidth()/2 - selectedView.getX()).translationY(parentCenterY - selectedView.getHeight()/2 - selectedView.getY());
+                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, imageView, ViewCompat.getTransitionName(imageView));
+                        startActivity(intent, options.toBundle());
 
-                        // fade out all the other visible recyclerview items. screw 'em at this point.
-                        for (int i = 0; i < total; i++) {
-                            final View itemView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(i);
-                            if (itemView != null && i != position) {
-                                itemView.animate().alpha(0f).setDuration(POSTER_FADE_OUT_DELAY).setListener(new AnimatorListenerAdapter() {
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        super.onAnimationEnd(animation);
-                                        itemView.setVisibility(View.INVISIBLE);
-                                    }
-                                });
-                            }
-                        }
-
-
-
+                        resetPosterTransitions(total);
                     }
                 });
             }
@@ -300,6 +273,15 @@ public class MainActivity extends AppCompatActivity {
                 showNoResults();
             }
         });
+    }
+
+    public void resetPosterTransitions(int total) {
+        for (int i = 0; i < total; i++) {
+            View itemView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(i);
+            if (itemView != null) {
+                itemView.setTransitionName(null);
+            }
+        }
     }
 
     private String getSharedPreferenceOrderbyValue() {
@@ -345,6 +327,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onPause() {
+        super.onPause();
+        overridePendingTransition(0, R.string.poster_scale_transition);
     }
 
     @Override

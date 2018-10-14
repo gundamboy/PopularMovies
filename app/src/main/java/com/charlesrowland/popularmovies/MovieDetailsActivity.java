@@ -1,5 +1,7 @@
 package com.charlesrowland.popularmovies;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -7,6 +9,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,7 +35,9 @@ import com.charlesrowland.popularmovies.interfaces.SimilarMoviesAdapter;
 import com.charlesrowland.popularmovies.model.MovieAllDetailsResult;
 import com.charlesrowland.popularmovies.model.MovieInfoResult;
 import com.charlesrowland.popularmovies.network.ApiClient;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.PicassoProvider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,10 +55,13 @@ import retrofit2.Response;
 
 public class MovieDetailsActivity extends AppCompatActivity {
     private static final String TAG = MovieDetailsActivity.class.getSimpleName() + " fart";
+    public static int START_DELAY = 2000;
+    public static int POSTER_FADE_OUT_DELAY = 400;
 
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.backdrop) ImageView mBackdrop;
     @BindView(R.id.movie_poster) ImageView mPoster;
+    @BindView(R.id.movie_poster_blocker) ImageView mPosterBlocker;
     @BindView(R.id.movie_title) TextView mTitle;
     @BindView(R.id.genres) TextView mGenres;
     @BindView(R.id.runtime) TextView mRuntime;
@@ -67,6 +75,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.cast_intro) TextView mCastIntro;
     @BindView(R.id.overview) TextView mOverview;
     @BindView(R.id.tagline) TextView mTagline;
+    @BindView(R.id.similar_header) TextView mSimilarHeader;
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
@@ -97,9 +106,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
 
-        // this is just for testing while using the DetailsActivity as the starting activity
-//        mMovieId = 348350;
-//        mMovieTitle = "Solo: A Star Wars Story";
+        ButterKnife.bind(this);
 
         Intent intent = getIntent();
         MovieInfoResult passedInfo = intent.getParcelableExtra(getResources().getString(R.string.parcelable_intent_key));
@@ -108,22 +115,57 @@ public class MovieDetailsActivity extends AppCompatActivity {
         if (passedInfo != null) {
             mMovieId = passedInfo.getMovieId();
             mMovieTitle = passedInfo.getOriginalTitle();
-        } else {
-             extras = intent.getExtras();
-
-            if (extras != null) {
-                mMovieId = extras.getInt(MOVIE_ID);
-                mMovieTitle = extras.getString(MOVIE_TITLE);
-            }
+            setViewsFromParcelable(passedInfo);
         }
 
-        ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.textColorPrimary), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setTitle(mMovieTitle);
 
         getMovieInfo();
+    }
+
+    private void setViewsFromParcelable(MovieInfoResult passedInfo) {
+        mTitle.setText(mMovieTitle);
+        mRatingText.setText(String.valueOf(passedInfo.getVoteAverage()));
+
+        String backdropUrl = getResources().getString(R.string.backdrop_url) + passedInfo.getBackdropPath();
+        Picasso.get().load(backdropUrl).placeholder(R.color.windowBackground).into(mBackdrop);
+
+        final String posterUrl = getResources().getString(R.string.backdrop_url) + passedInfo.getPosterPath();
+        final Picasso p = Picasso.get();
+
+        // set the Picasso instance to be p so we can do p.setIndicatorsEnabled(true) to get debug info
+        // from picasso letting us know where the image came from > memory, cache, or web.
+        // if picasso fails to find the image in memory or cache, it calls it from the web.
+        p.load(posterUrl)
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(mPosterBlocker, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        p.load(posterUrl).into(mPosterBlocker);
+                    }
+                });
+
+        Picasso.get().load(posterUrl)
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(mPoster, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get().load(posterUrl).into(mPoster);
+                    }
+                });
     }
 
     private void getMovieInfo() {
@@ -183,12 +225,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     }
                 }
 
-                setImageViews();
                 setTextViews();
                 setCastMembers();
                 setCrewMembers();
                 similarMovieViewSetup();
-
+                hideImageBlocker();
             }
 
             @Override
@@ -198,17 +239,42 @@ public class MovieDetailsActivity extends AppCompatActivity {
         });
     }
 
+    private void hideImageBlocker() {
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mPosterBlocker.animate().alpha(0f).setDuration(POSTER_FADE_OUT_DELAY).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        mPosterBlocker.setVisibility(View.GONE);
+
+//                        getWindow().setSharedElementReturnTransition(null);
+//                        getWindow().setSharedElementReenterTransition(null);
+//                        mPosterBlocker.setTransitionName(null);
+                    }
+                });
+            }
+        }, START_DELAY);
+
+
+    }
+
+    private void showImageBlocker() {
+
+
+
+    }
+
     private void setTextViews() {
         Drawable mpaaBackground;
 
-        mTitle.setText(mMovieInfo.getOriginalTitle());
         mGenres.setText(mGenreString);
 
         int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
         String runtimeString = convertRuntime(runtime);
         mRuntime.setText(runtimeString);
-
-        mRatingText.setText(String.valueOf(mMovieInfo.getVoteAverage()));
 
         String releaseDate = mMovieInfo.getReleaseDate();
         mReleaseDate.setText(convertReleaseDate(releaseDate));
@@ -269,14 +335,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private int getSpannableCount(String str) {
         String[] parts = str.split(":");
         return parts[0].length();
-    }
-
-    private void setImageViews() {
-        String backdropUrl = getResources().getString(R.string.backdrop_url) + mMovieInfo.getBackdrop_path();
-        Picasso.get().load(backdropUrl).placeholder(R.color.windowBackground).into(mBackdrop);
-
-        String posterUrl = getResources().getString(R.string.backdrop_url) + mMovieInfo.getPosterPath();
-        Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(mPoster);
     }
 
     private void setCastMembers() {
@@ -379,23 +437,28 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void similarMovieViewSetup() {
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.similar_movies_grid_span_count));
-        similarMoviesRecyclerView.setLayoutManager(gridLayoutManager);
-        mSimilarMoviesAdapter = new SimilarMoviesAdapter(mSimilarMovies);
-        mSimilarMoviesAdapter.setData(mSimilarMovies);
-        similarMoviesRecyclerView.setAdapter(mSimilarMoviesAdapter);
+        if (mSimilarMovies.size() > 0 ) {
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.similar_movies_grid_span_count));
+            similarMoviesRecyclerView.setLayoutManager(gridLayoutManager);
+            mSimilarMoviesAdapter = new SimilarMoviesAdapter(mSimilarMovies);
+            mSimilarMoviesAdapter.setData(mSimilarMovies);
+            similarMoviesRecyclerView.setAdapter(mSimilarMoviesAdapter);
 
-        mSimilarMoviesAdapter.setOnClickListener(new SimilarMoviesAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position, int movieId, String title) {
-                Intent intent = new Intent(MovieDetailsActivity.this, MovieDetailsActivity.class);
-                intent.putExtra(MOVIE_ID, movieId);
-                intent.putExtra(MOVIE_TITLE, title);
+            mSimilarMoviesAdapter.setOnClickListener(new SimilarMoviesAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(int position, int movieId, String title) {
+                    Intent intent = new Intent(MovieDetailsActivity.this, MovieDetailsActivity.class);
+                    intent.putExtra(MOVIE_ID, movieId);
+                    intent.putExtra(MOVIE_TITLE, title);
 
-                startActivity(intent);
-                MovieDetailsActivity.this.finish();
-            }
-        });
+                    startActivity(intent);
+                    MovieDetailsActivity.this.finish();
+                }
+            });
+        } else {
+            similarMoviesRecyclerView.setVisibility(View.GONE);
+            mSimilarHeader.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -408,5 +471,20 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        //mPosterBlocker.setAlpha(1f);
+        mPosterBlocker.setVisibility(View.VISIBLE);
+
+        mPosterBlocker.animate().alpha(1f).setDuration(POSTER_FADE_OUT_DELAY).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+            }
+        });
+
+        super.onBackPressed();
     }
 }

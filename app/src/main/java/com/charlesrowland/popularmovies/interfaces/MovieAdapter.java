@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import com.charlesrowland.popularmovies.R;
 import com.charlesrowland.popularmovies.model.MovieInfoResult;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -42,11 +43,23 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MovieHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MovieHolder holder, int position) {
         // set all the views... one view.. just the poster.
         Resources res = holder.itemView.getContext().getResources();
-        String posterUrl = res.getString(R.string.poster_url) + results.get(position).getPosterPath();
-        Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(holder.poster);
+        final String posterUrl = res.getString(R.string.poster_url) + results.get(position).getPosterPath();
+        Picasso.get().load(posterUrl)
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(holder.poster, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get().load(posterUrl).into(holder.poster);
+                    }
+                });
     }
 
     public void setData(List<MovieInfoResult> results) {
@@ -59,7 +72,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
     }
 
     class MovieHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.movie_poster) ImageView poster;
+        @BindView(R.id.movie_poster_view) ImageView poster;
 
         public MovieHolder(View itemView, final OnItemClickListener listener) {
             super(itemView);
@@ -80,10 +93,5 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
             });
         }
     }
-
-    public void fadeItemOut() {
-
-    }
-
 }
 

@@ -62,4 +62,13 @@
 
     <include layout="@layout/content_movie_details" />
 
+    <ImageView
+        android:id="@+id/movie_poster_blocker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        android:transitionName="poster_scale_transition"
+        tools:src="@drawable/solo_w342"/>
+
 </android.support.design.widget.CoordinatorLayout>
