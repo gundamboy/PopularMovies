@@ -10,7 +10,9 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +22,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.transition.ChangeBounds;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +42,7 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.PicassoProvider;
 
+import java.io.PipedOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,6 +66,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.backdrop) ImageView mBackdrop;
     @BindView(R.id.movie_poster) ImageView mPoster;
     @BindView(R.id.movie_poster_blocker) ImageView mPosterBlocker;
+    @BindView(R.id.similar_movie_poster_blocker) ImageView mSimilarPosterBlocker;
     @BindView(R.id.movie_title) TextView mTitle;
     @BindView(R.id.genres) TextView mGenres;
     @BindView(R.id.runtime) TextView mRuntime;
@@ -96,10 +101,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
     String mGenreString = "";
     String mpaaRating = "";
     String imdb_path_id = "";
+    String mPosterPath = "";
 
     private static final String MOVIE_ID = "movie_id";
     private static final String MOVIE_TITLE = "original_title";
+    private static final String MOVIE_POSTER = "poster_path";
+    private static final String IS_SIMILAR = "is_similar";
     private String mMovieTitle;
+    private boolean isSimilar = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,14 +117,33 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        // speeds up the scale transition to help hide data flashes
+        getWindow().setSharedElementEnterTransition(new ChangeBounds().setDuration(200));
+
         Intent intent = getIntent();
         MovieInfoResult passedInfo = intent.getParcelableExtra(getResources().getString(R.string.parcelable_intent_key));
-        Bundle extras;
+        Bundle extras = intent.getExtras();
 
-        if (passedInfo != null) {
+        if (passedInfo != null & !intent.hasExtra(MOVIE_POSTER)) {
             mMovieId = passedInfo.getMovieId();
             mMovieTitle = passedInfo.getOriginalTitle();
-            setViewsFromParcelable(passedInfo);
+            mPosterPath = passedInfo.getPosterPath();
+            showImageBlocker(passedInfo, null);
+        } else {
+            // this handles the intent from similar movies
+            if (extras != null) {
+                isSimilar = extras.getBoolean(IS_SIMILAR);
+                mMovieId = extras.getInt(MOVIE_ID);
+                mMovieTitle = extras.getString(MOVIE_TITLE);
+                mPosterPath = extras.getString(MOVIE_POSTER);
+
+                if (isSimilar) {
+                    showSimilarPosterBlocker(mPosterPath);
+                } else {
+                    showImageBlocker(null, mPosterPath);
+                }
+
+            }
         }
 
         setSupportActionBar(mToolbar);
@@ -124,48 +152,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(mMovieTitle);
 
         getMovieInfo();
-    }
-
-    private void setViewsFromParcelable(MovieInfoResult passedInfo) {
-        mTitle.setText(mMovieTitle);
-        mRatingText.setText(String.valueOf(passedInfo.getVoteAverage()));
-
-        String backdropUrl = getResources().getString(R.string.backdrop_url) + passedInfo.getBackdropPath();
-        Picasso.get().load(backdropUrl).placeholder(R.color.windowBackground).into(mBackdrop);
-
-        final String posterUrl = getResources().getString(R.string.backdrop_url) + passedInfo.getPosterPath();
-        final Picasso p = Picasso.get();
-
-        // set the Picasso instance to be p so we can do p.setIndicatorsEnabled(true) to get debug info
-        // from picasso letting us know where the image came from > memory, cache, or web.
-        // if picasso fails to find the image in memory or cache, it calls it from the web.
-        p.load(posterUrl)
-                .networkPolicy(NetworkPolicy.OFFLINE)
-                .into(mPosterBlocker, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        p.load(posterUrl).into(mPosterBlocker);
-                    }
-                });
-
-        Picasso.get().load(posterUrl)
-                .networkPolicy(NetworkPolicy.OFFLINE)
-                .into(mPoster, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Picasso.get().load(posterUrl).into(mPoster);
-                    }
-                });
     }
 
     private void getMovieInfo() {
@@ -225,6 +211,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     }
                 }
 
+                setImageViews();
                 setTextViews();
                 setCastMembers();
                 setCrewMembers();
@@ -240,41 +227,73 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void hideImageBlocker() {
+        final ImageView blocker = isSimilar ? mSimilarPosterBlocker : mPosterBlocker;
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                mPosterBlocker.animate().alpha(0f).setDuration(POSTER_FADE_OUT_DELAY).setListener(new AnimatorListenerAdapter() {
+                blocker.animate().alpha(0f).setDuration(POSTER_FADE_OUT_DELAY).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
-                        mPosterBlocker.setVisibility(View.GONE);
-
-//                        getWindow().setSharedElementReturnTransition(null);
-//                        getWindow().setSharedElementReenterTransition(null);
-//                        mPosterBlocker.setTransitionName(null);
+                        blocker.setVisibility(View.GONE);
                     }
                 });
             }
         }, START_DELAY);
-
-
     }
 
-    private void showImageBlocker() {
+    public void showSimilarPosterBlocker(String posterPath) {
+        mPosterBlocker.setVisibility(View.GONE);
+        mSimilarPosterBlocker.setVisibility(View.VISIBLE);
+        mSimilarPosterBlocker.setAlpha(1f);
+        Picasso.get().load(posterPath).into(mSimilarPosterBlocker);
+    }
 
+    private void showImageBlocker(MovieInfoResult passedInfo, String poster_path) {
+        final String posterUrl = passedInfo != null ? getResources().getString(R.string.poster_url) + passedInfo.getPosterPath() : getResources().getString(R.string.poster_url) + poster_path;
 
+        final Picasso p = Picasso.get();
 
+        // set the Picasso instance to be p so we can do p.setIndicatorsEnabled(true) to get debug info
+        // from picasso letting us know where the image came from > memory, cache, or web.
+        // if picasso fails to find the image in memory or cache, it calls it from the web.
+        p.load(posterUrl)
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(mPosterBlocker, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {}
+
+                    @Override
+                    public void onError(Exception e) {
+                        p.load(posterUrl).into(mPosterBlocker);
+                    }
+                });
+
+        Picasso.get().load(posterUrl)
+                .networkPolicy(NetworkPolicy.OFFLINE)
+                .into(mPoster, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {}
+
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get().load(posterUrl).into(mPoster);
+                    }
+                });
     }
 
     private void setTextViews() {
         Drawable mpaaBackground;
 
+        mTitle.setText(mMovieInfo.getOriginalTitle());
         mGenres.setText(mGenreString);
 
         int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
         String runtimeString = convertRuntime(runtime);
         mRuntime.setText(runtimeString);
+
+        mRatingText.setText(String.valueOf(mMovieInfo.getVoteAverage()));
 
         String releaseDate = mMovieInfo.getReleaseDate();
         mReleaseDate.setText(convertReleaseDate(releaseDate));
@@ -304,6 +323,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setImageViews() {
+        String backdropUrl = getResources().getString(R.string.backdrop_url) + mMovieInfo.getBackdrop_path();
+        final String posterUrl = getResources().getString(R.string.backdrop_url) + mMovieInfo.getPosterPath();
+
+        Picasso.get().load(backdropUrl).placeholder(R.color.windowBackground).into(mBackdrop);
+        Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(mPoster);
     }
 
     private String convertReleaseDate(String date) {
@@ -446,13 +473,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
             mSimilarMoviesAdapter.setOnClickListener(new SimilarMoviesAdapter.OnItemClickListener() {
                 @Override
-                public void onItemClick(int position, int movieId, String title) {
-                    Intent intent = new Intent(MovieDetailsActivity.this, MovieDetailsActivity.class);
+                public void onItemClick(int position, int movieId, String title, String posterPath) {
+
+                    View selectedView = similarMoviesRecyclerView.getLayoutManager().findViewByPosition(position);
+                    ImageView imageView = selectedView.findViewById(R.id.movie_poster_view);
+                    imageView.setTransitionName(getResources().getString(R.string.similar_poster_scale_transition));
+
+                    Intent intent =  new Intent(MovieDetailsActivity.this, MovieDetailsActivity.class);
                     intent.putExtra(MOVIE_ID, movieId);
                     intent.putExtra(MOVIE_TITLE, title);
-
+                    intent.putExtra(MOVIE_POSTER, posterPath);
+                    intent.putExtra(IS_SIMILAR, true);
                     startActivity(intent);
-                    MovieDetailsActivity.this.finish();
+
                 }
             });
         } else {
@@ -473,9 +506,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
-        //mPosterBlocker.setAlpha(1f);
+    private void fadeBlockerIn() {
         mPosterBlocker.setVisibility(View.VISIBLE);
 
         mPosterBlocker.animate().alpha(1f).setDuration(POSTER_FADE_OUT_DELAY).setListener(new AnimatorListenerAdapter() {
@@ -484,6 +515,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 super.onAnimationEnd(animation);
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        fadeBlockerIn();
 
         super.onBackPressed();
     }

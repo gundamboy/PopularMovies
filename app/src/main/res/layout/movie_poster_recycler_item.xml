@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
-        android:transitionName="poster_scale_transition"
+        android:transitionName="@string/poster_scale_transition"
         tools:src="@drawable/solo_w342"/>
 
     <TextView
@@ -23,6 +23,12 @@
 
     <TextView
         android:id="@+id/titleView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/posterpathView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"/>

@@ -33,6 +33,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.transition.ChangeBounds;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -105,9 +106,6 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
         // TODO: for the love of god stop adding more shit! be done already!
-
-//        getWindow().setSharedElementReturnTransition(null);
-//        getWindow().setSharedElementReenterTransition(null);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         appBarTitle = getResources().getString(R.string.appBarTitle_popular);
@@ -263,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
                         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, imageView, ViewCompat.getTransitionName(imageView));
                         startActivity(intent, options.toBundle());
 
-                        resetPosterTransitions(total);
+                        //resetPosterTransitions(total);
                     }
                 });
             }
@@ -329,10 +327,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onPause() {
-        super.onPause();
-        overridePendingTransition(0, R.string.poster_scale_transition);
-    }
+
 
     @Override
     public void onResume(){

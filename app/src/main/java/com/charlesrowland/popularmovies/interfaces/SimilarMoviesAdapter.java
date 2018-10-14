@@ -25,7 +25,7 @@ public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdap
     private SimilarMoviesAdapter.OnItemClickListener mListener;
 
     public interface OnItemClickListener {
-        void onItemClick(int position, int theMovieId, String title);
+        void onItemClick(int position, int theMovieId, String title, String posterPath);
     }
 
     public void setOnClickListener(SimilarMoviesAdapter.OnItemClickListener listener) {
@@ -52,6 +52,8 @@ public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdap
 
         holder.theMovieId.setText(String.valueOf(results.get(position).getMovieId()));
         holder.titleView.setText(results.get(position).getOriginalTitle());
+        holder.posterPathView.setText(posterUrl);
+
     }
 
     public void setData(List<MovieAllDetailsResult.SimilarResults> results) {
@@ -60,7 +62,6 @@ public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdap
 
     @Override
     public int getItemCount() {
-//        return results.size();
         return 6;
     }
 
@@ -68,6 +69,7 @@ public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdap
         @BindView(R.id.movie_poster_view) ImageView poster;
         @BindView(R.id.theMovieId) TextView theMovieId;
         @BindView(R.id.titleView) TextView titleView;
+        @BindView(R.id.posterpathView) TextView posterPathView;
 
         public MovieHolder(View itemView, final SimilarMoviesAdapter.OnItemClickListener listener) {
             super(itemView);
@@ -81,10 +83,11 @@ public class SimilarMoviesAdapter extends RecyclerView.Adapter<SimilarMoviesAdap
                     int position = getAdapterPosition();
                     String theId = theMovieId.getText().toString();
                     String title = titleView.getText().toString();
+                    String poster = posterPathView.getText().toString();
+
 
                     if (position != RecyclerView.NO_POSITION) {
-                        //listener.onItemClick(position, db_id);
-                        listener.onItemClick(position, Integer.parseInt(theId), title);
+                        listener.onItemClick(position, Integer.parseInt(theId), title, poster);
                     }
                 }
             });

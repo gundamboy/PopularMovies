@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:id="@+id/movie_details_layout"
     tools:context=".MovieDetailsActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -68,7 +69,17 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
-        android:transitionName="poster_scale_transition"
+        android:transitionName="@string/poster_scale_transition"
+        tools:src="@drawable/solo_w342"/>
+
+    <ImageView
+        android:id="@+id/similar_movie_poster_blocker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        android:transitionName="@string/similar_poster_scale_transition"
+        android:visibility="gone"
         tools:src="@drawable/solo_w342"/>
 
 </android.support.design.widget.CoordinatorLayout>

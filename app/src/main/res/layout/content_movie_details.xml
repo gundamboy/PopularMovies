@@ -10,7 +10,8 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/margins_16">
 
         <ImageView
             android:id="@+id/movie_poster"
@@ -279,7 +280,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/similar_movies_recyclerview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_4"
             android:layout_marginEnd="@dimen/margins_8"
