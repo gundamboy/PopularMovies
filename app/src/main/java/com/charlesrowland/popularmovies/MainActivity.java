@@ -72,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
     public static int FADE_DELAY = 600;
     public static int START_DELAY = 1000;
     public static int POSTER_FADE_OUT_DELAY = 400;
-    private final static String POSTER_SAVE_STATE = "poster_save_state";
+    private final static String RECYCLER_STATE = "recycler_state";
+    private final static String POSTERS_STATE = "posters";
     private Parcelable mRecyclerState = null;
 
     // quick intro to ButterKnife here: @BindView gets the views,
@@ -104,14 +105,8 @@ public class MainActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
+        // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(RECYCLER_STATE)
         // TODO: for the love of god stop adding more shit! be done already!
-
-        if (savedInstanceState != null) {
-            // Then the application is being reloaded
-        } else {
-
-        }
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         appBarTitle = getResources().getString(R.string.appBarTitle_popular);
@@ -120,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         setSwipeRefreshLayout();
 
         // separate method for RecyclerView setup
-        setupRecyclerView();
+        setupRecyclerView(savedInstanceState);
 
         // check the network/internet status and show the proper layout
         if (!checkNetworkStatus()) {
@@ -139,7 +134,14 @@ public class MainActivity extends AppCompatActivity {
         noNetwork.setVisibility(View.GONE);
         noResults.setVisibility(View.GONE);
         mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
-        hideFetchingMovies();
+
+        if (mRecyclerState != null) {
+            mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
+            fetchMoviesView.setVisibility(View.GONE);
+        } else {
+            hideFetchingMovies();
+        }
+
     }
 
     private void showNoNetwork() {
@@ -156,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideFetchingMovies() {
+
         if (fetchMoviesView.getVisibility() == View.VISIBLE) {
             mMoviePosterRecyclerView.setAlpha(0f);
             mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
@@ -196,13 +199,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupRecyclerView() {
+    private void setupRecyclerView(Bundle savedInstanceState) {
         mMoviePosterRecyclerView = findViewById(R.id.movie_poster_recyclerview);
         noNetwork = findViewById(R.id.no_network);
         gridLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span_count));
         mMoviePosterRecyclerView.setLayoutManager(gridLayoutManager);
 
-        buildAdapter();
+        if (savedInstanceState != null) {
+            // Then the application is being reloaded
+            results = savedInstanceState.getParcelableArrayList(POSTERS_STATE);
+            fetchMoviesView.setVisibility(View.GONE);
+            mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
+            setTitle();
+            attachAdapter();
+        } else {
+            buildAdapter();
+        }
     }
 
     private void buildAdapter() {
@@ -235,7 +247,9 @@ public class MainActivity extends AppCompatActivity {
                 showPosters();
 
                 final MovieSortingWrapper movie = response.body();
-                results = movie.getResults();
+                if(mRecyclerState == null) {
+                    results = movie.getResults();
+                }
 
                 // wtf is this about! I am removing all results that are not english movies.
                 // this isn't because I don't like non english movies though. Some of the movies
@@ -250,32 +264,34 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 results.removeAll(non_english_results);
-                mAdapter = new MovieAdapter(results);
-                mAdapter.setData(results);
-                mMoviePosterRecyclerView.setAdapter(mAdapter);
-
-                mAdapter.setOnClickListener(new MovieAdapter.OnItemClickListener() {
-                    @SuppressLint("ClickableViewAccessibility")
-                    @Override
-                    public void onItemClick(int position) {
-                        int total = mAdapter.getItemCount();
-                        View selectedView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(position);
-                        ImageView imageView = selectedView.findViewById(R.id.movie_poster_view);
-
-                        Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
-                        intent.putExtra(getResources().getString(R.string.parcelable_intent_key), results.get(position));
-
-                        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, imageView, ViewCompat.getTransitionName(imageView));
-                        startActivity(intent, options.toBundle());
-
-                        //resetPosterTransitions(total);
-                    }
-                });
+                attachAdapter();
             }
 
             @Override
             public void onFailure(Call<MovieSortingWrapper> call, Throwable t) {
                 showNoResults();
+            }
+        });
+    }
+
+    private void attachAdapter() {
+        mAdapter = new MovieAdapter(results);
+        mAdapter.setData(results);
+        mMoviePosterRecyclerView.setAdapter(mAdapter);
+
+        mAdapter.setOnClickListener(new MovieAdapter.OnItemClickListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public void onItemClick(int position) {
+                int total = mAdapter.getItemCount();
+                View selectedView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(position);
+                ImageView imageView = selectedView.findViewById(R.id.movie_poster_view);
+
+                Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
+                intent.putExtra(getResources().getString(R.string.parcelable_intent_key), results.get(position));
+
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, imageView, ViewCompat.getTransitionName(imageView));
+                startActivity(intent, options.toBundle());
             }
         });
     }
@@ -304,14 +320,15 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mRecyclerState = gridLayoutManager.onSaveInstanceState();
-        outState.putParcelable(POSTER_SAVE_STATE, mRecyclerState);
+        outState.putParcelable(RECYCLER_STATE, mRecyclerState);
+        outState.putParcelableArrayList(POSTERS_STATE, new ArrayList<>(results));
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if(savedInstanceState != null) {
-            mRecyclerState = savedInstanceState.getParcelable(POSTER_SAVE_STATE);
+            mRecyclerState = savedInstanceState.getParcelable(RECYCLER_STATE);
         }
     }
 

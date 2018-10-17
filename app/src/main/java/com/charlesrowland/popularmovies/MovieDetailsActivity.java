@@ -90,6 +90,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private List<MovieAllDetailsResult.CastResults> mCast;
     private List<MovieAllDetailsResult.CrewResults> mCrew;
     private List<MovieAllDetailsResult.VideoResults> mVideos;
+    // video url: https://www.youtube.com/watch?v={video key}
+
     private List<MovieAllDetailsResult.ReviewResults> mReviews;
     private List<MovieAllDetailsResult.SimilarResults> mSimilarMovies;
     private CastCrewAdapter mCastAdapter;
