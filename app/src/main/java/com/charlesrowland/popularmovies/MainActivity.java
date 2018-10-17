@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -71,12 +72,11 @@ public class MainActivity extends AppCompatActivity {
     public static int FADE_DELAY = 600;
     public static int START_DELAY = 1000;
     public static int POSTER_FADE_OUT_DELAY = 400;
+    private final static String POSTER_SAVE_STATE = "poster_save_state";
+    private Parcelable mRecyclerState = null;
 
     // quick intro to ButterKnife here: @BindView gets the views,
     // ButterKnife.bind() sets them. That is all.
-
-    private final static String POSTER_SAVE_STATE = "poster_save_state";
-
     @BindView(R.id.fetching_movies) View fetchMoviesView;
     @BindView(R.id.no_network) View noNetwork;
     @BindView(R.id.no_results) View noResults;
@@ -106,6 +106,12 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO: implement savedInstanceState == null || !savedInstanceState.containsKey(POSTER_SAVE_STATE)
         // TODO: for the love of god stop adding more shit! be done already!
+
+        if (savedInstanceState != null) {
+            // Then the application is being reloaded
+        } else {
+
+        }
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         appBarTitle = getResources().getString(R.string.appBarTitle_popular);
@@ -216,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<MovieSortingWrapper>() {
             @Override
             public void onResponse(Call<MovieSortingWrapper> call, Response<MovieSortingWrapper> response) {
+                Log.i(TAG, "onResponse: api response");
 
                 // i found an issue with some errors coming back and not triggering onFailure so this
                 // was my solution.
@@ -273,15 +280,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void resetPosterTransitions(int total) {
-        for (int i = 0; i < total; i++) {
-            View itemView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(i);
-            if (itemView != null) {
-                itemView.setTransitionName(null);
-            }
-        }
-    }
-
     private String getSharedPreferenceOrderbyValue() {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String orderby_key = getResources().getString(R.string.settings_order_by_key);
@@ -305,6 +303,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        mRecyclerState = gridLayoutManager.onSaveInstanceState();
+        outState.putParcelable(POSTER_SAVE_STATE, mRecyclerState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState != null) {
+            mRecyclerState = savedInstanceState.getParcelable(POSTER_SAVE_STATE);
+        }
     }
 
     @Override
@@ -327,11 +335,13 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-
     @Override
-    public void onResume(){
+    protected void onResume() {
         super.onResume();
+
+        if (mRecyclerState != null) {
+            gridLayoutManager.onRestoreInstanceState(mRecyclerState);
+        }
     }
 
     @Override
