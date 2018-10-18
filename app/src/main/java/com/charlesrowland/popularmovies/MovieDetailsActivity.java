@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
@@ -58,10 +59,28 @@ import retrofit2.Response;
 
 
 public class MovieDetailsActivity extends AppCompatActivity {
+    // constants
     private static final String TAG = MovieDetailsActivity.class.getSimpleName() + " fart";
-    public static int START_DELAY = 2000;
-    public static int POSTER_FADE_OUT_DELAY = 400;
+    private static final String MOVIE_ID = "movie_id";
+    private static final String MOVIE_TITLE = "original_title";
+    private static final String MOVIE_POSTER = "poster_path";
+    private static final String IS_SIMILAR = "is_similar";
+    private static final String MOVIE_INFO_RESULTS_SAVE_STATE = "info_results_object_save_state";
+    private static final String GENRE_RESULTS_SAVE_STATE = "genre_results_object_save_state";
+    private static final String CAST_RESULTS_SAVE_STATE = "cast_results_object_save_state";
+    private static final String CREW_RESULTS_SAVE_STATE = "crew_results_object_save_state";
+    private static final String REVIEW_RESULTS_SAVE_STATE = "review_results_object_save_state";
+    private static final String SIMILIAR_RESULTS_SAVE_STATE = "similar_results_object_save_state";
+    private static final String VIDEO_RESULTS_SAVE_STATE = "video_results_object_save_state";
+    private static final String CAST_SAVE_STATE = "cast_save_state";
+    private static final String CREW_SAVE_STATE = "crew_save_state";
+    private static final String SIMILAR_SAVE_STATE = "similar_save_state";
+    private static final String REVIEWS_SAVE_STATE = "reviews_save_state";
+    private static final String VIDEOS_SAVE_STATE = "videos_save_state";
+    private static final int START_DELAY = 2000;
+    private static final int POSTER_FADE_OUT_DELAY = 400;
 
+    // butterknife view bindings
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.backdrop) ImageView mBackdrop;
     @BindView(R.id.movie_poster) ImageView mPoster;
@@ -84,32 +103,46 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
-    private int mMovieId;
+
+    // class instance for getting some results
     private MovieAllDetailsResult mMovieInfo;
+
+    // lists that hold the api results
     private List<MovieAllDetailsResult.MovieGenreResult> mGenresList;
     private List<MovieAllDetailsResult.CastResults> mCast;
     private List<MovieAllDetailsResult.CrewResults> mCrew;
+    private List<MovieAllDetailsResult.ReviewResults> mReviews;
+    private List<MovieAllDetailsResult.SimilarResults> mSimilarMovies;
     private List<MovieAllDetailsResult.VideoResults> mVideos;
     // video url: https://www.youtube.com/watch?v={video key}
 
-    private List<MovieAllDetailsResult.ReviewResults> mReviews;
-    private List<MovieAllDetailsResult.SimilarResults> mSimilarMovies;
+    // recyclerview adapters
     private CastCrewAdapter mCastAdapter;
     private CastCrewAdapter mCrewAdapter;
     private SimilarMoviesAdapter mSimilarMoviesAdapter;
     private ArrayList<Credit> mCreditsCast = new ArrayList<>();
     private ArrayList<Credit> mCreditsCrew = new ArrayList<>();
 
-    String mGenreString = "";
-    String mpaaRating = "";
-    String imdb_path_id = "";
-    String mPosterPath = "";
+    // layout managers
+    LinearLayoutManager layoutManagerCast;
+    GridLayoutManager layoutManagerSimilar;
+    LinearLayoutManager layoutManagerCrew;
+    LinearLayoutManager layoutManagerReviews;
+    LinearLayoutManager layoutManagerVideos;
 
-    private static final String MOVIE_ID = "movie_id";
-    private static final String MOVIE_TITLE = "original_title";
-    private static final String MOVIE_POSTER = "poster_path";
-    private static final String IS_SIMILAR = "is_similar";
+    // parcelable variables for restore state stuff
+    private Parcelable mCastRecycler = null;
+    private Parcelable mCcewRecycler = null;
+    private Parcelable mSimilarMoviesRecycler = null;
+    private Parcelable mReviewsRecycler = null;
+    private Parcelable mVideosRecycler = null;
+
+    private int mMovieId;
     private String mMovieTitle;
+    private String mGenreString = "";
+    private String mpaaRating = "";
+    private String imdb_path_id = "";
+    private String mPosterPath = "";
     private boolean isSimilar = false;
 
     @Override
@@ -154,6 +187,36 @@ public class MovieDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(mMovieTitle);
 
         getMovieInfo();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mCastRecycler = layoutManagerCast.onSaveInstanceState();
+        mCcewRecycler = layoutManagerCrew.onSaveInstanceState();
+        mSimilarMoviesRecycler = layoutManagerSimilar.onSaveInstanceState();
+        //mReviewsRecycler = layoutManagerReviews.onSaveInstanceState();
+        //mVideosRecycler = layoutManagerVideos.onSaveInstanceState();
+
+        outState.putParcelable(CAST_SAVE_STATE, mCastRecycler);
+        outState.putParcelable(CREW_SAVE_STATE, mCcewRecycler);
+        outState.putParcelable(SIMILAR_SAVE_STATE, mSimilarMoviesRecycler);
+        //outState.putParcelable(REVIEWS_SAVE_STATE, mReviewsRecycler);
+        //outState.putParcelable(VIDEOS_SAVE_STATE, mVideosRecycler);
+
+        //outState.putParcelableArrayList(POSTERS_STATE, new ArrayList<>(results));
+        outState.putParcelableArrayList(MOVIE_INFO_RESULTS_SAVE_STATE, new ArrayList<>(mGenresList));
+
+        // TODO: add 'implements Parcelable' and parcable methods to each of the Lst<xxxx> classes in the MovieAllDetailsResult class. god damnit.
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState != null) {
+            //mRecyclerState = savedInstanceState.getParcelable(RECYCLER_STATE);
+
+        }
     }
 
     private void getMovieInfo() {
@@ -450,7 +513,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void castRecyclerViewSetup() {
-        LinearLayoutManager layoutManagerCast = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        layoutManagerCast = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         castRecyclerView.setLayoutManager(layoutManagerCast);
         castRecyclerView.addItemDecoration(new EqualSpacingItemDecoration(36, EqualSpacingItemDecoration.HORIZONTAL));
         mCastAdapter = new CastCrewAdapter(mCreditsCast);
@@ -458,7 +521,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void crewRecyclerViewSetup() {
-        LinearLayoutManager layoutManagerCrew = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        layoutManagerCrew = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         crewRecyclerView.setLayoutManager(layoutManagerCrew);
         crewRecyclerView.addItemDecoration(new EqualSpacingItemDecoration(36, EqualSpacingItemDecoration.HORIZONTAL));
         mCrewAdapter = new CastCrewAdapter(mCreditsCrew);
@@ -467,8 +530,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void similarMovieViewSetup() {
         if (mSimilarMovies.size() > 0 ) {
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.similar_movies_grid_span_count));
-            similarMoviesRecyclerView.setLayoutManager(gridLayoutManager);
+            layoutManagerSimilar = new GridLayoutManager(this, getResources().getInteger(R.integer.similar_movies_grid_span_count));
+            similarMoviesRecyclerView.setLayoutManager(layoutManagerSimilar);
             mSimilarMoviesAdapter = new SimilarMoviesAdapter(mSimilarMovies);
             mSimilarMoviesAdapter.setData(mSimilarMovies);
             similarMoviesRecyclerView.setAdapter(mSimilarMoviesAdapter);
@@ -526,4 +589,5 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         super.onBackPressed();
     }
+
 }

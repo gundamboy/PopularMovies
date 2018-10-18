@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Holds retrofit api results
  */
-public class MovieInfoResult implements Parcelable{
+public class MovieInfoResult implements Parcelable {
 
     @SerializedName("vote_count")
     @Expose
