@@ -16,7 +16,7 @@ import java.util.Map;
  * This holds results from the retrofit api calls. This is AAAAALLLLLL the movie info you could
  * every need
  */
-public class MovieAllDetailsResult {
+public class MovieAllDetailsResult implements Parcelable {
 
     @SerializedName("backdrop_path")
     @Expose
@@ -105,6 +105,76 @@ public class MovieAllDetailsResult {
     @SerializedName("reviews")
     @Expose
     private ReviewsWrapper reviews = null;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.backdrop_path);
+        dest.writeList(this.genres);
+        dest.writeString(this.homepage);
+        dest.writeInt(this.movieId);
+        dest.writeString(this.imdb_id);
+        dest.writeString(this.originalLanguage);
+        dest.writeString(this.originalTitle);
+        dest.writeString(this.overview);
+        dest.writeDouble(this.popularity);
+        dest.writeString(this.posterPath);
+        dest.writeString(this.releaseDate);
+        dest.writeInt(this.revenue);
+        dest.writeInt(this.runtime);
+        dest.writeString(this.tagline);
+        dest.writeDouble(this.voteAverage);
+        dest.writeInt(this.voteCount);
+
+        //ReleaseDatesWrapper singleMovieReleaseDates
+        //CreditsWrapper credits
+        //VideosWrapper videos
+        //SimilarWrapper similar
+        //ReviewsWrapper reviews
+    }
+
+    protected MovieAllDetailsResult(Parcel in) {
+        this.backdrop_path = in.readString();
+        this.genres = new ArrayList();
+        in.readList(this.genres, Integer.class.getClassLoader());
+        this.homepage = in.readString();
+        this.movieId = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.imdb_id = in.readString();
+        this.originalLanguage = in.readString();
+        this.originalTitle = in.readString();
+        this.overview = in.readString();
+        this.popularity = (Double) in.readValue(Double.class.getClassLoader());
+        this.posterPath = in.readString();
+        this.releaseDate = in.readString();
+        this.revenue = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.runtime = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.tagline = in.readString();
+        this.voteAverage = (Double) in.readValue(Double.class.getClassLoader());
+        this.voteCount = (Integer) in.readValue(Integer.class.getClassLoader());
+
+        //ReleaseDatesWrapper singleMovieReleaseDates
+        //CreditsWrapper credits
+        //VideosWrapper videos
+        //SimilarWrapper similar
+        //ReviewsWrapper reviews
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+
+        @Override
+        public Object createFromParcel(Parcel source) {
+            return new MovieAllDetailsResult(source);
+        }
+
+        @Override
+        public Object[] newArray(int size) {
+            return new MovieAllDetailsResult[size];
+        }
+    };
 
     // getters and setters
     public String getBackdrop_path() {
