@@ -65,6 +65,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String MOVIE_TITLE = "original_title";
     private static final String MOVIE_POSTER = "poster_path";
     private static final String IS_SIMILAR = "is_similar";
+    private static final int START_DELAY = 2000;
+    private static final int POSTER_FADE_OUT_DELAY = 400;
     private static final String MOVIE_INFO_RESULTS_SAVE_STATE = "info_results_object_save_state";
     private static final String GENRE_RESULTS_SAVE_STATE = "genre_results_object_save_state";
     private static final String CAST_RESULTS_SAVE_STATE = "cast_results_object_save_state";
@@ -72,13 +74,28 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String REVIEW_RESULTS_SAVE_STATE = "review_results_object_save_state";
     private static final String SIMILIAR_RESULTS_SAVE_STATE = "similar_results_object_save_state";
     private static final String VIDEO_RESULTS_SAVE_STATE = "video_results_object_save_state";
-    private static final String CAST_SAVE_STATE = "cast_save_state";
-    private static final String CREW_SAVE_STATE = "crew_save_state";
-    private static final String SIMILAR_SAVE_STATE = "similar_save_state";
-    private static final String REVIEWS_SAVE_STATE = "reviews_save_state";
-    private static final String VIDEOS_SAVE_STATE = "videos_save_state";
-    private static final int START_DELAY = 2000;
-    private static final int POSTER_FADE_OUT_DELAY = 400;
+    private static final String CAST_RECYCLER_SAVE_STATE = "cast_save_state";
+    private static final String CREW_RECYCLER_SAVE_STATE = "crew_save_state";
+    private static final String SIMILAR_RECYCLER_SAVE_STATE = "similar_save_state";
+    private static final String REVIEWS_RECYCLER_SAVE_STATE = "reviews_save_state";
+    private static final String VIDEOS_RECYCLER_SAVE_STATE = "videos_save_state";
+
+    private static final String BACKDROP_SAVE_STATE = "backdrop_save_state";
+    private static final String POSTER_SAVE_STATE = "poster_save_state";
+    private static final String TITLE_SAVE_STATE = "title_save_state";
+    private static final String GENRES_SAVE_STATE = "genres_save_state";
+    private static final String RUNTIME_SAVE_STATE = "runtime_save_state";
+    private static final String RATING_SAVE_STATE = "rating_save_state";
+    private static final String IMDB_SAVE_STATE = "imdb_save_state";
+    private static final String MPAA_SAVE_STATE = "mpaa_save_state";
+    private static final String RELEASE_DATE_SAVE_STATE = "release_date_save_state";
+    private static final String DIRECTOR_SAVE_STATE = "director_save_state";
+    private static final String PRODUCERS_SAVE_STATE = "producers_save_state";
+    private static final String WRITERS_SAVE_STATE = "writers_save_state";
+    private static final String CAST_INTRO_SAVE_STATE = "cast_intro_save_state";
+    private static final String OVERVIEW_SAVE_STATE = "overview_save_state";
+    private static final String TAGLINE_SAVE_STATE = "tagline_save_state";
+
 
     // butterknife view bindings
     @BindView(R.id.toolbar) Toolbar mToolbar;
@@ -103,6 +120,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
+
+    private Drawable mpaaBackground;
 
     // class instance for getting some results
     private MovieAllDetailsResult mMovieInfo;
@@ -132,7 +151,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     // parcelable variables for restore state stuff
     private Parcelable mCastRecycler = null;
-    private Parcelable mCcewRecycler = null;
+    private Parcelable mCrewRecycler = null;
     private Parcelable mSimilarMoviesRecycler = null;
     private Parcelable mReviewsRecycler = null;
     private Parcelable mVideosRecycler = null;
@@ -193,28 +212,57 @@ public class MovieDetailsActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mCastRecycler = layoutManagerCast.onSaveInstanceState();
-        mCcewRecycler = layoutManagerCrew.onSaveInstanceState();
+        mCrewRecycler = layoutManagerCrew.onSaveInstanceState();
         mSimilarMoviesRecycler = layoutManagerSimilar.onSaveInstanceState();
         //mReviewsRecycler = layoutManagerReviews.onSaveInstanceState();
         //mVideosRecycler = layoutManagerVideos.onSaveInstanceState();
 
-        outState.putParcelable(CAST_SAVE_STATE, mCastRecycler);
-        outState.putParcelable(CREW_SAVE_STATE, mCcewRecycler);
-        outState.putParcelable(SIMILAR_SAVE_STATE, mSimilarMoviesRecycler);
-        //outState.putParcelable(REVIEWS_SAVE_STATE, mReviewsRecycler);
-        //outState.putParcelable(VIDEOS_SAVE_STATE, mVideosRecycler);
+        outState.putParcelable(CAST_RECYCLER_SAVE_STATE, mCastRecycler);
+        outState.putParcelable(CREW_RECYCLER_SAVE_STATE, mCrewRecycler);
+        outState.putParcelable(SIMILAR_RECYCLER_SAVE_STATE, mSimilarMoviesRecycler);
+        //outState.putParcelable(REVIEWS_RECYCLER_SAVE_STATE, mReviewsRecycler);
+        //outState.putParcelable(VIDEOS_RECYCLER_SAVE_STATE, mVideosRecycler);
 
         //outState.putParcelableArrayList(POSTERS_STATE, new ArrayList<>(results));
-        outState.putParcelableArrayList(MOVIE_INFO_RESULTS_SAVE_STATE, new ArrayList<>(mGenresList));
+        //outState.putParcelableArrayList(MOVIE_INFO_RESULTS_SAVE_STATE, new ArrayList<>(mGenresList));
 
-        // TODO: add 'implements Parcelable' and parcable methods to each of the Lst<xxxx> classes in the MovieAllDetailsResult class. god damnit.
+        //outState.putString(BACKDROP_SAVE_STATE, "");
+        //outState.putString(POSTER_SAVE_STATE, "");
+        outState.putString(TITLE_SAVE_STATE, mMovieTitle);
+        outState.putString(GENRES_SAVE_STATE, mGenreString);
+        outState.putString(RUNTIME_SAVE_STATE, mRuntime.getText().toString());
+        outState.putString(RATING_SAVE_STATE, mRatingText.getText().toString());
+        outState.putString(IMDB_SAVE_STATE, imdb_path_id);
+        outState.putString(MPAA_SAVE_STATE, mpaaRating);
+        outState.putString(RELEASE_DATE_SAVE_STATE, mReleaseDate.getText().toString());
+        outState.putString(DIRECTOR_SAVE_STATE, mDirector.getText().toString());
+        outState.putString(PRODUCERS_SAVE_STATE, mProducers.getText().toString());
+        outState.putString(WRITERS_SAVE_STATE, mWriters.getText().toString());
+        outState.putString(CAST_INTRO_SAVE_STATE, mCastIntro.getText().toString());
+        outState.putString(OVERVIEW_SAVE_STATE, mOverview.getText().toString());
+        outState.putString(TAGLINE_SAVE_STATE, mTagline.getText().toString());
+        // add mpaa drawable here
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if(savedInstanceState != null) {
-            //mRecyclerState = savedInstanceState.getParcelable(RECYCLER_STATE);
+            mCastRecycler = savedInstanceState.getParcelable(CAST_RECYCLER_SAVE_STATE);
+            mCrewRecycler = savedInstanceState.getParcelable(CREW_RECYCLER_SAVE_STATE);
+            mSimilarMoviesRecycler = savedInstanceState.getParcelable(SIMILAR_RECYCLER_SAVE_STATE);
+            //mReviewsRecycler = savedInstanceState.getParcelable(REVIEWS_RECYCLER_SAVE_STATE);
+            //mVideosRecycler = savedInstanceState.getParcelable(VIDEOS_RECYCLER_SAVE_STATE);
+
+            getSupportActionBar().setTitle(savedInstanceState.getString(TITLE_SAVE_STATE));
+            mTitle.setText(savedInstanceState.getString(TITLE_SAVE_STATE));
+            mGenres.setText(savedInstanceState.getString(GENRES_SAVE_STATE));
+            mRuntime.setText(savedInstanceState.getString(RUNTIME_SAVE_STATE));
+            mRatingText.setText(savedInstanceState.getString(RATING_SAVE_STATE));
+            mReleaseDate.setText(savedInstanceState.getString(RELEASE_DATE_SAVE_STATE));
+            mTagline.setText(savedInstanceState.getString(TAGLINE_SAVE_STATE));
+            mOverview.setText(savedInstanceState.getString(OVERVIEW_SAVE_STATE));
+            // set mpaa drawable here
 
         }
     }
@@ -349,7 +397,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void setTextViews() {
-        Drawable mpaaBackground;
+
 
         mTitle.setText(mMovieInfo.getOriginalTitle());
         mGenres.setText(mGenreString);
