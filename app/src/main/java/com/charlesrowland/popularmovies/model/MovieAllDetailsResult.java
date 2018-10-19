@@ -106,76 +106,6 @@ public class MovieAllDetailsResult implements Parcelable {
     @Expose
     private ReviewsWrapper reviews = null;
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.backdrop_path);
-        dest.writeList(this.genres);
-        dest.writeString(this.homepage);
-        dest.writeInt(this.movieId);
-        dest.writeString(this.imdb_id);
-        dest.writeString(this.originalLanguage);
-        dest.writeString(this.originalTitle);
-        dest.writeString(this.overview);
-        dest.writeDouble(this.popularity);
-        dest.writeString(this.posterPath);
-        dest.writeString(this.releaseDate);
-        dest.writeInt(this.revenue);
-        dest.writeInt(this.runtime);
-        dest.writeString(this.tagline);
-        dest.writeDouble(this.voteAverage);
-        dest.writeInt(this.voteCount);
-
-        //ReleaseDatesWrapper singleMovieReleaseDates
-        //CreditsWrapper credits
-        //VideosWrapper videos
-        //SimilarWrapper similar
-        //ReviewsWrapper reviews
-    }
-
-    protected MovieAllDetailsResult(Parcel in) {
-        this.backdrop_path = in.readString();
-        this.genres = new ArrayList();
-        in.readList(this.genres, Integer.class.getClassLoader());
-        this.homepage = in.readString();
-        this.movieId = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.imdb_id = in.readString();
-        this.originalLanguage = in.readString();
-        this.originalTitle = in.readString();
-        this.overview = in.readString();
-        this.popularity = (Double) in.readValue(Double.class.getClassLoader());
-        this.posterPath = in.readString();
-        this.releaseDate = in.readString();
-        this.revenue = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.runtime = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.tagline = in.readString();
-        this.voteAverage = (Double) in.readValue(Double.class.getClassLoader());
-        this.voteCount = (Integer) in.readValue(Integer.class.getClassLoader());
-
-        //ReleaseDatesWrapper singleMovieReleaseDates
-        //CreditsWrapper credits
-        //VideosWrapper videos
-        //SimilarWrapper similar
-        //ReviewsWrapper reviews
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-
-        @Override
-        public Object createFromParcel(Parcel source) {
-            return new MovieAllDetailsResult(source);
-        }
-
-        @Override
-        public Object[] newArray(int size) {
-            return new MovieAllDetailsResult[size];
-        }
-    };
-
     // getters and setters
     public String getBackdrop_path() {
         return backdrop_path;
@@ -931,13 +861,11 @@ public class MovieAllDetailsResult implements Parcelable {
         private List<ReleaseDatesResults> results;
 
 
-        public List<ReleaseDatesResults> getResults ()
-        {
+        public List<ReleaseDatesResults> getResults () {
             return results;
         }
 
-        public void setResults (List<ReleaseDatesResults> results)
-        {
+        public void setResults (List<ReleaseDatesResults> results) {
             this.results = results;
         }
     }
@@ -952,23 +880,19 @@ public class MovieAllDetailsResult implements Parcelable {
         @Expose
         private String iso_3166_1;
 
-        public List<ReleaseDatesResultsContent> getReleaseDateContents ()
-        {
+        public List<ReleaseDatesResultsContent> getReleaseDateContents () {
             return releaseDateContents;
         }
 
-        public void setReleaseDateContents (List<ReleaseDatesResultsContent> release_dates)
-        {
+        public void setReleaseDateContents (List<ReleaseDatesResultsContent> release_dates) {
             this.releaseDateContents = release_dates;
         }
 
-        public String getIso_3166_1 ()
-        {
+        public String getIso_3166_1 () {
             return iso_3166_1;
         }
 
-        public void setIso_3166_1 (String iso_3166_1)
-        {
+        public void setIso_3166_1 (String iso_3166_1) {
             this.iso_3166_1 = iso_3166_1;
         }
     }
@@ -995,54 +919,158 @@ public class MovieAllDetailsResult implements Parcelable {
         private String note;
 
 
-        public String getIso_639_1 ()
-        {
+        public String getIso_639_1 () {
             return iso_639_1;
         }
 
-        public void setIso_639_1 (String iso_639_1)
-        {
+        public void setIso_639_1 (String iso_639_1) {
             this.iso_639_1 = iso_639_1;
         }
 
-        public String getCertification ()
-        {
+        public String getCertification () {
             return certification;
         }
 
-        public void setCertification (String certification)
-        {
+        public void setCertification (String certification) {
             this.certification = certification;
         }
 
-        public String getRelease_date ()
-        {
+        public String getRelease_date () {
             return release_date;
         }
 
-        public void setRelease_date (String release_date)
-        {
+        public void setRelease_date (String release_date) {
             this.release_date = release_date;
         }
 
-        public String getType ()
-        {
+        public String getType () {
             return type;
         }
 
-        public void setType (String type)
-        {
+        public void setType (String type) {
             this.type = type;
         }
 
-        public String getNote ()
-        {
+        public String getNote () {
             return note;
         }
 
-        public void setNote (String note)
-        {
+        public void setNote (String note) {
             this.note = note;
         }
     }
+
+    protected MovieAllDetailsResult(Parcel in) {
+        backdrop_path = in.readString();
+        budget = in.readByte() == 0x00 ? null : in.readInt();
+        if (in.readByte() == 0x01) {
+            genres = new ArrayList<MovieGenreResult>();
+            in.readList(genres, MovieGenreResult.class.getClassLoader());
+        } else {
+            genres = null;
+        }
+        homepage = in.readString();
+        movieId = in.readByte() == 0x00 ? null : in.readInt();
+        imdb_id = in.readString();
+        originalLanguage = in.readString();
+        originalTitle = in.readString();
+        overview = in.readString();
+        popularity = in.readByte() == 0x00 ? null : in.readDouble();
+        posterPath = in.readString();
+        releaseDate = in.readString();
+        revenue = in.readByte() == 0x00 ? null : in.readInt();
+        runtime = in.readByte() == 0x00 ? null : in.readInt();
+        tagline = in.readString();
+        voteAverage = in.readByte() == 0x00 ? null : in.readDouble();
+        voteCount = in.readByte() == 0x00 ? null : in.readInt();
+        singleMovieReleaseDates = (ReleaseDatesWrapper) in.readValue(ReleaseDatesWrapper.class.getClassLoader());
+        credits = (CreditsWrapper) in.readValue(CreditsWrapper.class.getClassLoader());
+        videos = (VideosWrapper) in.readValue(VideosWrapper.class.getClassLoader());
+        similar = (SimilarWrapper) in.readValue(SimilarWrapper.class.getClassLoader());
+        reviews = (ReviewsWrapper) in.readValue(ReviewsWrapper.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(backdrop_path);
+        if (budget == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(budget);
+        }
+        if (genres == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(genres);
+        }
+        dest.writeString(homepage);
+        if (movieId == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(movieId);
+        }
+        dest.writeString(imdb_id);
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        dest.writeString(overview);
+        if (popularity == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(popularity);
+        }
+        dest.writeString(posterPath);
+        dest.writeString(releaseDate);
+        if (revenue == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(revenue);
+        }
+        if (runtime == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(runtime);
+        }
+        dest.writeString(tagline);
+        if (voteAverage == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(voteAverage);
+        }
+        if (voteCount == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeInt(voteCount);
+        }
+        dest.writeValue(singleMovieReleaseDates);
+        dest.writeValue(credits);
+        dest.writeValue(videos);
+        dest.writeValue(similar);
+        dest.writeValue(reviews);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<MovieAllDetailsResult> CREATOR = new Parcelable.Creator<MovieAllDetailsResult>() {
+        @Override
+        public MovieAllDetailsResult createFromParcel(Parcel in) {
+            return new MovieAllDetailsResult(in);
+        }
+
+        @Override
+        public MovieAllDetailsResult[] newArray(int size) {
+            return new MovieAllDetailsResult[size];
+        }
+    };
 }
