@@ -338,7 +338,7 @@ public class MovieAllDetailsResult implements Parcelable {
         }
     }
 
-    public class CastResults {
+    public static class CastResults implements Parcelable {
         @SerializedName("cast_id")
         @Expose
         private Integer cast_id;
@@ -370,6 +370,82 @@ public class MovieAllDetailsResult implements Parcelable {
         @SerializedName("profile_path")
         @Expose
         private String profile_path;
+
+        protected CastResults(Parcel in) {
+            if (in.readByte() == 0) {
+                cast_id = null;
+            } else {
+                cast_id = in.readInt();
+            }
+            character = in.readString();
+            credit_id = in.readString();
+            if (in.readByte() == 0) {
+                gender = null;
+            } else {
+                gender = in.readInt();
+            }
+            if (in.readByte() == 0) {
+                id = null;
+            } else {
+                id = in.readInt();
+            }
+            name = in.readString();
+            if (in.readByte() == 0) {
+                order = null;
+            } else {
+                order = in.readInt();
+            }
+            profile_path = in.readString();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            if (cast_id == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeInt(cast_id);
+            }
+            dest.writeString(character);
+            dest.writeString(credit_id);
+            if (gender == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeInt(gender);
+            }
+            if (id == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeInt(id);
+            }
+            dest.writeString(name);
+            if (order == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeInt(order);
+            }
+            dest.writeString(profile_path);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Creator<CastResults> CREATOR = new Creator<CastResults>() {
+            @Override
+            public CastResults createFromParcel(Parcel in) {
+                return new CastResults(in);
+            }
+
+            @Override
+            public CastResults[] newArray(int size) {
+                return new CastResults[size];
+            }
+        };
 
         public Integer getCast_id() {
             return cast_id;
@@ -436,7 +512,7 @@ public class MovieAllDetailsResult implements Parcelable {
         }
     }
 
-    public class CrewResults {
+    public static class CrewResults implements Parcelable {
         @SerializedName("job")
         @Expose
         private String job;
@@ -448,6 +524,36 @@ public class MovieAllDetailsResult implements Parcelable {
         @SerializedName("profile_path")
         @Expose
         private String crew_image;
+
+        protected CrewResults(Parcel in) {
+            job = in.readString();
+            crew_name = in.readString();
+            crew_image = in.readString();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(job);
+            dest.writeString(crew_name);
+            dest.writeString(crew_image);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Creator<CrewResults> CREATOR = new Creator<CrewResults>() {
+            @Override
+            public CrewResults createFromParcel(Parcel in) {
+                return new CrewResults(in);
+            }
+
+            @Override
+            public CrewResults[] newArray(int size) {
+                return new CrewResults[size];
+            }
+        };
 
         public String getJob() {
             return job;
@@ -488,7 +594,7 @@ public class MovieAllDetailsResult implements Parcelable {
         }
     }
 
-    public class VideoResults {
+    public static class VideoResults implements Parcelable {
 
         @SerializedName("id")
         @Expose
@@ -521,6 +627,55 @@ public class MovieAllDetailsResult implements Parcelable {
         @SerializedName("type")
         @Expose
         private String type;
+
+        protected VideoResults(Parcel in) {
+            videoId = in.readString();
+            iso_639_1 = in.readString();
+            iso_3166_1 = in.readString();
+            key = in.readString();
+            name = in.readString();
+            site = in.readString();
+            if (in.readByte() == 0) {
+                size = null;
+            } else {
+                size = in.readInt();
+            }
+            type = in.readString();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(videoId);
+            dest.writeString(iso_639_1);
+            dest.writeString(iso_3166_1);
+            dest.writeString(key);
+            dest.writeString(name);
+            dest.writeString(site);
+            if (size == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeInt(size);
+            }
+            dest.writeString(type);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Creator<VideoResults> CREATOR = new Creator<VideoResults>() {
+            @Override
+            public VideoResults createFromParcel(Parcel in) {
+                return new VideoResults(in);
+            }
+
+            @Override
+            public VideoResults[] newArray(int size) {
+                return new VideoResults[size];
+            }
+        };
 
         public String getId() {
             return videoId;
@@ -601,7 +756,7 @@ public class MovieAllDetailsResult implements Parcelable {
         }
     }
 
-    public class SimilarResults {
+    public static class SimilarResults implements Parcelable {
         @SerializedName("vote_count")
         @Expose
         private Integer voteCount;
@@ -659,6 +814,94 @@ public class MovieAllDetailsResult implements Parcelable {
         private String releaseDate;
 
         private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+        protected SimilarResults(Parcel in) {
+            if (in.readByte() == 0) {
+                voteCount = null;
+            } else {
+                voteCount = in.readInt();
+            }
+            if (in.readByte() == 0) {
+                movieId = null;
+            } else {
+                movieId = in.readInt();
+            }
+            byte tmpVideo = in.readByte();
+            video = tmpVideo == 0 ? null : tmpVideo == 1;
+            if (in.readByte() == 0) {
+                voteAverage = null;
+            } else {
+                voteAverage = in.readDouble();
+            }
+            title = in.readString();
+            if (in.readByte() == 0) {
+                popularity = null;
+            } else {
+                popularity = in.readDouble();
+            }
+            posterPath = in.readString();
+            originalLanguage = in.readString();
+            originalTitle = in.readString();
+            backdropPath = in.readString();
+            byte tmpAdult = in.readByte();
+            adult = tmpAdult == 0 ? null : tmpAdult == 1;
+            overview = in.readString();
+            releaseDate = in.readString();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            if (voteCount == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeInt(voteCount);
+            }
+            if (movieId == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeInt(movieId);
+            }
+            dest.writeByte((byte) (video == null ? 0 : video ? 1 : 2));
+            if (voteAverage == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeDouble(voteAverage);
+            }
+            dest.writeString(title);
+            if (popularity == null) {
+                dest.writeByte((byte) 0);
+            } else {
+                dest.writeByte((byte) 1);
+                dest.writeDouble(popularity);
+            }
+            dest.writeString(posterPath);
+            dest.writeString(originalLanguage);
+            dest.writeString(originalTitle);
+            dest.writeString(backdropPath);
+            dest.writeByte((byte) (adult == null ? 0 : adult ? 1 : 2));
+            dest.writeString(overview);
+            dest.writeString(releaseDate);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Creator<SimilarResults> CREATOR = new Creator<SimilarResults>() {
+            @Override
+            public SimilarResults createFromParcel(Parcel in) {
+                return new SimilarResults(in);
+            }
+
+            @Override
+            public SimilarResults[] newArray(int size) {
+                return new SimilarResults[size];
+            }
+        };
 
         public Integer getVoteCount() {
             return voteCount;
@@ -804,7 +1047,7 @@ public class MovieAllDetailsResult implements Parcelable {
         }
     }
 
-    public class ReviewResults {
+    public static class ReviewResults implements Parcelable {
         @SerializedName("author")
         @Expose
         String author;
@@ -820,6 +1063,38 @@ public class MovieAllDetailsResult implements Parcelable {
         @SerializedName("url")
         @Expose
         String url;
+
+        protected ReviewResults(Parcel in) {
+            author = in.readString();
+            content = in.readString();
+            id = in.readString();
+            url = in.readString();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(author);
+            dest.writeString(content);
+            dest.writeString(id);
+            dest.writeString(url);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Creator<ReviewResults> CREATOR = new Creator<ReviewResults>() {
+            @Override
+            public ReviewResults createFromParcel(Parcel in) {
+                return new ReviewResults(in);
+            }
+
+            @Override
+            public ReviewResults[] newArray(int size) {
+                return new ReviewResults[size];
+            }
+        };
 
         public String getAuthor() {
             return author;
@@ -963,12 +1238,7 @@ public class MovieAllDetailsResult implements Parcelable {
     protected MovieAllDetailsResult(Parcel in) {
         backdrop_path = in.readString();
         budget = in.readByte() == 0x00 ? null : in.readInt();
-        if (in.readByte() == 0x01) {
-            genres = new ArrayList<MovieGenreResult>();
-            in.readList(genres, MovieGenreResult.class.getClassLoader());
-        } else {
-            genres = null;
-        }
+
         homepage = in.readString();
         movieId = in.readByte() == 0x00 ? null : in.readInt();
         imdb_id = in.readString();
@@ -983,11 +1253,7 @@ public class MovieAllDetailsResult implements Parcelable {
         tagline = in.readString();
         voteAverage = in.readByte() == 0x00 ? null : in.readDouble();
         voteCount = in.readByte() == 0x00 ? null : in.readInt();
-        singleMovieReleaseDates = (ReleaseDatesWrapper) in.readValue(ReleaseDatesWrapper.class.getClassLoader());
-        credits = (CreditsWrapper) in.readValue(CreditsWrapper.class.getClassLoader());
-        videos = (VideosWrapper) in.readValue(VideosWrapper.class.getClassLoader());
-        similar = (SimilarWrapper) in.readValue(SimilarWrapper.class.getClassLoader());
-        reviews = (ReviewsWrapper) in.readValue(ReviewsWrapper.class.getClassLoader());
+
     }
 
     @Override
@@ -1004,12 +1270,7 @@ public class MovieAllDetailsResult implements Parcelable {
             dest.writeByte((byte) (0x01));
             dest.writeInt(budget);
         }
-        if (genres == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(genres);
-        }
+
         dest.writeString(homepage);
         if (movieId == null) {
             dest.writeByte((byte) (0x00));
@@ -1054,11 +1315,6 @@ public class MovieAllDetailsResult implements Parcelable {
             dest.writeByte((byte) (0x01));
             dest.writeInt(voteCount);
         }
-        dest.writeValue(singleMovieReleaseDates);
-        dest.writeValue(credits);
-        dest.writeValue(videos);
-        dest.writeValue(similar);
-        dest.writeValue(reviews);
     }
 
     @SuppressWarnings("unused")

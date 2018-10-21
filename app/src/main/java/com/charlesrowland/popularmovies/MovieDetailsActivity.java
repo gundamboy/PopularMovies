@@ -67,35 +67,37 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String IS_SIMILAR = "is_similar";
     private static final int START_DELAY = 2000;
     private static final int POSTER_FADE_OUT_DELAY = 400;
-    private static final String MOVIE_INFO_RESULTS_SAVE_STATE = "info_results_object_save_state";
-    private static final String GENRE_RESULTS_SAVE_STATE = "genre_results_object_save_state";
-    private static final String CAST_RESULTS_SAVE_STATE = "cast_results_object_save_state";
-    private static final String CREW_RESULTS_SAVE_STATE = "crew_results_object_save_state";
-    private static final String REVIEW_RESULTS_SAVE_STATE = "review_results_object_save_state";
-    private static final String SIMILIAR_RESULTS_SAVE_STATE = "similar_results_object_save_state";
-    private static final String VIDEO_RESULTS_SAVE_STATE = "video_results_object_save_state";
-    private static final String CAST_RECYCLER_SAVE_STATE = "cast_save_state";
-    private static final String CREW_RECYCLER_SAVE_STATE = "crew_save_state";
-    private static final String SIMILAR_RECYCLER_SAVE_STATE = "similar_save_state";
-    private static final String REVIEWS_RECYCLER_SAVE_STATE = "reviews_save_state";
-    private static final String VIDEOS_RECYCLER_SAVE_STATE = "videos_save_state";
 
-    private static final String BACKDROP_SAVE_STATE = "backdrop_save_state";
-    private static final String POSTER_SAVE_STATE = "poster_save_state";
+    // api results save state
+    private static final String MOVIE_API_RESULTS_SAVE_STATE = "info_results_object_save_state";
+    private static final String CAST_API_RESULTS_SAVE_STATE = "cast_results_object_save_state";
+    private static final String CREW_API_RESULTS_SAVE_STATE = "crew_results_object_save_state";
+    private static final String SIMILAR_API_RESULTS_SAVE_STATE = "similar_results_object_save_state";
+    private static final String REVIEW_API_RESULTS_SAVE_STATE = "review_results_object_save_state";
+    private static final String VIDEO_API_RESULTS_SAVE_STATE = "video_results_object_save_state";
+
+    // adapter save states
+    private static final String CAST_ADAPTER_SAVE_STATE = "cast_results_object_save_state";
+    private static final String CREW_ADAPTER_SAVE_STATE = "crew_results_object_save_state";
+    private static final String SIMILIAR_ADAPTER_SAVE_STATE = "similar_results_object_save_state";
+    private static final String REVIEW_ADAPTER_SAVE_STATE = "review_results_object_save_state";
+    private static final String VIDEO_ADAPTER_SAVE_STATE = "video_results_object_save_state";
+
+    // RecyclerView save states
+    private static final String CAST_RECYCLER_SAVE_STATE = "cast_recycler_save_state";
+    private static final String CREW_RECYCLER_SAVE_STATE = "crew_recycler_save_state";
+    private static final String SIMILAR_RECYCLER_SAVE_STATE = "similar_recycler_save_state";
+    private static final String REVIEWS_RECYCLER_SAVE_STATE = "reviews_recycler_save_state";
+    private static final String VIDEOS_RECYCLER_SAVE_STATE = "videos_recycler_save_state";
+
+    // some string save states
     private static final String TITLE_SAVE_STATE = "title_save_state";
     private static final String GENRES_SAVE_STATE = "genres_save_state";
-    private static final String RUNTIME_SAVE_STATE = "runtime_save_state";
-    private static final String RATING_SAVE_STATE = "rating_save_state";
-    private static final String IMDB_SAVE_STATE = "imdb_save_state";
     private static final String MPAA_SAVE_STATE = "mpaa_save_state";
-    private static final String RELEASE_DATE_SAVE_STATE = "release_date_save_state";
     private static final String DIRECTOR_SAVE_STATE = "director_save_state";
     private static final String PRODUCERS_SAVE_STATE = "producers_save_state";
     private static final String WRITERS_SAVE_STATE = "writers_save_state";
     private static final String CAST_INTRO_SAVE_STATE = "cast_intro_save_state";
-    private static final String OVERVIEW_SAVE_STATE = "overview_save_state";
-    private static final String TAGLINE_SAVE_STATE = "tagline_save_state";
-
 
     // butterknife view bindings
     @BindView(R.id.toolbar) Toolbar mToolbar;
@@ -130,8 +132,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private List<MovieAllDetailsResult.MovieGenreResult> mGenresList;
     private List<MovieAllDetailsResult.CastResults> mCast;
     private List<MovieAllDetailsResult.CrewResults> mCrew;
-    private List<MovieAllDetailsResult.ReviewResults> mReviews;
     private List<MovieAllDetailsResult.SimilarResults> mSimilarMovies;
+    private List<MovieAllDetailsResult.ReviewResults> mReviews;
     private List<MovieAllDetailsResult.VideoResults> mVideos;
     // video url: https://www.youtube.com/watch?v={video key}
 
@@ -160,7 +162,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private String mMovieTitle;
     private String mGenreString = "";
     private String mpaaRating = "";
-    private String imdb_path_id = "";
     private String mPosterPath = "";
     private boolean isSimilar = false;
 
@@ -174,96 +175,153 @@ public class MovieDetailsActivity extends AppCompatActivity {
         // speeds up the scale transition to help hide data flashes
         getWindow().setSharedElementEnterTransition(new ChangeBounds().setDuration(200));
 
+        if (isSimilar) {
+            savedInstanceState = null;
+        }
+
         Intent intent = getIntent();
         MovieInfoResult passedInfo = intent.getParcelableExtra(getResources().getString(R.string.parcelable_intent_key));
         Bundle extras = intent.getExtras();
 
-        if (passedInfo != null & !intent.hasExtra(MOVIE_POSTER)) {
-            mMovieId = passedInfo.getMovieId();
-            mMovieTitle = passedInfo.getOriginalTitle();
-            mPosterPath = passedInfo.getPosterPath();
-            showImageBlocker(passedInfo, null);
-        } else {
-            // this handles the intent from similar movies
-            if (extras != null) {
-                isSimilar = extras.getBoolean(IS_SIMILAR);
-                mMovieId = extras.getInt(MOVIE_ID);
-                mMovieTitle = extras.getString(MOVIE_TITLE);
-                mPosterPath = extras.getString(MOVIE_POSTER);
-
-                if (isSimilar) {
-                    showSimilarPosterBlocker(mPosterPath);
-                } else {
-                    showImageBlocker(null, mPosterPath);
-                }
-
-            }
-        }
-
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.textColorPrimary), PorterDuff.Mode.SRC_ATOP);
-        getSupportActionBar().setTitle(mMovieTitle);
 
-        getMovieInfo();
+        if (savedInstanceState == null) {
+            if (passedInfo != null & !intent.hasExtra(MOVIE_POSTER)) {
+                mMovieId = passedInfo.getMovieId();
+                mMovieTitle = passedInfo.getOriginalTitle();
+                mPosterPath = passedInfo.getPosterPath();
+                showImageBlocker(passedInfo, null);
+            } else {
+                // this handles the intent from similar movies
+                if (extras != null) {
+                    isSimilar = extras.getBoolean(IS_SIMILAR);
+                    mMovieId = extras.getInt(MOVIE_ID);
+                    mMovieTitle = extras.getString(MOVIE_TITLE);
+                    mPosterPath = extras.getString(MOVIE_POSTER);
+
+                    if (isSimilar) {
+                        showSimilarPosterBlocker(mPosterPath);
+                    } else {
+                        showImageBlocker(null, mPosterPath);
+                    }
+
+                }
+            }
+
+            getSupportActionBar().setTitle(mMovieTitle);
+            getMovieInfo();
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        mCastRecycler = layoutManagerCast.onSaveInstanceState();
-        mCrewRecycler = layoutManagerCrew.onSaveInstanceState();
-        mSimilarMoviesRecycler = layoutManagerSimilar.onSaveInstanceState();
-        //mReviewsRecycler = layoutManagerReviews.onSaveInstanceState();
-        //mVideosRecycler = layoutManagerVideos.onSaveInstanceState();
 
-        outState.putParcelable(CAST_RECYCLER_SAVE_STATE, mCastRecycler);
-        outState.putParcelable(CREW_RECYCLER_SAVE_STATE, mCrewRecycler);
-        outState.putParcelable(SIMILAR_RECYCLER_SAVE_STATE, mSimilarMoviesRecycler);
-        //outState.putParcelable(REVIEWS_RECYCLER_SAVE_STATE, mReviewsRecycler);
-        //outState.putParcelable(VIDEOS_RECYCLER_SAVE_STATE, mVideosRecycler);
-
-        //outState.putParcelableArrayList(POSTERS_STATE, new ArrayList<>(results));
-        //outState.putParcelableArrayList(MOVIE_INFO_RESULTS_SAVE_STATE, new ArrayList<>(mGenresList));
-
-        //outState.putString(BACKDROP_SAVE_STATE, "");
-        //outState.putString(POSTER_SAVE_STATE, "");
+        Log.i(TAG, "onSaveInstanceState: testing mMovieInfo: " + mMovieInfo.getBackdrop_path());
+        outState.putParcelable(MOVIE_API_RESULTS_SAVE_STATE, mMovieInfo);
         outState.putString(TITLE_SAVE_STATE, mMovieTitle);
-        outState.putString(GENRES_SAVE_STATE, mGenreString);
-        outState.putString(RUNTIME_SAVE_STATE, mRuntime.getText().toString());
-        outState.putString(RATING_SAVE_STATE, mRatingText.getText().toString());
-        outState.putString(IMDB_SAVE_STATE, imdb_path_id);
         outState.putString(MPAA_SAVE_STATE, mpaaRating);
-        outState.putString(RELEASE_DATE_SAVE_STATE, mReleaseDate.getText().toString());
+        outState.putString(GENRES_SAVE_STATE, mGenreString);
         outState.putString(DIRECTOR_SAVE_STATE, mDirector.getText().toString());
         outState.putString(PRODUCERS_SAVE_STATE, mProducers.getText().toString());
         outState.putString(WRITERS_SAVE_STATE, mWriters.getText().toString());
         outState.putString(CAST_INTRO_SAVE_STATE, mCastIntro.getText().toString());
-        outState.putString(OVERVIEW_SAVE_STATE, mOverview.getText().toString());
-        outState.putString(TAGLINE_SAVE_STATE, mTagline.getText().toString());
-        // add mpaa drawable here
+
+        // time to get the cast members.
+        // need to get the scroll position of the layout manage
+        mCastRecycler = layoutManagerCast.onSaveInstanceState();
+        outState.putParcelable(CAST_RECYCLER_SAVE_STATE, mCastRecycler);
+
+        // need to get mCast which is a List<MovieAllDetailsResult.CastResults>
+        outState.putParcelableArrayList(CAST_API_RESULTS_SAVE_STATE, new ArrayList<>(mCast));
+
+        // need to get the adapter, mCreditsCast which is a Parcelable ArrayList<Credit>
+        outState.putParcelableArrayList(CAST_ADAPTER_SAVE_STATE, new ArrayList<>(mCreditsCast));
+
+
+        // time to get the crew members.
+        // need to get the scroll position of the layout manage
+        mCrewRecycler = layoutManagerCrew.onSaveInstanceState();
+        outState.putParcelable(CREW_RECYCLER_SAVE_STATE, mCastRecycler);
+
+        // need to get mCast which is a List<MovieAllDetailsResult.CastResults>
+        outState.putParcelableArrayList(CREW_API_RESULTS_SAVE_STATE, new ArrayList<>(mCrew));
+
+        // need to get the adapter, mCreditsCast which is a Parcelable ArrayList<Credit>
+        outState.putParcelableArrayList(CREW_ADAPTER_SAVE_STATE, new ArrayList<>(mCreditsCrew));
+
+
+        // time to get the similar movies.
+        // there is no scrolling for similar images at the moment, but that may change. Future
+        // proof all the things!
+        mSimilarMoviesRecycler = layoutManagerSimilar.onSaveInstanceState();
+        outState.putParcelable(SIMILAR_RECYCLER_SAVE_STATE, mCastRecycler);
+
+        // need to get mCast which is a List<MovieAllDetailsResult.SimilarResults>
+        outState.putParcelableArrayList(SIMILAR_API_RESULTS_SAVE_STATE, new ArrayList<>(mSimilarMovies));
+
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if(savedInstanceState != null) {
-            mCastRecycler = savedInstanceState.getParcelable(CAST_RECYCLER_SAVE_STATE);
-            mCrewRecycler = savedInstanceState.getParcelable(CREW_RECYCLER_SAVE_STATE);
-            mSimilarMoviesRecycler = savedInstanceState.getParcelable(SIMILAR_RECYCLER_SAVE_STATE);
-            //mReviewsRecycler = savedInstanceState.getParcelable(REVIEWS_RECYCLER_SAVE_STATE);
-            //mVideosRecycler = savedInstanceState.getParcelable(VIDEOS_RECYCLER_SAVE_STATE);
-
             getSupportActionBar().setTitle(savedInstanceState.getString(TITLE_SAVE_STATE));
-            mTitle.setText(savedInstanceState.getString(TITLE_SAVE_STATE));
-            mGenres.setText(savedInstanceState.getString(GENRES_SAVE_STATE));
-            mRuntime.setText(savedInstanceState.getString(RUNTIME_SAVE_STATE));
-            mRatingText.setText(savedInstanceState.getString(RATING_SAVE_STATE));
-            mReleaseDate.setText(savedInstanceState.getString(RELEASE_DATE_SAVE_STATE));
-            mTagline.setText(savedInstanceState.getString(TAGLINE_SAVE_STATE));
-            mOverview.setText(savedInstanceState.getString(OVERVIEW_SAVE_STATE));
-            // set mpaa drawable here
+            mMovieInfo = savedInstanceState.getParcelable(MOVIE_API_RESULTS_SAVE_STATE);
+            mGenreString = savedInstanceState.getString(GENRES_SAVE_STATE);
+            mpaaRating = savedInstanceState.getString(MPAA_SAVE_STATE);
 
+            // temps. these get set in the adapter setup for each
+            mCastIntro.setText(savedInstanceState.getString(CAST_INTRO_SAVE_STATE));
+            mDirector.setText(savedInstanceState.getString(DIRECTOR_SAVE_STATE));
+            mProducers.setText(savedInstanceState.getString(PRODUCERS_SAVE_STATE));
+            mWriters.setText(savedInstanceState.getString(WRITERS_SAVE_STATE));
+            mCastIntro.setText(savedInstanceState.getString(CAST_INTRO_SAVE_STATE));
+
+            // time to set the cast members.
+            // need to populate mCast.
+            mCast = savedInstanceState.getParcelableArrayList(CAST_API_RESULTS_SAVE_STATE);
+
+            // need to set the cast adapter
+            mCreditsCast = savedInstanceState.getParcelableArrayList(CAST_ADAPTER_SAVE_STATE);
+
+            // need to set scroll position
+            mCastRecycler = savedInstanceState.getParcelable(CAST_RECYCLER_SAVE_STATE);
+
+            // time to set the cast members.
+            // need to populate mCast.
+            mCrew = savedInstanceState.getParcelableArrayList(CREW_API_RESULTS_SAVE_STATE);
+
+            // need to set the cast adapter
+            mCreditsCrew = savedInstanceState.getParcelableArrayList(CREW_ADAPTER_SAVE_STATE);
+
+            // need to set scroll position
+            mCrewRecycler = savedInstanceState.getParcelable(CREW_RECYCLER_SAVE_STATE);
+
+            // time to set similar movies.
+            // need to populate mCast.
+            mSimilarMovies = savedInstanceState.getParcelableArrayList(SIMILAR_API_RESULTS_SAVE_STATE);
+
+            // need to set scroll position
+            mSimilarMoviesRecycler = savedInstanceState.getParcelable(SIMILAR_RECYCLER_SAVE_STATE);
+
+            loadFromSavedInstanceState(savedInstanceState);
+        }
+    }
+
+    private void loadFromSavedInstanceState(Bundle savedInstanceState) {
+
+        // hide the full screen poster, we don't need it
+        mPosterBlocker.setVisibility(View.GONE);
+
+        if (savedInstanceState != null) {
+            setImageViews();
+            setTextViews();
+            setCastMembers();
+            setCrewMembers();
+            similarMovieViewSetup();
         }
     }
 
@@ -303,27 +361,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 // get the reviews
                 mReviews = mMovieInfo.getReviews().getResults();
 
-                imdb_path_id = mMovieInfo.getImdb_id();
-
-                // the MPAA rating is a massive PITA to get. its nested 3 levels deep.
-                List<MovieAllDetailsResult.ReleaseDatesResults> rdWrapper = mMovieInfo.getRelease_dates().getResults();
-                List<MovieAllDetailsResult.ReleaseDatesResultsContent> content;
-                for(MovieAllDetailsResult.ReleaseDatesResults rd : rdWrapper) {
-                    if (rd.getIso_3166_1().equals("US")) {
-                        content = rd.getReleaseDateContents();
-                        for(MovieAllDetailsResult.ReleaseDatesResultsContent inner_contents : content) {
-                            String cert = inner_contents.getCertification();
-                            if (cert != null && !cert.isEmpty()) {
-                                if (cert.equals("G") || cert.equals("PG") || cert.equals("PG-13") || cert.equals("R") || cert.equals("NC-17")) {
-                                    mpaaRating = inner_contents.getCertification();
-                                    break;
-                                }
-                            }
-
-                        }
-                    }
-                }
-
                 setImageViews();
                 setTextViews();
                 setCastMembers();
@@ -337,6 +374,28 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 Log.i(TAG, "onFailure: there was an error: " + t);
             }
         });
+    }
+
+    private String getMpaaRating() {
+        List<MovieAllDetailsResult.ReleaseDatesResults> rdWrapper = mMovieInfo.getRelease_dates().getResults();
+        List<MovieAllDetailsResult.ReleaseDatesResultsContent> content;
+        String rating = "";
+        for(MovieAllDetailsResult.ReleaseDatesResults rd : rdWrapper) {
+            if (rd.getIso_3166_1().equals("US")) {
+                content = rd.getReleaseDateContents();
+                for(MovieAllDetailsResult.ReleaseDatesResultsContent inner_contents : content) {
+                    String cert = inner_contents.getCertification();
+                    if (cert != null && !cert.isEmpty()) {
+                        if (cert.equals("G") || cert.equals("PG") || cert.equals("PG-13") || cert.equals("R") || cert.equals("NC-17")) {
+                            rating = inner_contents.getCertification();
+                            break;
+                        }
+                    }
+
+                }
+            }
+        }
+        return rating;
     }
 
     private void hideImageBlocker() {
@@ -397,33 +456,25 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void setTextViews() {
-
-
         mTitle.setText(mMovieInfo.getOriginalTitle());
         mGenres.setText(mGenreString);
 
         int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
         String runtimeString = convertRuntime(runtime);
         mRuntime.setText(runtimeString);
-
         mRatingText.setText(String.valueOf(mMovieInfo.getVoteAverage()));
-
-        String releaseDate = mMovieInfo.getReleaseDate();
-        mReleaseDate.setText(convertReleaseDate(releaseDate));
-
-        String tagLine = mMovieInfo.getTagline();
-        mTagline.setText(tagLine);
-
+        mReleaseDate.setText(convertReleaseDate(mMovieInfo.getReleaseDate()));
+        mTagline.setText(mMovieInfo.getTagline());
         mOverview.setText(mMovieInfo.getOverview());
 
+        mpaaRating = getMpaaRating();
         if (mpaaRating != null && !mpaaRating.isEmpty()) {
-            // if the movie is rated R make the background red. other wise its green, which is on the
-            // textview by default.
+            // if the movie is rated R make the background red. other wise its green, which
+            // is on the TextView by default.
             if (mpaaRating.equals("R")) {
                 mpaaBackground = ContextCompat.getDrawable(this, R.drawable.rounded_corners_mpaa_r);
                 mMpaaRating.setBackground(mpaaBackground);
             }
-
             mMpaaRating.setText(mpaaRating);
         } else {
             mMpaaRating.setVisibility(View.GONE);
@@ -432,10 +483,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mIMDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToImdb(imdb_path_id);
+                goToImdb(mMovieInfo.getImdb_id());
             }
         });
-
     }
 
     private void setImageViews() {
@@ -460,6 +510,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private String convertRuntime(int fullMinutes ) {
+        if (fullMinutes == 0) {
+            return "N/A";
+        }
+
         int hours = fullMinutes / 60;
         int minutes = fullMinutes % 60;
         return String.valueOf(hours) + "h " + String.valueOf(minutes) + "min";
@@ -477,91 +531,110 @@ public class MovieDetailsActivity extends AppCompatActivity {
         return parts[0].length();
     }
 
+    private void setSpanableText(String str, TextView v) {
+        str = str.substring(0, str.length()-2);
+        SpannableString strSpan = new SpannableString(str);
+        strSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(str),0);
+        v.setText(strSpan, TextView.BufferType.SPANNABLE);
+    }
+
     private void setCastMembers() {
-        String top_stars = getResources().getString(R.string.details_staring) +   " ";
+        String top_stars;
 
-        // set the short line for staring cast members
-        for (MovieAllDetailsResult.CastResults cast_member : mCast) {
-            if (cast_member.getOrder() <= 3) {
-                top_stars += cast_member.getName() + ", ";
-            }
+        if(mCreditsCast.size() == 0) {
+            top_stars = getResources().getString(R.string.details_staring) +   " ";
 
-            if (cast_member.getOrder() <= 7) {
-                if(cast_member.getProfile_path() != null) {
-                    mCreditsCast.add(new Credit(cast_member.getProfile_path(), cast_member.getName(), cast_member.getCharacter()));
+            // set the short line for staring cast members
+            for (MovieAllDetailsResult.CastResults cast_member : mCast) {
+                if (cast_member.getOrder() <= 3) {
+                    top_stars += cast_member.getName() + ", ";
+                }
+
+                if (cast_member.getOrder() <= 7) {
+                    if(cast_member.getProfile_path() != null) {
+                        mCreditsCast.add(new Credit(cast_member.getProfile_path(), cast_member.getName(), cast_member.getCharacter()));
+                    }
                 }
             }
+
+            top_stars = top_stars.substring(0, top_stars.length()-2);
+        } else {
+            top_stars = mCastIntro.getText().toString();
         }
 
-        top_stars = top_stars.substring(0, top_stars.length()-2);
-
-        SpannableString topStarsSpan = new SpannableString(top_stars);
-        topStarsSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(top_stars),0);
-        mCastIntro.setText(topStarsSpan, TextView.BufferType.SPANNABLE);
-
+        setSpanableText(top_stars, mCastIntro);
         castRecyclerViewSetup();
     }
 
     private void setCrewMembers() {
-        String director = getResources().getString(R.string.details_director) +  " ";
-        String writers = getResources().getString(R.string.details_writers) +  " ";;
-        String producers = getResources().getString(R.string.details_producers) +  " ";
+        String director;
+        String writers;
+        String producers;
 
-        int count = 0;
-        for (MovieAllDetailsResult.CrewResults crew_member : mCrew) {
-            if (count <=7 && crew_member.getCrew_image() != null && !crew_member.getJob().equals("Director")) {
-                // why are you incrementing up to you ask...
-                // because reasons. and science. see the director notes below. and ACTION!
-                mCreditsCrew.add(new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
-                count++;
+        if(mCreditsCrew.size() == 0) {
+            director = getResources().getString(R.string.details_director) +  " ";
+            writers = getResources().getString(R.string.details_writers) +  " ";;
+            producers = getResources().getString(R.string.details_producers) +  " ";
+
+            int count = 0;
+            for (MovieAllDetailsResult.CrewResults crew_member : mCrew) {
+                if (count <=7 && crew_member.getCrew_image() != null && !crew_member.getJob().equals("Director")) {
+                    // why are you incrementing up to you ask...
+                    // because reasons. and science. see the director notes below. and ACTION!
+                    mCreditsCrew.add(new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
+                    count++;
+                }
+
+                if(crew_member.getJob().equals("Story") || crew_member.getJob().equals("Screenplay")) {
+                    writers += crew_member.getCrew_name() + ", ";
+                }
+
+                if(crew_member.getJob().equals("Producer") || crew_member.getJob().equals("Executive Producer")) {
+                    producers += crew_member.getCrew_name() + ", ";
+                }
+
+                if(crew_member.getJob().equals("Director")) {
+                    // i want a total of 8. if the directory was found i want them at the start
+                    // if the directory was not found, i need to add them later
+                    director += crew_member.getCrew_name() + ", ";
+                    mCreditsCrew.add(0,new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
+                }
             }
 
-            if(crew_member.getJob().equals("Story") || crew_member.getJob().equals("Screenplay")) {
-                writers += crew_member.getCrew_name() + ", ";
-            }
+            // removes the last comma from the strings
+            writers = writers.substring(0, writers.length()-2);
+            producers = producers.substring(0, producers.length()-2);
+            director = director.substring(0, director.length()-2);
 
-            if(crew_member.getJob().equals("Producer") || crew_member.getJob().equals("Executive Producer")) {
-                producers += crew_member.getCrew_name() + ", ";
+            // some movies have more than 1 director. Adjust the "Director" text to be "Directors" if so
+            if (director.contains(",")) {
+                StringBuilder sb = new StringBuilder(director);
+                sb.insert(getSpannableCount(director), "s");
+                director = sb.toString();
             }
-
-            if(crew_member.getJob().equals("Director")) {
-                // i want a total of 8. if the directory was found i want them at the start
-                // if the directory was not found, i need to add them later
-                director += crew_member.getCrew_name() + ", ";
-                mCreditsCrew.add(0,new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
-            }
+        } else {
+            producers = mProducers.getText().toString();
+            writers = mWriters.getText().toString();
+            director = mDirector.getText().toString();
         }
 
-        // removes the last comma from the strings
-        writers = writers.substring(0, writers.length()-2);
-        producers = producers.substring(0, producers.length()-2);
-        director = director.substring(0, director.length()-2);
-
-        // some movies have more than 1 director. Adjust the "Director" text to be "Directors" if so
-        if (director.contains(",")) {
-            StringBuilder sb = new StringBuilder(director);
-            sb.insert(getSpannableCount(director), "s");
-            director = sb.toString();
-        }
 
         // makes the Director: Producers: etc bold
-        SpannableString producersSpan = new SpannableString(producers);
-        producersSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(producers),0);
-        mProducers.setText(producersSpan, TextView.BufferType.SPANNABLE);
-
-        SpannableString writersSpan = new SpannableString(writers);
-        writersSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(writers),0);
-        mWriters.setText(writersSpan, TextView.BufferType.SPANNABLE);
-
-        SpannableString directorSpan = new SpannableString(director);
-        directorSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(director),0);
-        mDirector.setText(directorSpan, TextView.BufferType.SPANNABLE);
+        setSpanableText(producers, mProducers);
+        setSpanableText(writers, mWriters);
+        setSpanableText(director, mDirector);
 
         crewRecyclerViewSetup();
     }
 
     private void castRecyclerViewSetup() {
+        Log.i(TAG, "castRecyclerViewSetup: layourManagerCast is what? " + layoutManagerCast);
         layoutManagerCast = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+        if (mCastRecycler != null) {
+            layoutManagerCast.onRestoreInstanceState(mCastRecycler);
+        }
+
         castRecyclerView.setLayoutManager(layoutManagerCast);
         castRecyclerView.addItemDecoration(new EqualSpacingItemDecoration(36, EqualSpacingItemDecoration.HORIZONTAL));
         mCastAdapter = new CastCrewAdapter(mCreditsCast);
@@ -570,6 +643,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void crewRecyclerViewSetup() {
         layoutManagerCrew = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+        if (mCrewRecycler != null) {
+            layoutManagerCrew.onRestoreInstanceState(mCrewRecycler);
+        }
+
         crewRecyclerView.setLayoutManager(layoutManagerCrew);
         crewRecyclerView.addItemDecoration(new EqualSpacingItemDecoration(36, EqualSpacingItemDecoration.HORIZONTAL));
         mCrewAdapter = new CastCrewAdapter(mCreditsCrew);
@@ -579,6 +657,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private void similarMovieViewSetup() {
         if (mSimilarMovies.size() > 0 ) {
             layoutManagerSimilar = new GridLayoutManager(this, getResources().getInteger(R.integer.similar_movies_grid_span_count));
+
+            if (mSimilarMoviesRecycler != null) {
+                layoutManagerSimilar.onRestoreInstanceState(mSimilarMoviesRecycler);
+            }
+
             similarMoviesRecyclerView.setLayoutManager(layoutManagerSimilar);
             mSimilarMoviesAdapter = new SimilarMoviesAdapter(mSimilarMovies);
             mSimilarMoviesAdapter.setData(mSimilarMovies);
