@@ -172,9 +172,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        // speeds up the scale transition to help hide data flashes
-        getWindow().setSharedElementEnterTransition(new ChangeBounds().setDuration(200));
-
         if (isSimilar) {
             savedInstanceState = null;
         }
@@ -188,6 +185,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.textColorPrimary), PorterDuff.Mode.SRC_ATOP);
 
         if (savedInstanceState == null) {
+            // speeds up the scale transition to help hide data flashes
+            getWindow().setSharedElementEnterTransition(new ChangeBounds().setDuration(200));
+
             if (passedInfo != null & !intent.hasExtra(MOVIE_POSTER)) {
                 mMovieId = passedInfo.getMovieId();
                 mMovieTitle = passedInfo.getOriginalTitle();
