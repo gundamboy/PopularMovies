@@ -1,17 +1,16 @@
-package com.charlesrowland.popularmovies.interfaces;
+package com.charlesrowland.popularmovies.adapters;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.charlesrowland.popularmovies.MovieDetailsActivity;
 import com.charlesrowland.popularmovies.R;
+import com.charlesrowland.popularmovies.model.Credit;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

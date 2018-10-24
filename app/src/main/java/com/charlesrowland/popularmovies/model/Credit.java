@@ -1,4 +1,4 @@
-package com.charlesrowland.popularmovies.interfaces;
+package com.charlesrowland.popularmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

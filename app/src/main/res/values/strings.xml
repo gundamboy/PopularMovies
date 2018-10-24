@@ -11,6 +11,7 @@
     <string name="backdrop_url">https://image.tmdb.org/t/p/w500</string>
     <string name="poster_url">https://image.tmdb.org/t/p/w185</string>
     <string name="poster_342_url">https://image.tmdb.org/t/p/w342</string>
+    <string name="youtube_image_url">https://img.youtube.com/vi/%1$s/hqdefault.jpg</string>
 
     <string name="appBarTitle_popular">Popular Movies</string>
     <string name="appBarTitle_toprated">Top Rated Movies</string>
@@ -33,6 +34,8 @@
     <string name="details_tagline_header">Tagline:</string>
     <string name="details_cast_header">Cast:</string>
     <string name="details_crew_header">Crew:</string>
+    <string name="details_video_header">Videos:</string>
+    <string name="details_reviews_header">Reviews:</string>
     <string name="details_similar_header">Similar Movies:</string>
     <string name="details_runtime_hour_abbr">h</string>
     <string name="details_runtime_min_abbr">min</string>
@@ -51,5 +54,10 @@
     <string name="title_screen_credits_string">charles rowland presents “movie night” in association with udacity as part of the android develoer nanodegree an app by charles rowland art direction lillian rowland and charles rowland distractions by ethan rowland emotional support daisey the dog development music a lot of heavy metal and always remember thanos did nothing wrong</string>
     <string name="poster_scale_transition">poster_scale_transition</string>
     <string name="similar_poster_scale_transition">similar_poster_scale_transition</string>
+
+
+    <string name="description_movie_poster">Movie poster for current movie</string>
+    <string name="description_movie_backdrop">Movie backdrop picture for current movie</string>
+    <string name="description_movie_trailer">Movie trailer for current movie</string>
 
 </resources>

@@ -265,6 +265,32 @@
             tools:listitem="@layout/cast_crew_list_item" />
 
         <TextView
+            android:id="@+id/videos_header"
+            style="@style/DetailsTextTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_24"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:text="@string/details_video_header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/crew_recyclerview" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/videos_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_4"
+            android:layout_marginEnd="@dimen/margins_8"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/similar_header"
+            tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:listitem="@layout/movie_poster_recycler_item" />
+
+        <TextView
             android:id="@+id/similar_header"
             style="@style/DetailsTextTitle"
             android:layout_width="match_parent"
@@ -275,7 +301,7 @@
             android:text="@string/details_similar_header"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/crew_recyclerview" />
+            app:layout_constraintTop_toBottomOf="@+id/videos_recyclerview" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/similar_movies_recyclerview"

@@ -1,4 +1,4 @@
-package com.charlesrowland.popularmovies.interfaces;
+package com.charlesrowland.popularmovies.adapters;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;

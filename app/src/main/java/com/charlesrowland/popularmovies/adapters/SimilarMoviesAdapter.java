@@ -1,9 +1,8 @@
-package com.charlesrowland.popularmovies.interfaces;
+package com.charlesrowland.popularmovies.adapters;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_margin="@dimen/margins_4">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/trailer_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:contentDescription="@string/description_movie_trailer"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/solo_hqdefault"/>
+
+        <!-- youtube icons:
+        https://www.youtube.com/intl/en/yt/about/brand-resources/#logos-icons-colors -->
+        <ImageView
+            android:id="@+id/youtube_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/description_movie_trailer"
+            android:scaleType="centerInside"
+            tools:scaleX="0.35"
+            android:scaleY="0.35"
+            app:layout_constraintBottom_toBottomOf="@+id/trailer_image"
+            app:layout_constraintEnd_toEndOf="trailer_image"
+            app:layout_constraintStart_toStartOf="trailer_image"
+            app:layout_constraintTop_toTopOf="@+id/trailer_image"
+            tools:src="@drawable/youtube_social_icon_red" />
+
+        <TextView
+            android:id="@+id/trailer_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margins_8"
+            android:ellipsize="end"
+            android:lines="1"
+            tools:text="Solo Official Teaser Trailer"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/trailer_image"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v7.widget.CardView>
