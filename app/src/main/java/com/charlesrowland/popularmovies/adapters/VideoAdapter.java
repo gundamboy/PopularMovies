@@ -51,7 +51,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoHolder>
 
         holder.trailer_title.setText(results.get(position).getName());
         holder.youtube_url.setText(videoUrl);
-        holder.video_key.setText(videoUrl);
+        holder.video_key.setText(vkey);
         Picasso.get().load(thumbnailUrl).placeholder(R.color.windowBackground).into(holder.trailer_image);
     }
 

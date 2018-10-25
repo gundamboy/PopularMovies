@@ -219,7 +219,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        Log.i(TAG, "onSaveInstanceState: testing mMovieInfo: " + mMovieInfo.getBackdrop_path());
         outState.putParcelable(MOVIE_API_RESULTS_SAVE_STATE, mMovieInfo);
         outState.putString(TITLE_SAVE_STATE, mMovieTitle);
         outState.putString(MPAA_SAVE_STATE, mpaaRating);
@@ -334,6 +333,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             setCastMembers();
             setCrewMembers();
             similarMovieViewSetup();
+            videosViewSetup();
         }
     }
 
@@ -641,7 +641,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void castRecyclerViewSetup() {
-        Log.i(TAG, "castRecyclerViewSetup: layourManagerCast is what? " + layoutManagerCast);
         layoutManagerCast = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
 
         if (mCastRecycler != null) {
@@ -700,6 +699,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         } else {
             similarMoviesRecyclerView.setVisibility(View.GONE);
             mSimilarHeader.setVisibility(View.GONE);
+            setVideosConstraint();
         }
     }
 
@@ -720,15 +720,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mVideosAdapter.setOnClickListener(new VideoAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(int position, String youtubeUrl, String video_key) {
-                    Log.i(TAG, "onItemClick: youtubeUrl: " + Uri.parse(youtubeUrl));
+
                     Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video_key));
                     Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl));
 
                     try {
                         startActivity(appIntent);
-                        Log.i(TAG, "onItemClick: appintent");
                     } catch (ActivityNotFoundException ex) {
-                        Log.i(TAG, "onItemClick: webintent");
                         if (webIntent.resolveActivity(getPackageManager()) != null) {
                             startActivity(webIntent);
                         }

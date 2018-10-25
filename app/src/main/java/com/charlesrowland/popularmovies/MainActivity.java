@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
             public void onRefresh() {
                 if (checkNetworkStatus()) {
                     showPosters();
-                    buildAdapter();
+                    buildAdapter(false);
                 } else {
                     showNoNetwork();
                 }
@@ -196,11 +196,11 @@ public class MainActivity extends AppCompatActivity {
             setTitle();
             attachAdapter();
         } else {
-            buildAdapter();
+            buildAdapter(false);
         }
     }
 
-    private void buildAdapter() {
+    private void buildAdapter(final boolean prefSwap) {
         swipeRefreshLayout.setRefreshing(false);
 
         Call<MovieSortingWrapper> call;
@@ -217,8 +217,6 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<MovieSortingWrapper>() {
             @Override
             public void onResponse(Call<MovieSortingWrapper> call, Response<MovieSortingWrapper> response) {
-                Log.i(TAG, "onResponse: api response");
-
                 // i found an issue with some errors coming back and not triggering onFailure so this
                 // was my solution.
                 if(response.code() != 200) {
@@ -234,20 +232,28 @@ public class MainActivity extends AppCompatActivity {
                     results = movie.getResults();
                 }
 
+                if (prefSwap) {
+                    results = movie.getResults();
+                    mAdapter = null;
+                }
+
                 // wtf is this about! I am removing all results that are not english movies.
                 // this isn't because I don't like non english movies though. Some of the movies
                 // from other countries have various pieces of data missing and its crashing the app
                 // adding in region=US in the api call is supposed to do this, but guess what, it
                 // doesn't always work....
-                List<MovieInfoResult> non_english_results = new ArrayList<>();
-                for (MovieInfoResult m : results) {
-                    if (!m.getOriginalLanguage().equals("en")) {
-                        non_english_results.add(m);
+                if (getSharedPreferenceOrderbyValue().equals(getResources().getString(R.string.settings_order_by_default))) {
+                    List<MovieInfoResult> non_english_results = new ArrayList<>();
+                    for (MovieInfoResult m : results) {
+                        if (!m.getOriginalLanguage().equals("en")) {
+                            non_english_results.add(m);
+                        }
                     }
+                    results.removeAll(non_english_results);
                 }
 
-                results.removeAll(non_english_results);
                 attachAdapter();
+                setTitle();
             }
 
             @Override
@@ -327,7 +333,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
             case R.id.action_show_options:
-                Log.i(TAG, "onOptionsItemSelected: CLICKED");
                 showSortOptionsDialog();
                 return true;
         }
@@ -386,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
                     mEditor = mPreferences.edit();
                     mEditor.putString(getResources().getString(R.string.settings_order_by_key), sortOrder);
                     mEditor.commit();
-                    buildAdapter();
+                    buildAdapter(true);
                 }
             }
         });
