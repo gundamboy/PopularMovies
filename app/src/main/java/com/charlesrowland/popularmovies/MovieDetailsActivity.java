@@ -2,6 +2,7 @@ package com.charlesrowland.popularmovies;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -10,6 +11,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -25,6 +28,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.charlesrowland.popularmovies.adapters.VideoAdapter;
 import com.charlesrowland.popularmovies.interfaces.ApiInterface;
 import com.charlesrowland.popularmovies.adapters.CastCrewAdapter;
 import com.charlesrowland.popularmovies.model.Credit;
@@ -92,6 +96,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String CAST_INTRO_SAVE_STATE = "cast_intro_save_state";
 
     // butterknife view bindings
+    @BindView(R.id.movie_details_inner_layout) ConstraintLayout mMovieDetailsLayout;
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.backdrop) ImageView mBackdrop;
     @BindView(R.id.movie_poster) ImageView mPoster;
@@ -111,9 +116,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.overview) TextView mOverview;
     @BindView(R.id.tagline) TextView mTagline;
     @BindView(R.id.similar_header) TextView mSimilarHeader;
+    @BindView(R.id.videos_header) TextView mVideosHeader;
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
+    @BindView(R.id.videos_recyclerview) RecyclerView mVideosRecyclerView;
 
     private Drawable mpaaBackground;
 
@@ -135,6 +142,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private SimilarMoviesAdapter mSimilarMoviesAdapter;
     private ArrayList<Credit> mCreditsCast = new ArrayList<>();
     private ArrayList<Credit> mCreditsCrew = new ArrayList<>();
+    private VideoAdapter mVideosAdapter;
 
     // layout managers
     LinearLayoutManager layoutManagerCast;
@@ -232,7 +240,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         // need to get the adapter, mCreditsCast which is a Parcelable ArrayList<Credit>
         outState.putParcelableArrayList(CAST_ADAPTER_SAVE_STATE, new ArrayList<>(mCreditsCast));
 
-
         // time to get the crew members.
         // need to get the scroll position of the layout manage
         mCrewRecycler = layoutManagerCrew.onSaveInstanceState();
@@ -244,6 +251,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
         // need to get the adapter, mCreditsCast which is a Parcelable ArrayList<Credit>
         outState.putParcelableArrayList(CREW_ADAPTER_SAVE_STATE, new ArrayList<>(mCreditsCrew));
 
+
+        // time to get the videos.
+        // need to get the scroll position of the layout manage
+        mVideosRecycler = layoutManagerVideos.onSaveInstanceState();
+        outState.putParcelable(VIDEOS_RECYCLER_SAVE_STATE, mVideosRecycler);
+
+        // need to get mCast which is a List<MovieAllDetailsResult.VideoResults>
+        outState.putParcelableArrayList(VIDEO_API_RESULTS_SAVE_STATE, new ArrayList<>(mVideos));
 
         // time to get the similar movies.
         // there is no scrolling for similar images at the moment, but that may change. Future
@@ -293,11 +308,16 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mCrewRecycler = savedInstanceState.getParcelable(CREW_RECYCLER_SAVE_STATE);
 
             // time to set similar movies.
-            // need to populate mCast.
             mSimilarMovies = savedInstanceState.getParcelableArrayList(SIMILAR_API_RESULTS_SAVE_STATE);
 
             // need to set scroll position
             mSimilarMoviesRecycler = savedInstanceState.getParcelable(SIMILAR_RECYCLER_SAVE_STATE);
+
+            // need to set the videos adapter
+            mVideos = savedInstanceState.getParcelableArrayList(VIDEO_API_RESULTS_SAVE_STATE);
+
+            // set the scroll position
+            mVideosRecycler = savedInstanceState.getParcelable(VIDEOS_RECYCLER_SAVE_STATE);
 
             loadFromSavedInstanceState(savedInstanceState);
         }
@@ -359,6 +379,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 setCrewMembers();
                 similarMovieViewSetup();
                 hideImageBlocker();
+                videosViewSetup();
             }
 
             @Override
@@ -680,6 +701,51 @@ public class MovieDetailsActivity extends AppCompatActivity {
             similarMoviesRecyclerView.setVisibility(View.GONE);
             mSimilarHeader.setVisibility(View.GONE);
         }
+    }
+
+    private void videosViewSetup() {
+        if (mVideos.size() > 0 ) {
+            layoutManagerVideos = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+            if (mVideosRecycler != null) {
+                layoutManagerVideos.onRestoreInstanceState(mVideosRecycler);
+            }
+
+            mVideosRecyclerView.setLayoutManager(layoutManagerVideos);
+            mVideosRecyclerView.addItemDecoration(new EqualSpacingItemDecoration(36, EqualSpacingItemDecoration.HORIZONTAL));
+            mVideosAdapter = new VideoAdapter(mVideos);
+            mVideosAdapter.setData(mVideos);
+            mVideosRecyclerView.setAdapter(mVideosAdapter);
+
+            mVideosAdapter.setOnClickListener(new VideoAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(int position, String youtubeUrl, String video_key) {
+                    Log.i(TAG, "onItemClick: youtubeUrl: " + Uri.parse(youtubeUrl));
+                    Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video_key));
+                    Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl));
+
+                    try {
+                        startActivity(appIntent);
+                        Log.i(TAG, "onItemClick: appintent");
+                    } catch (ActivityNotFoundException ex) {
+                        Log.i(TAG, "onItemClick: webintent");
+                        if (webIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(webIntent);
+                        }
+                    }
+                }
+            });
+        } else {
+            mVideosRecyclerView.setVisibility(View.GONE);
+            mVideosHeader.setVisibility(View.GONE);
+        }
+    }
+
+    private void setVideosConstraint() {
+        ConstraintSet set = new ConstraintSet();
+        mMovieDetailsLayout.addView(mVideosHeader,0);
+        set.clone(mMovieDetailsLayout);
+        set.connect(mVideosHeader.getId(), ConstraintSet.BOTTOM, mMovieDetailsLayout.getId(), ConstraintSet.BOTTOM, 0);
     }
 
     @Override

@@ -12,6 +12,7 @@
     <string name="poster_url">https://image.tmdb.org/t/p/w185</string>
     <string name="poster_342_url">https://image.tmdb.org/t/p/w342</string>
     <string name="youtube_image_url">https://img.youtube.com/vi/%1$s/hqdefault.jpg</string>
+    <string name="youtube_video_url">https://www.youtube.com/watch?v=%1$s</string>
 
     <string name="appBarTitle_popular">Popular Movies</string>
     <string name="appBarTitle_toprated">Top Rated Movies</string>
