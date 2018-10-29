@@ -258,11 +258,11 @@
             android:layout_marginEnd="@dimen/margins_8"
             android:fadingEdge="horizontal"
             android:fadingEdgeLength="@dimen/baseline_14"
-            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/crew_header"
             tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            android:orientation="horizontal"
             tools:listitem="@layout/cast_crew_list_item" />
 
         <TextView
@@ -289,7 +289,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/videos_header"
             tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
-            tools:listitem="@layout/movie_poster_recycler_item" />
+            android:orientation="horizontal"
+            tools:listitem="@layout/video_list_item" />
 
         <TextView
             android:id="@+id/similar_header"
@@ -315,8 +316,38 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/similar_header"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager"
+            android:orientation="horizontal"
+            android:fadingEdgeLength="@dimen/baseline_14"
             tools:listitem="@layout/movie_poster_recycler_item"
             tools:spanCount="3" />
+
+        <TextView
+            android:id="@+id/reviews_header"
+            style="@style/DetailsTextTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_24"
+            android:layout_marginEnd="@dimen/margins_8"
+            android:text="@string/details_similar_header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/similar_movies_recyclerview" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/reviews_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margins_8"
+            android:layout_marginTop="@dimen/margins_4"
+            android:layout_marginEnd="@dimen/margins_8"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/reviews_header"
+            tools:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            android:orientation="horizontal"
+            android:fadingEdgeLength="@dimen/baseline_14"
+            tools:listitem="@layout/review_list_item" />
 
     </android.support.constraint.ConstraintLayout>
 

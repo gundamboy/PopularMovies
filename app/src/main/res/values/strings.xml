@@ -61,4 +61,10 @@
     <string name="description_movie_backdrop">Movie backdrop picture for current movie</string>
     <string name="description_movie_trailer">Movie trailer for current movie</string>
 
+    <string name="review_fake_title">Movie trailer for current movie</string>
+    <string name="review_fake_author">Movie Queen41</string>
+    <string name="review_fake_text">I have been a Star Wars fan since childhood. In fact, Star Wars: A New Hope was one of the first movies I ever saw in a theater. And I really enjoyed this movie. Don\'t believe the naysayers. There has been a lot of bad press surrounding the movie since the directors got fired and had to be replaced by Ron Howard. There was also some controversy of whether the lead actor was any good as Han Solo. The movie is not the mess we were led to believe. It works pretty well. Good action and special effects and lots of interesting alien creatures, as we would expect from a Star Wars movie. Alden Ehrenreich does a good job to make the role his own instead of doing an impression of Harrison Ford. Woody Harrelson, Phoebe Walter-Bridge, Donald Glover, and Paul Bettany also do good work in the film. Recommended for Star Wars fans.</string>
+    <string name="review_fake_url">https://www.themoviedb.org/review/5b0ad5609251411e6a008396</string>
+    <string name="review_read_more">read more...</string>
+
 </resources>

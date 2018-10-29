@@ -69,6 +69,7 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
+        android:visibility="gone"
         android:transitionName="@string/poster_scale_transition"
         tools:src="@drawable/solo_w342"/>
 
