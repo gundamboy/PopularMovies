@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/margins_16"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/bs_author_header"
+        style="@style/DetailsTextMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/review_bs_author"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/bs_review_author"
+        style="@style/DetailsTextMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bs_author_header"
+        tools:text="@string/review_fake_author" />
+
+    <TextView
+        android:id="@+id/bs_review_header"
+        style="@style/DetailsTextMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/review_bs_review_header"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bs_review_author" />
+
+    <TextView
+        android:id="@+id/bs_review_content"
+        style="@style/DetailsTextMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margins_16"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bs_review_header"
+        tools:text="@string/review_fake_text" />
+
+
+</android.support.constraint.ConstraintLayout>

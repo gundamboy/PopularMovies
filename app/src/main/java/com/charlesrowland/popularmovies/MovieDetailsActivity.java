@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -97,6 +98,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     // butterknife view bindings
     @BindView(R.id.movie_details_inner_layout) ConstraintLayout mMovieDetailsLayout;
+    @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.backdrop) ImageView mBackdrop;
     @BindView(R.id.movie_poster) ImageView mPoster;
@@ -123,6 +125,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.videos_recyclerview) RecyclerView mVideosRecyclerView;
 
     private Drawable mpaaBackground;
+    private BottomSheetBehavior mBottomSheetBehavior;
 
     // class instance for getting some results
     private MovieAllDetailsResult mMovieInfo;
