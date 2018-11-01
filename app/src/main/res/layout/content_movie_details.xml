@@ -329,7 +329,7 @@
             android:layout_marginStart="@dimen/margins_8"
             android:layout_marginTop="@dimen/margins_24"
             android:layout_marginEnd="@dimen/margins_8"
-            android:text="@string/details_similar_header"
+            android:text="@string/details_reviews_header"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/similar_movies_recyclerview" />

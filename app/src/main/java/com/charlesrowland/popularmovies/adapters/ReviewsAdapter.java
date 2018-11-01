@@ -2,6 +2,7 @@ package com.charlesrowland.popularmovies.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import butterknife.ButterKnife;
 public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewHolder> {
     private static final String TAG = ReviewsAdapter.class.getSimpleName() + " fart";
     List<MovieAllDetailsResult.ReviewResults> results;
-    private OnItemClickListener mListener;
+    private ReviewsAdapter.OnItemClickListener mListener;
 
     public interface OnItemClickListener {
         void onItemClick(int position, String author, String content);
@@ -31,10 +32,15 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewHo
         mListener = listener;
     }
 
+    public ReviewsAdapter(List<MovieAllDetailsResult.ReviewResults> results) {
+        this.results = results;
+    }
+
     @NonNull
     @Override
     public ReviewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.review_list_item, parent, false);
+        Log.i(TAG, "onCreateViewHolder: hello????");
         return new ReviewHolder(view, mListener);
     }
 
