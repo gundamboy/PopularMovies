@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 
 import com.charlesrowland.popularmovies.adapters.ReviewsAdapter;
 import com.charlesrowland.popularmovies.adapters.VideoAdapter;
+import com.charlesrowland.popularmovies.fragments.BottomReviewFragment;
 import com.charlesrowland.popularmovies.interfaces.ApiInterface;
 import com.charlesrowland.popularmovies.adapters.CastCrewAdapter;
 import com.charlesrowland.popularmovies.model.Credit;
@@ -99,7 +101,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     // butterknife view bindings
     @BindView(R.id.movie_details_inner_layout) ConstraintLayout mMovieDetailsLayout;
-    @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.toolbar) Toolbar mToolbar;
     @BindView(R.id.backdrop) ImageView mBackdrop;
     @BindView(R.id.movie_poster) ImageView mPoster;
@@ -121,8 +122,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.similar_header) TextView mSimilarHeader;
     @BindView(R.id.videos_header) TextView mVideosHeader;
     @BindView(R.id.reviews_header) TextView mReviewsHeader;
-    @BindView(R.id.bs_review_author) TextView mReviewAuthorBottomSheet;
-    @BindView(R.id.bs_review_content) TextView mReviewContentBottomSheet;
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
@@ -192,9 +191,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.textColorPrimary), PorterDuff.Mode.SRC_ATOP);
 
-        mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheet);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
         if (savedInstanceState == null) {
             // speeds up the scale transition to help hide data flashes
             getWindow().setSharedElementEnterTransition(new ChangeBounds().setDuration(200));
@@ -238,14 +234,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         outState.putString(PRODUCERS_SAVE_STATE, mProducers.getText().toString());
         outState.putString(WRITERS_SAVE_STATE, mWriters.getText().toString());
         outState.putString(CAST_INTRO_SAVE_STATE, mCastIntro.getText().toString());
-
-        if (!mReviewAuthorBottomSheet.getText().toString().isEmpty()) {
-            outState.putString(REVIEW_AUTHOR_SAVE_STATE, mReviewAuthorBottomSheet.getText().toString());
-        }
-
-        if (!mReviewContentBottomSheet.getText().toString().isEmpty()) {
-            outState.putString(REVIEW_CONTENT_SAVE_STATE, mReviewContentBottomSheet.getText().toString());
-        }
 
         // time to get the cast members.
         // need to get the scroll position of the layout manage
@@ -312,8 +300,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mProducers.setText(savedInstanceState.getString(PRODUCERS_SAVE_STATE));
             mWriters.setText(savedInstanceState.getString(WRITERS_SAVE_STATE));
             mCastIntro.setText(savedInstanceState.getString(CAST_INTRO_SAVE_STATE));
-            mReviewAuthorBottomSheet.setText(savedInstanceState.getString(REVIEW_AUTHOR_SAVE_STATE, ""));
-            mReviewContentBottomSheet.setText(savedInstanceState.getString(REVIEW_CONTENT_SAVE_STATE, ""));
 
             // time to set the cast members.
             // need to populate mCast.
@@ -808,15 +794,31 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mReviewsAdapter.setOnClickListener(new ReviewsAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(int position, String author, String content) {
-                    mReviewAuthorBottomSheet.setText(author.toString());
-                    mReviewContentBottomSheet.setText(content.toString());
-                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    showBottomSheetDialog(author, content);
                 }
             });
         } else {
             mReviewsRecyclerView.setVisibility(View.GONE);
             mReviewsHeader.setVisibility(View.GONE);
         }
+    }
+
+    public void showBottomSheetDialog(String author, String content) {
+        View view = getLayoutInflater().inflate(R.layout.review_bottom_sheet, null);
+        TextView review_author = view.findViewById(R.id.bs_review_author);
+        TextView review_content = view.findViewById(R.id.bs_review_content);
+
+        review_author.setText(author);
+        review_content.setText(content);
+
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
+    public void showBottomSheetDialogFragment() {
+        BottomReviewFragment bottomSheetFragment = new BottomReviewFragment();
+        bottomSheetFragment.show(getSupportFragmentManager(), bottomSheetFragment.getTag());
     }
 
     @Override

@@ -83,6 +83,4 @@
         android:visibility="gone"
         tools:src="@drawable/solo_w342"/>
 
-        <include layout="@layout/review_bottom_sheet" />
-
 </android.support.design.widget.CoordinatorLayout>

@@ -44,5 +44,5 @@
     <dimen name="title_screen_app_name_size">54sp</dimen>
     <dimen name="camera_image_width">132dp</dimen>
     <dimen name="camera_image_height">215dp</dimen>
-    <dimen name="review_bottom_sheet_height">250dp</dimen>
+    <dimen name="review_bottom_sheet_height">350dp</dimen>
 </resources>
