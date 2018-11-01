@@ -277,8 +277,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         // time to get the reviews.
         // need to get the scroll position of the layout manage
-        mReviewsRecycler = layoutManagerReviews.onSaveInstanceState();
-        outState.putParcelable(REVIEWS_RECYCLER_SAVE_STATE, mReviewsRecycler);
+        if (mReviewsAdapter != null) {
+            mReviewsRecycler = layoutManagerReviews.onSaveInstanceState();
+            outState.putParcelable(REVIEWS_RECYCLER_SAVE_STATE, mReviewsRecycler);
+        }
 
         // need to get mCast which is a List<MovieAllDetailsResult.ReviewResults>
         outState.putParcelableArrayList(REVIEW_API_RESULTS_SAVE_STATE, new ArrayList<>(mReviews));
