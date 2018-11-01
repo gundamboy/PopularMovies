@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.BottomSheetBehavior;
@@ -29,6 +30,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.charlesrowland.popularmovies.adapters.ReviewsAdapter;
 import com.charlesrowland.popularmovies.adapters.VideoAdapter;
 import com.charlesrowland.popularmovies.interfaces.ApiInterface;
 import com.charlesrowland.popularmovies.adapters.CastCrewAdapter;
@@ -76,9 +78,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     // adapter save states
     private static final String CAST_ADAPTER_SAVE_STATE = "cast_results_object_save_state";
     private static final String CREW_ADAPTER_SAVE_STATE = "crew_results_object_save_state";
-    private static final String SIMILIAR_ADAPTER_SAVE_STATE = "similar_results_object_save_state";
-    private static final String REVIEW_ADAPTER_SAVE_STATE = "review_results_object_save_state";
-    private static final String VIDEO_ADAPTER_SAVE_STATE = "video_results_object_save_state";
 
     // RecyclerView save states
     private static final String CAST_RECYCLER_SAVE_STATE = "cast_recycler_save_state";
@@ -95,6 +94,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String PRODUCERS_SAVE_STATE = "producers_save_state";
     private static final String WRITERS_SAVE_STATE = "writers_save_state";
     private static final String CAST_INTRO_SAVE_STATE = "cast_intro_save_state";
+    private static final String REVIEW_AUTHOR_SAVE_STATE = "review_author_save_state";
+    private static final String REVIEW_CONTENT_SAVE_STATE = "review_content_save_state";
 
     // butterknife view bindings
     @BindView(R.id.movie_details_inner_layout) ConstraintLayout mMovieDetailsLayout;
@@ -119,10 +120,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.tagline) TextView mTagline;
     @BindView(R.id.similar_header) TextView mSimilarHeader;
     @BindView(R.id.videos_header) TextView mVideosHeader;
+    @BindView(R.id.reviews_header) TextView mReviewsHeader;
+    @BindView(R.id.bs_review_author) TextView mReviewAuthorBottomSheet;
+    @BindView(R.id.bs_review_content) TextView mReviewContentBottomSheet;
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
     @BindView(R.id.videos_recyclerview) RecyclerView mVideosRecyclerView;
+    @BindView(R.id.reviews_recyclerview) RecyclerView mReviewsRecyclerView;
 
     private Drawable mpaaBackground;
     private BottomSheetBehavior mBottomSheetBehavior;
@@ -137,22 +142,22 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private List<MovieAllDetailsResult.SimilarResults> mSimilarMovies;
     private List<MovieAllDetailsResult.ReviewResults> mReviews;
     private List<MovieAllDetailsResult.VideoResults> mVideos;
-    // video url: https://www.youtube.com/watch?v={video key}
 
-    // recyclerview adapters
+    // RecyclerView adapters
     private CastCrewAdapter mCastAdapter;
     private CastCrewAdapter mCrewAdapter;
     private SimilarMoviesAdapter mSimilarMoviesAdapter;
     private ArrayList<Credit> mCreditsCast = new ArrayList<>();
     private ArrayList<Credit> mCreditsCrew = new ArrayList<>();
     private VideoAdapter mVideosAdapter;
+    private ReviewsAdapter mReviewsAdapter;
 
     // layout managers
-    LinearLayoutManager layoutManagerCast;
-    GridLayoutManager layoutManagerSimilar;
-    LinearLayoutManager layoutManagerCrew;
-    LinearLayoutManager layoutManagerReviews;
-    LinearLayoutManager layoutManagerVideos;
+    private LinearLayoutManager layoutManagerCast;
+    private GridLayoutManager layoutManagerSimilar;
+    private LinearLayoutManager layoutManagerCrew;
+    private LinearLayoutManager layoutManagerReviews;
+    private LinearLayoutManager layoutManagerVideos;
 
     // parcelable variables for restore state stuff
     private Parcelable mCastRecycler = null;
@@ -186,6 +191,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mToolbar.getNavigationIcon().setColorFilter(getResources().getColor(R.color.textColorPrimary), PorterDuff.Mode.SRC_ATOP);
+
+        mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheet);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         if (savedInstanceState == null) {
             // speeds up the scale transition to help hide data flashes
@@ -231,6 +239,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
         outState.putString(WRITERS_SAVE_STATE, mWriters.getText().toString());
         outState.putString(CAST_INTRO_SAVE_STATE, mCastIntro.getText().toString());
 
+        if (!mReviewAuthorBottomSheet.getText().toString().isEmpty()) {
+            outState.putString(REVIEW_AUTHOR_SAVE_STATE, mReviewAuthorBottomSheet.getText().toString());
+        }
+
+        if (!mReviewContentBottomSheet.getText().toString().isEmpty()) {
+            outState.putString(REVIEW_CONTENT_SAVE_STATE, mReviewContentBottomSheet.getText().toString());
+        }
+
         // time to get the cast members.
         // need to get the scroll position of the layout manage
         mCastRecycler = layoutManagerCast.onSaveInstanceState();
@@ -271,6 +287,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
         // need to get mCast which is a List<MovieAllDetailsResult.SimilarResults>
         outState.putParcelableArrayList(SIMILAR_API_RESULTS_SAVE_STATE, new ArrayList<>(mSimilarMovies));
 
+        // time to get the reviews.
+        // need to get the scroll position of the layout manage
+        mReviewsRecycler = layoutManagerReviews.onSaveInstanceState();
+        outState.putParcelable(REVIEWS_RECYCLER_SAVE_STATE, mReviewsRecycler);
+
+        // need to get mCast which is a List<MovieAllDetailsResult.ReviewResults>
+        outState.putParcelableArrayList(REVIEW_API_RESULTS_SAVE_STATE, new ArrayList<>(mReviews));
+
     }
 
     @Override
@@ -288,6 +312,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mProducers.setText(savedInstanceState.getString(PRODUCERS_SAVE_STATE));
             mWriters.setText(savedInstanceState.getString(WRITERS_SAVE_STATE));
             mCastIntro.setText(savedInstanceState.getString(CAST_INTRO_SAVE_STATE));
+            mReviewAuthorBottomSheet.setText(savedInstanceState.getString(REVIEW_AUTHOR_SAVE_STATE, ""));
+            mReviewContentBottomSheet.setText(savedInstanceState.getString(REVIEW_CONTENT_SAVE_STATE, ""));
 
             // time to set the cast members.
             // need to populate mCast.
@@ -321,6 +347,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
             // set the scroll position
             mVideosRecycler = savedInstanceState.getParcelable(VIDEOS_RECYCLER_SAVE_STATE);
 
+            // need to set the videos adapter
+            mReviews = savedInstanceState.getParcelableArrayList(REVIEW_API_RESULTS_SAVE_STATE);
+
+            // set the scroll position
+            mReviewsRecycler = savedInstanceState.getParcelable(REVIEWS_RECYCLER_SAVE_STATE);
+
             loadFromSavedInstanceState(savedInstanceState);
         }
     }
@@ -337,6 +369,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             setCrewMembers();
             similarMovieViewSetup();
             videosViewSetup();
+            reviewsSetup();
         }
     }
 
@@ -378,11 +411,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 setImageViews();
                 setTextViews();
+                Log.i(TAG, "onResponse: next is cast members");
                 setCastMembers();
+
+                Log.i(TAG, "onResponse: next is crew members");
                 setCrewMembers();
+
+                Log.i(TAG, "onResponse: next is similar");
                 similarMovieViewSetup();
                 hideImageBlocker();
+
+                Log.i(TAG, "onResponse: next is videos");
                 videosViewSetup();
+
+                Log.i(TAG, "onResponse: next is reviews");
+                reviewsSetup();
             }
 
             @Override
@@ -723,7 +766,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mVideosAdapter.setOnClickListener(new VideoAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(int position, String youtubeUrl, String video_key) {
-
                     Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video_key));
                     Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl));
 
@@ -747,6 +789,34 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mMovieDetailsLayout.addView(mVideosHeader,0);
         set.clone(mMovieDetailsLayout);
         set.connect(mVideosHeader.getId(), ConstraintSet.BOTTOM, mMovieDetailsLayout.getId(), ConstraintSet.BOTTOM, 0);
+    }
+
+    private void reviewsSetup() {
+        if (mReviews.size() > 0) {
+            layoutManagerReviews = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+            if (mReviewsRecycler != null) {
+                layoutManagerReviews.onRestoreInstanceState(mReviewsRecycler);
+            }
+
+            mReviewsRecyclerView.setLayoutManager(layoutManagerReviews);
+            mReviewsRecyclerView.addItemDecoration(new EqualSpacingItemDecoration(36, EqualSpacingItemDecoration.HORIZONTAL));
+            mReviewsAdapter = new ReviewsAdapter(mReviews);
+            mReviewsAdapter.setData(mReviews);
+            mReviewsRecyclerView.setAdapter(mReviewsAdapter);
+
+            mReviewsAdapter.setOnClickListener(new ReviewsAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(int position, String author, String content) {
+                    mReviewAuthorBottomSheet.setText(author.toString());
+                    mReviewContentBottomSheet.setText(content.toString());
+                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+            });
+        } else {
+            mReviewsRecyclerView.setVisibility(View.GONE);
+            mReviewsHeader.setVisibility(View.GONE);
+        }
     }
 
     @Override

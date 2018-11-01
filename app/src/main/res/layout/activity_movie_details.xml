@@ -83,17 +83,6 @@
         android:visibility="gone"
         tools:src="@drawable/solo_w342"/>
 
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/review_bottom_sheet_height"
-        android:clipToPadding="true"
-        android:background="@color/windowBackground"
-        app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
-        >
-
         <include layout="@layout/review_bottom_sheet" />
-
-    </android.support.v4.widget.NestedScrollView>
 
 </android.support.design.widget.CoordinatorLayout>
