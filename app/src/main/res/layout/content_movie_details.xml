@@ -73,7 +73,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margins_8"
-            android:layout_marginBottom="@dimen/margins_8"
             app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
             app:layout_constraintStart_toEndOf="@+id/movie_poster"
             tools:text="7.1" />
@@ -83,7 +82,6 @@
             style="@style/DetailsTextMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margins_8"
             android:text="@string/details_out_of_10"
             app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
             app:layout_constraintStart_toEndOf="@+id/rating_text" />
@@ -94,7 +92,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margins_8"
-            android:layout_marginBottom="@dimen/margins_8"
             android:background="@drawable/rounded_corners_imdb"
             android:clickable="true"
             android:focusable="true"
@@ -109,7 +106,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margins_8"
-            android:layout_marginBottom="@dimen/margins_8"
             android:background="@drawable/rounded_corners_mpaa_general"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
@@ -348,6 +344,16 @@
             android:orientation="horizontal"
             android:fadingEdgeLength="@dimen/baseline_14"
             tools:listitem="@layout/review_list_item" />
+
+        <ImageButton
+            android:id="@+id/favorite_icon"
+            android:background="@null"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
+            app:layout_constraintStart_toEndOf="@+id/mpaa_rating"
+            app:srcCompat="@drawable/ic_favorite_outline" />
 
     </android.support.constraint.ConstraintLayout>
 

@@ -818,11 +818,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public void showBottomSheetDialogFragment() {
-        BottomReviewFragment bottomSheetFragment = new BottomReviewFragment();
-        bottomSheetFragment.show(getSupportFragmentManager(), bottomSheetFragment.getTag());
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
 

@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/D:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_check_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_favorite_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -28,9 +28,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="3b8730" />
-                            <entry key="outputName" value="ic_check" />
-                            <entry key="sourceFile" value="C:\Users\retar\Desktop\settings-work-tool.svg" />
+                            <entry key="color" value="ce5938" />
+                            <entry key="outputName" value="ic_favorite_filled" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/C:\Users\retar\Desktop\settings-work-tool.svg" />
                           </map>
                         </option>
                       </PersistentState>
