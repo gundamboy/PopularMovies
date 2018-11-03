@@ -28,6 +28,7 @@ import android.transition.ChangeBounds;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -122,6 +123,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.similar_header) TextView mSimilarHeader;
     @BindView(R.id.videos_header) TextView mVideosHeader;
     @BindView(R.id.reviews_header) TextView mReviewsHeader;
+    @BindView(R.id.favorite_icon) ImageButton mFavoritesButton;
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
@@ -849,4 +851,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    public void toggleFavorites() {
+
+    }
 }
