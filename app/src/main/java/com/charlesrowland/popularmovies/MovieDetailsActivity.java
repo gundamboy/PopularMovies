@@ -392,10 +392,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 if (currentIconState.equals(outlineIconState)) {
                     mFavoritesIcon.setImageDrawable(favoriteIconFilled);
+                    // set this movie as a favorite in the database IF ITS NOT ALREADY
                 }
 
                 if (currentIconState.equals(filledIconState)) {
                     mFavoritesIcon.setImageDrawable(favoriteIconOutline);
+                    // if this movie Id is in the db, remove the row
                 }
             }
         });
