@@ -345,9 +345,8 @@
             android:fadingEdgeLength="@dimen/baseline_14"
             tools:listitem="@layout/review_list_item" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/favorite_icon"
-            android:background="@null"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

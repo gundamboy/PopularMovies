@@ -17,6 +17,7 @@ import android.support.constraint.ConstraintSet;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -123,7 +124,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.similar_header) TextView mSimilarHeader;
     @BindView(R.id.videos_header) TextView mVideosHeader;
     @BindView(R.id.reviews_header) TextView mReviewsHeader;
-    @BindView(R.id.favorite_icon) ImageButton mFavoritesButton;
+    @BindView(R.id.favorite_icon) ImageView mFavoritesIcon;
     @BindView(R.id.cast_recyclerview) RecyclerView castRecyclerView;
     @BindView(R.id.crew_recyclerview) RecyclerView crewRecyclerView;
     @BindView(R.id.similar_movies_recyclerview) RecyclerView similarMoviesRecyclerView;
@@ -173,6 +174,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private String mpaaRating = "";
     private String mPosterPath = "";
     private boolean isSimilar = false;
+    private boolean isFavorite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,6 +222,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
             }
 
             getSupportActionBar().setTitle(mMovieTitle);
+
+            // do database check here
+            // if the movieID is in the database, load from database
+            // else, load from the api
+
+            // for now, just call loadFromFavorites to get clicks working
+            loadFromFavorites();
             getMovieInfo();
         }
     }
@@ -361,6 +370,23 @@ public class MovieDetailsActivity extends AppCompatActivity {
             videosViewSetup();
             reviewsSetup();
         }
+    }
+
+    private void loadFromFavorites() {
+        mFavoritesIcon.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Drawable currentIcon = mFavoritesIcon.getDrawable();
+                Drawable[] icons = new Drawable[] {ResourcesCompat.getDrawable(getResources(), R.drawable.ic_favorite_outline, null), ResourcesCompat.getDrawable(getResources(), R.drawable.ic_favorite_filled, null)};
+                if (currentIcon == icons[0]) {
+                    mFavoritesIcon.setImageDrawable(icons[1]);
+                } else {
+                    mFavoritesIcon.setImageDrawable(icons[0]);
+                }
+                Log.i(TAG, "onClick: currentIcon: " + currentIcon);
+            }
+        });
     }
 
     private void getMovieInfo() {
@@ -849,9 +875,5 @@ public class MovieDetailsActivity extends AppCompatActivity {
         fadeBlockerIn();
 
         super.onBackPressed();
-    }
-
-    public void toggleFavorites() {
-
     }
 }
