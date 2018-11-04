@@ -352,7 +352,7 @@
             android:layout_marginStart="16dp"
             app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
             app:layout_constraintStart_toEndOf="@+id/mpaa_rating"
-            app:srcCompat="@drawable/ic_favorite_outline" />
+            android:src="@drawable/ic_favorite_outline" />
 
     </android.support.constraint.ConstraintLayout>
 

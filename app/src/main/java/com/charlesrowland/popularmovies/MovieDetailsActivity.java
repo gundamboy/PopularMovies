@@ -175,6 +175,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private String mPosterPath = "";
     private boolean isSimilar = false;
     private boolean isFavorite = false;
+    private Drawable favoriteIconOutline;
+    private Drawable favoriteIconFilled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,6 +184,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_details);
 
         ButterKnife.bind(this);
+        favoriteIconOutline = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_favorite_outline, null);
+        favoriteIconFilled = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_favorite_filled, null);
 
         if (isSimilar) {
             savedInstanceState = null;
@@ -224,11 +228,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(mMovieTitle);
 
             // do database check here
-            // if the movieID is in the database, load from database
+            // if the movieID is in the database, load from database, set fav icon to filled
             // else, load from the api
 
-            // for now, just call loadFromFavorites to get clicks working
-            loadFromFavorites();
+            // for now, just call toggleFavorites to get clicks working
+            toggleFavorites();
             getMovieInfo();
         }
     }
@@ -373,18 +377,26 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void loadFromFavorites() {
+
+    }
+
+    private void toggleFavorites() {
         mFavoritesIcon.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Drawable currentIcon = mFavoritesIcon.getDrawable();
-                Drawable[] icons = new Drawable[] {ResourcesCompat.getDrawable(getResources(), R.drawable.ic_favorite_outline, null), ResourcesCompat.getDrawable(getResources(), R.drawable.ic_favorite_filled, null)};
-                if (currentIcon == icons[0]) {
-                    mFavoritesIcon.setImageDrawable(icons[1]);
-                } else {
-                    mFavoritesIcon.setImageDrawable(icons[0]);
+                Drawable.ConstantState currentIconState = currentIcon.getConstantState();
+                Drawable.ConstantState outlineIconState = favoriteIconOutline.getConstantState();
+                Drawable.ConstantState filledIconState = favoriteIconFilled.getConstantState();
+
+                if (currentIconState.equals(outlineIconState)) {
+                    mFavoritesIcon.setImageDrawable(favoriteIconFilled);
                 }
-                Log.i(TAG, "onClick: currentIcon: " + currentIcon);
+
+                if (currentIconState.equals(filledIconState)) {
+                    mFavoritesIcon.setImageDrawable(favoriteIconOutline);
+                }
             }
         });
     }
