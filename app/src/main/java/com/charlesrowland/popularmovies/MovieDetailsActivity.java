@@ -377,7 +377,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void loadFromFavorites() {
-
+        // NOTE: Cast, Crew, Similar Movies, Videos, and Reviews RecyclerViews are not available
+        // offline for favorite movies
     }
 
     private void toggleFavorites() {
@@ -441,20 +442,11 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 setImageViews();
                 setTextViews();
-                Log.i(TAG, "onResponse: next is cast members");
                 setCastMembers();
-
-                Log.i(TAG, "onResponse: next is crew members");
                 setCrewMembers();
-
-                Log.i(TAG, "onResponse: next is similar");
                 similarMovieViewSetup();
                 hideImageBlocker();
-
-                Log.i(TAG, "onResponse: next is videos");
                 videosViewSetup();
-
-                Log.i(TAG, "onResponse: next is reviews");
                 reviewsSetup();
             }
 
