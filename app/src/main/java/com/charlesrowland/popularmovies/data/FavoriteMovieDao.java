@@ -25,8 +25,8 @@ public interface FavoriteMovieDao {
     void selectMovieIds();
 
     @Query("SELECT * FROM favorite_movies_table WHERE movie_id = :movieId")
-    LiveData<List<FavoriteMovie>> getFavotireMovie(int movieId);
+    LiveData<List<FavoriteMovie>> getFavotireMovieDetails(int movieId);
 
-    @Query("SELECT * FROM favorite_movies_table")
-    LiveData<List<FavoriteMovie>> getAllMovies();
+    @Query("SELECT movie_id, original_title, poster_path FROM favorite_movies_table")
+    LiveData<List<FavoriteMovie>> getFavoriteMovies();
 }
