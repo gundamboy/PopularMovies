@@ -21,12 +21,9 @@ public interface FavoriteMovieDao {
     @Delete
     void delete(FavoriteMovie favoriteMovie);
 
-    @Query("SELECT movie_id FROM favorite_movies_table")
-    void selectMovieIds();
-
     @Query("SELECT * FROM favorite_movies_table WHERE movie_id = :movieId")
-    LiveData<List<FavoriteMovie>> getFavotireMovieDetails(int movieId);
+    LiveData<List<FavoriteMovie>> getFavoriteMovieDetails(int movieId);
 
-    @Query("SELECT movie_id, original_title, poster_path FROM favorite_movies_table")
-    LiveData<List<FavoriteMovie>> getFavoriteMovies();
+    @Query("SELECT * FROM favorite_movies_table")
+    LiveData<List<FavoriteMovie>> getAllFavoriteMovies();
 }

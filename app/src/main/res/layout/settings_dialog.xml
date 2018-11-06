@@ -22,14 +22,21 @@ android:padding="16dp">
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="Popularity" />
+            android:text="@string/settings_order_by_popularity_label" />
 
         <RadioButton
             android:id="@+id/top_rated"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="Top Rated" />
+            android:text="@string/settings_order_by_toprated_label" />
+
+        <RadioButton
+            android:id="@+id/favorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/settings_order_by_favorites_label" />
     </RadioGroup>
 
 </LinearLayout>

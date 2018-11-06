@@ -169,10 +169,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private Parcelable mVideosRecycler = null;
 
     private int mMovieId;
+    private int mImdbId;
     private String mMovieTitle;
+    private String mLanguage;
+    private String mTaglineText;
+    private String mOverviewText;
+    private double mVoteAverage;
+    private String mMpaa_rating;
+    private String mBackdropPath;
+    private String mPosterPath;
     private String mGenreString = "";
-    private String mpaaRating = "";
-    private String mPosterPath = "";
+    private String mRuntimeText;
+    private String mReleaseDateText;
+    private String mCastMembersString;
+    private String mCrewMembersString;
+    private String mSimilarMovieTitles;
     private boolean isSimilar = false;
     private boolean isFavorite = false;
     private Drawable favoriteIconOutline;
@@ -376,12 +387,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void loadFromFavorites() {
+    private void toggleFavorites() {
         // NOTE: Cast, Crew, Similar Movies, Videos, and Reviews RecyclerViews are not available
         // offline for favorite movies
-    }
-
-    private void toggleFavorites() {
         mFavoritesIcon.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -402,6 +410,29 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void saveFavorite() {
+        int movieId = mMovieId;
+        String imdb = mMovieInfo.getImdb_id();
+        String title = mMovieTitle;
+        String language = mMovieInfo.getOriginalLanguage();
+        String tag = mMovieInfo.getTagline();
+        String description = mMovieInfo.getOverview();
+        double vote_average = mMovieInfo.getVoteAverage();
+        String mpaa = mMpaaRating.getText().toString();
+        String bd_path = mMovieInfo.getBackdrop_path();
+        String poster_path = mMovieInfo.getPosterPath();
+        String generes = mGenreString;
+        String runtime = mRuntime.getText().toString();
+        String releaseDate = mReleaseDate.getText().toString();
+        String cast;
+        String crew;
+        String similar;
+    }
+
+    private void deleteFavorite() {
+
     }
 
     private void getMovieInfo() {

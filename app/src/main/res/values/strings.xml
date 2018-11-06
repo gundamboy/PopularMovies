@@ -16,6 +16,7 @@
 
     <string name="appBarTitle_popular">Popular Movies</string>
     <string name="appBarTitle_toprated">Top Rated Movies</string>
+    <string name="appBarTitle_favorites">Favorite Movies</string>
 
     <string name="menu_title_options">Options</string>
     <string name="menu_dialog_title">Options</string>
@@ -28,6 +29,9 @@
 
     <string name="settings_order_by_toprated_label">Top Rated</string>
     <string name="settings_order_by_toprated_value" translatable="false">top rated</string>
+
+    <string name="settings_order_by_favorites_label">Favorites</string>
+    <string name="settings_order_by_favorites_value" translatable="false">favorites</string>
 
     <!--<string name="title_activity_movie_details">MovieDetailsActivity</string>-->
     <string name="title_activity_movie_details">Movie Details</string>
@@ -55,7 +59,6 @@
     <string name="title_screen_credits_string">charles rowland presents “movie night” in association with udacity as part of the android develoer nanodegree an app by charles rowland art direction lillian rowland and charles rowland distractions by ethan rowland emotional support daisey the dog development music a lot of heavy metal and always remember thanos did nothing wrong</string>
     <string name="poster_scale_transition">poster_scale_transition</string>
     <string name="similar_poster_scale_transition">similar_poster_scale_transition</string>
-
 
     <string name="description_movie_poster">Movie poster for current movie</string>
     <string name="description_movie_backdrop">Movie backdrop picture for current movie</string>
