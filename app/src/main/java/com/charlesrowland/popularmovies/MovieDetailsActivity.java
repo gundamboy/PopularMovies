@@ -169,7 +169,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private Parcelable mVideosRecycler = null;
 
     private int mMovieId;
-    private int mImdbId;
+    private String mImdbId;
     private String mMovieTitle;
     private String mLanguage;
     private String mTaglineText;
@@ -232,7 +232,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
                     } else {
                         showImageBlocker(null, mPosterPath);
                     }
-
                 }
             }
 
@@ -254,7 +253,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         outState.putParcelable(MOVIE_API_RESULTS_SAVE_STATE, mMovieInfo);
         outState.putString(TITLE_SAVE_STATE, mMovieTitle);
-        outState.putString(MPAA_SAVE_STATE, mpaaRating);
+        outState.putString(MPAA_SAVE_STATE, mMpaa_rating);
         outState.putString(GENRES_SAVE_STATE, mGenreString);
         outState.putString(DIRECTOR_SAVE_STATE, mDirector.getText().toString());
         outState.putString(PRODUCERS_SAVE_STATE, mProducers.getText().toString());
@@ -320,7 +319,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(savedInstanceState.getString(TITLE_SAVE_STATE));
             mMovieInfo = savedInstanceState.getParcelable(MOVIE_API_RESULTS_SAVE_STATE);
             mGenreString = savedInstanceState.getString(GENRES_SAVE_STATE);
-            mpaaRating = savedInstanceState.getString(MPAA_SAVE_STATE);
+            mMpaa_rating = savedInstanceState.getString(MPAA_SAVE_STATE);
 
             // temps. these get set in the adapter setup for each
             mCastIntro.setText(savedInstanceState.getString(CAST_INTRO_SAVE_STATE));
@@ -387,6 +386,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
     }
 
+    private void checkForFavorite() {}
+
     private void toggleFavorites() {
         // NOTE: Cast, Crew, Similar Movies, Videos, and Reviews RecyclerViews are not available
         // offline for favorite movies
@@ -402,11 +403,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 if (currentIconState.equals(outlineIconState)) {
                     mFavoritesIcon.setImageDrawable(favoriteIconFilled);
                     // set this movie as a favorite in the database IF ITS NOT ALREADY
+                    saveFavorite();
                 }
 
                 if (currentIconState.equals(filledIconState)) {
                     mFavoritesIcon.setImageDrawable(favoriteIconOutline);
                     // if this movie Id is in the db, remove the row
+                    deleteFavorite();
                 }
             }
         });
@@ -414,21 +417,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void saveFavorite() {
         int movieId = mMovieId;
-        String imdb = mMovieInfo.getImdb_id();
+        String imdb = mImdbId;
         String title = mMovieTitle;
-        String language = mMovieInfo.getOriginalLanguage();
-        String tag = mMovieInfo.getTagline();
-        String description = mMovieInfo.getOverview();
-        double vote_average = mMovieInfo.getVoteAverage();
-        String mpaa = mMpaaRating.getText().toString();
-        String bd_path = mMovieInfo.getBackdrop_path();
-        String poster_path = mMovieInfo.getPosterPath();
+        String language = mLanguage;
+        String tag = mTaglineText;
+        String description = mOverviewText;
+        double vote_average = mVoteAverage;
+        String mpaa = mMpaa_rating;
+        String bd_path = mBackdropPath;
+        String poster_path = mPosterPath;
         String generes = mGenreString;
-        String runtime = mRuntime.getText().toString();
-        String releaseDate = mReleaseDate.getText().toString();
-        String cast;
-        String crew;
-        String similar;
+        String runtime = mRuntimeText;
+        String releaseDate = mReleaseDateText;
+        String cast = mCastMembersString;
+        String crew = mCrewMembersString;
+        String similar = mSimilarMovieTitles;
     }
 
     private void deleteFavorite() {
@@ -457,6 +460,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 // fix comma formatting for genres string. needs a comma, then kill the last comma in the string
                 mGenreString = mGenreString.substring(0, mGenreString.length()-2);
+                mImdbId = mMovieInfo.getImdb_id();
+                mLanguage = mMovieInfo.getOriginalLanguage();
+                mTaglineText = mMovieInfo.getTagline();
+                mOverviewText = mMovieInfo.getOverview();
+                mVoteAverage = mMovieInfo.getVoteAverage();
+                mBackdropPath = mMovieInfo.getBackdrop_path();
+                mReleaseDateText = mMovieInfo.getReleaseDate();
+
+                int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
+                mRuntimeText = convertRuntime(runtime);
+                mReleaseDateText = convertReleaseDate(mRuntimeText);
+
+                mMpaa_rating = getMpaaRating();
 
                 // get the cast and crew lists
                 mCast = mMovieInfo.getCredits().getCast();
@@ -465,20 +481,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 // get the similar movies
                 mSimilarMovies = mMovieInfo.getSimilar().getResults();
 
+                mSimilarMovieTitles = "Similar Movies: ";
+                for (MovieAllDetailsResult.SimilarResults similar : mSimilarMovies) {
+                    mSimilarMovieTitles += similar.getOriginalTitle() + ", ";
+                }
+                mSimilarMovieTitles = mSimilarMovieTitles.substring(0, mSimilarMovieTitles.length()-2);
+
                 // get the videos
                 mVideos = mMovieInfo.getVideos().getResults();
 
                 // get the reviews
                 mReviews = mMovieInfo.getReviews().getResults();
 
-                setImageViews();
-                setTextViews();
-                setCastMembers();
-                setCrewMembers();
-                similarMovieViewSetup();
-                hideImageBlocker();
-                videosViewSetup();
-                reviewsSetup();
+                updateUi(false);
             }
 
             @Override
@@ -486,6 +501,20 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 Log.i(TAG, "onFailure: there was an error: " + t);
             }
         });
+    }
+
+    private void updateUi(boolean isFavorite) {
+        setImageViews();
+        setTextViews();
+
+        if (!isFavorite) {
+            setCastMembers();
+            setCrewMembers();
+            similarMovieViewSetup();
+            hideImageBlocker();
+            videosViewSetup();
+            reviewsSetup();
+        }
     }
 
     private String getMpaaRating() {
@@ -568,26 +597,22 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void setTextViews() {
-        mTitle.setText(mMovieInfo.getOriginalTitle());
+        mTitle.setText(mMovieTitle);
         mGenres.setText(mGenreString);
+        mRuntime.setText(mRuntimeText);
+        mRatingText.setText(String.valueOf(mVoteAverage));
+        mReleaseDate.setText(mReleaseDateText);
+        mTagline.setText(mTaglineText);
+        mOverview.setText(mOverviewText);
 
-        int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
-        String runtimeString = convertRuntime(runtime);
-        mRuntime.setText(runtimeString);
-        mRatingText.setText(String.valueOf(mMovieInfo.getVoteAverage()));
-        mReleaseDate.setText(convertReleaseDate(mMovieInfo.getReleaseDate()));
-        mTagline.setText(mMovieInfo.getTagline());
-        mOverview.setText(mMovieInfo.getOverview());
-
-        mpaaRating = getMpaaRating();
-        if (mpaaRating != null && !mpaaRating.isEmpty()) {
+        if (mMpaa_rating != null && !mMpaa_rating.isEmpty()) {
             // if the movie is rated R make the background red. other wise its green, which
             // is on the TextView by default.
-            if (mpaaRating.equals("R")) {
+            if (mMpaa_rating.equals("R")) {
                 mpaaBackground = ContextCompat.getDrawable(this, R.drawable.rounded_corners_mpaa_r);
                 mMpaaRating.setBackground(mpaaBackground);
             }
-            mMpaaRating.setText(mpaaRating);
+            mMpaaRating.setText(mMpaa_rating);
         } else {
             mMpaaRating.setVisibility(View.GONE);
         }
@@ -595,14 +620,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mIMDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToImdb(mMovieInfo.getImdb_id());
+                goToImdb(mImdbId);
             }
         });
     }
 
     private void setImageViews() {
-        String backdropUrl = getResources().getString(R.string.backdrop_url) + mMovieInfo.getBackdrop_path();
-        final String posterUrl = getResources().getString(R.string.backdrop_url) + mMovieInfo.getPosterPath();
+        String backdropUrl = getResources().getString(R.string.backdrop_url) + mBackdropPath;
+        final String posterUrl = getResources().getString(R.string.backdrop_url) + mPosterPath;
 
         Picasso.get().load(backdropUrl).placeholder(R.color.windowBackground).into(mBackdrop);
         Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(mPoster);
@@ -651,15 +676,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void setCastMembers() {
-        String top_stars;
 
         if(mCreditsCast.size() == 0) {
-            top_stars = getResources().getString(R.string.details_staring) +   " ";
+            mCastMembersString = getResources().getString(R.string.details_staring) +   " ";
 
             // set the short line for staring cast members
             for (MovieAllDetailsResult.CastResults cast_member : mCast) {
                 if (cast_member.getOrder() <= 3) {
-                    top_stars += cast_member.getName() + ", ";
+                    mCastMembersString += cast_member.getName() + ", ";
                 }
 
                 if (cast_member.getOrder() <= 7) {
@@ -669,12 +693,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 }
             }
 
-            top_stars = top_stars.substring(0, top_stars.length()-2);
+            mCastMembersString = mCastMembersString.substring(0, mCastMembersString.length()-2);
         } else {
-            top_stars = mCastIntro.getText().toString();
+            mCastMembersString = mCastIntro.getText().toString();
         }
 
-        setSpanableText(top_stars, mCastIntro);
+        setSpanableText(mCastMembersString, mCastIntro);
         castRecyclerViewSetup();
     }
 
@@ -735,6 +759,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
         setSpanableText(producers, mProducers);
         setSpanableText(writers, mWriters);
         setSpanableText(director, mDirector);
+
+        mCrewMembersString = director + "\n" + producers + "\n" + writers;
 
         crewRecyclerViewSetup();
     }
