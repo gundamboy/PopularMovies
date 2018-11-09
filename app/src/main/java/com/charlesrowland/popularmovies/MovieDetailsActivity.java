@@ -2,16 +2,23 @@ package com.charlesrowland.popularmovies;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.BottomSheetBehavior;
@@ -35,6 +42,10 @@ import android.widget.TextView;
 
 import com.charlesrowland.popularmovies.adapters.ReviewsAdapter;
 import com.charlesrowland.popularmovies.adapters.VideoAdapter;
+import com.charlesrowland.popularmovies.data.FavoriteMovie;
+import com.charlesrowland.popularmovies.data.FavoriteMovieDao;
+import com.charlesrowland.popularmovies.data.FavoriteMovieDatabase;
+import com.charlesrowland.popularmovies.data.FavoriteMovieRepository;
 import com.charlesrowland.popularmovies.fragments.BottomReviewFragment;
 import com.charlesrowland.popularmovies.interfaces.ApiInterface;
 import com.charlesrowland.popularmovies.adapters.CastCrewAdapter;
@@ -44,6 +55,7 @@ import com.charlesrowland.popularmovies.adapters.SimilarMoviesAdapter;
 import com.charlesrowland.popularmovies.model.MovieAllDetailsResult;
 import com.charlesrowland.popularmovies.model.MovieInfoResult;
 import com.charlesrowland.popularmovies.network.ApiClient;
+import com.charlesrowland.popularmovies.ui.FavoriteMovieViewModel;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
@@ -53,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -185,9 +198,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private String mCrewMembersString;
     private String mSimilarMovieTitles;
     private boolean isSimilar = false;
-    private boolean isFavorite = false;
     private Drawable favoriteIconOutline;
     private Drawable favoriteIconFilled;
+    private FavoriteMovieRepository db_repo;
+    private FavoriteMovie favoriteMovie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -240,10 +254,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
             // do database check here
             // if the movieID is in the database, load from database, set fav icon to filled
             // else, load from the api
+            db_repo = new FavoriteMovieRepository(getApplication());
+            favoriteMovie = db_repo.getFavoriteMovieDetails(mMovieId);
+            
+            if (favoriteMovie != null) {
+                Log.i(TAG, "onCreate: thisMovie title: " + favoriteMovie.getOriginal_title());
+                loadFromFavorite();
+            } else {
+                Log.i(TAG, "onCreate: thisMovie is null");
+                getMovieInfo();
+            }
 
-            // for now, just call toggleFavorites to get clicks working
             toggleFavorites();
-            getMovieInfo();
+
         }
     }
 
@@ -386,8 +409,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForFavorite() {}
-
     private void toggleFavorites() {
         // NOTE: Cast, Crew, Similar Movies, Videos, and Reviews RecyclerViews are not available
         // offline for favorite movies
@@ -402,40 +423,42 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 if (currentIconState.equals(outlineIconState)) {
                     mFavoritesIcon.setImageDrawable(favoriteIconFilled);
-                    // set this movie as a favorite in the database IF ITS NOT ALREADY
+                    // set this movie as a favorite
                     saveFavorite();
-                }
-
-                if (currentIconState.equals(filledIconState)) {
+                } else {
                     mFavoritesIcon.setImageDrawable(favoriteIconOutline);
-                    // if this movie Id is in the db, remove the row
+                    // user doesn't like this movie anymore so get rid of it. its garbage.
                     deleteFavorite();
                 }
             }
         });
     }
 
+    private void loadFromFavorite() {
+        mFavoritesIcon.setImageDrawable(favoriteIconFilled);
+        mMovieTitle = favoriteMovie.getOriginal_title();
+        mLanguage = favoriteMovie.getOriginal_language();
+        mTaglineText = favoriteMovie.getTagline();
+        mOverviewText = favoriteMovie.getOverview();
+        mVoteAverage = Double.parseDouble(favoriteMovie.getVote_average());
+        mMpaa_rating = favoriteMovie.getMpaa_rating();
+        mBackdropPath = favoriteMovie.getBackdrop_path();
+        mPosterPath = favoriteMovie.getPoster_path();
+        mGenreString = favoriteMovie.getGenres();
+        mRuntimeText = favoriteMovie.getRuntime();
+        mReleaseDateText = favoriteMovie.getRelease_date();
+        mCastMembersString = favoriteMovie.getCast_members();
+        mCrewMembersString = favoriteMovie.getCrew_members();
+        mSimilarMovieTitles = favoriteMovie.getSimilar_movie_titles();
+    }
+
     private void saveFavorite() {
-        int movieId = mMovieId;
-        String imdb = mImdbId;
-        String title = mMovieTitle;
-        String language = mLanguage;
-        String tag = mTaglineText;
-        String description = mOverviewText;
-        double vote_average = mVoteAverage;
-        String mpaa = mMpaa_rating;
-        String bd_path = mBackdropPath;
-        String poster_path = mPosterPath;
-        String generes = mGenreString;
-        String runtime = mRuntimeText;
-        String releaseDate = mReleaseDateText;
-        String cast = mCastMembersString;
-        String crew = mCrewMembersString;
-        String similar = mSimilarMovieTitles;
+        favoriteMovie = new FavoriteMovie(mMovieId, mImdbId, mMovieTitle, mLanguage, mTaglineText, mOverviewText, String.valueOf(mVoteAverage), mMpaa_rating, mBackdropPath, mPosterPath, mGenreString, mRuntimeText, mReleaseDateText, mCastMembersString, mCrewMembersString, mSimilarMovieTitles);
+        db_repo.insert(favoriteMovie);
     }
 
     private void deleteFavorite() {
-
+        db_repo.delete(favoriteMovie);
     }
 
     private void getMovieInfo() {
@@ -470,7 +493,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
                 int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
                 mRuntimeText = convertRuntime(runtime);
-                mReleaseDateText = convertReleaseDate(mRuntimeText);
+                mReleaseDateText = convertReleaseDate(mReleaseDateText);
 
                 mMpaa_rating = getMpaaRating();
 
@@ -907,6 +930,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(view);
         dialog.show();
+    }
+
+    private boolean checkNetworkStatus() {
+        //Check for network status
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo networkInfo = Objects.requireNonNull(connectivityManager).getActiveNetworkInfo();
+        boolean hasNetworkConn = false;
+        if (networkInfo != null && networkInfo.isConnected()) {
+            hasNetworkConn = true;
+        }
+        return hasNetworkConn;
     }
 
     @Override

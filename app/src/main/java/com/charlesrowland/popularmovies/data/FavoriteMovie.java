@@ -3,7 +3,7 @@ package com.charlesrowland.popularmovies.data;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
-@Entity(tableName = "favorite_movies_table")
+@Entity(tableName = "movies")
 public class FavoriteMovie {
 
     @PrimaryKey
@@ -13,7 +13,7 @@ public class FavoriteMovie {
     private String original_language;
     private String tagline;
     private String overview;
-    private double vote_average;
+    private String vote_average;
     private String mpaa_rating;
     private String backdrop_path;
     private String poster_path;
@@ -24,7 +24,7 @@ public class FavoriteMovie {
     private String crew_members;
     private String similar_movie_titles;
 
-    public FavoriteMovie(int movie_id, String imdb_id, String original_title, String original_language, String tagline, String overview, double vote_average, String mpaa_rating, String backdrop_path, String poster_path, String genres, String runtime, String release_date, String cast_members, String crew_members, String similar_movie_titles) {
+    public FavoriteMovie(int movie_id, String imdb_id, String original_title, String original_language, String tagline, String overview, String vote_average, String mpaa_rating, String backdrop_path, String poster_path, String genres, String runtime, String release_date, String cast_members, String crew_members, String similar_movie_titles) {
         this.movie_id = movie_id;
         this.imdb_id = imdb_id;
         this.original_title = original_title;
@@ -67,7 +67,7 @@ public class FavoriteMovie {
         return overview;
     }
 
-    public double getVote_average() {
+    public String getVote_average() {
         return vote_average;
     }
 
