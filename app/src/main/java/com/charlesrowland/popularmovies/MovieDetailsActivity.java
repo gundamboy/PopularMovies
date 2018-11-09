@@ -2,12 +2,11 @@ package com.charlesrowland.popularmovies;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -17,8 +16,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.BottomSheetBehavior;
@@ -36,17 +33,13 @@ import android.transition.ChangeBounds;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.charlesrowland.popularmovies.adapters.ReviewsAdapter;
 import com.charlesrowland.popularmovies.adapters.VideoAdapter;
 import com.charlesrowland.popularmovies.data.FavoriteMovie;
-import com.charlesrowland.popularmovies.data.FavoriteMovieDao;
-import com.charlesrowland.popularmovies.data.FavoriteMovieDatabase;
 import com.charlesrowland.popularmovies.data.FavoriteMovieRepository;
-import com.charlesrowland.popularmovies.fragments.BottomReviewFragment;
 import com.charlesrowland.popularmovies.interfaces.ApiInterface;
 import com.charlesrowland.popularmovies.adapters.CastCrewAdapter;
 import com.charlesrowland.popularmovies.model.Credit;
@@ -55,10 +48,13 @@ import com.charlesrowland.popularmovies.adapters.SimilarMoviesAdapter;
 import com.charlesrowland.popularmovies.model.MovieAllDetailsResult;
 import com.charlesrowland.popularmovies.model.MovieInfoResult;
 import com.charlesrowland.popularmovies.network.ApiClient;
-import com.charlesrowland.popularmovies.ui.FavoriteMovieViewModel;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,6 +77,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String MOVIE_TITLE = "original_title";
     private static final String MOVIE_POSTER = "poster_path";
     private static final String IS_SIMILAR = "is_similar";
+    private static final String APP_DIR = "movie_night";
     private static final int START_DELAY = 2000;
     private static final int POSTER_FADE_OUT_DELAY = 400;
 
@@ -134,6 +131,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     @BindView(R.id.cast_intro) TextView mCastIntro;
     @BindView(R.id.overview) TextView mOverview;
     @BindView(R.id.tagline) TextView mTagline;
+    @BindView(R.id.cast_header) TextView mCastHeader;
+    @BindView(R.id.crew_header) TextView mCrewHeader;
     @BindView(R.id.similar_header) TextView mSimilarHeader;
     @BindView(R.id.videos_header) TextView mVideosHeader;
     @BindView(R.id.reviews_header) TextView mReviewsHeader;
@@ -195,9 +194,12 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private String mRuntimeText;
     private String mReleaseDateText;
     private String mCastMembersString;
-    private String mCrewMembersString;
     private String mSimilarMovieTitles;
+    private String mDirectorText;
+    private String mWritersText;
+    private String mProducersText;
     private boolean isSimilar = false;
+    private boolean favoriteUseDatabase = false;
     private Drawable favoriteIconOutline;
     private Drawable favoriteIconFilled;
     private FavoriteMovieRepository db_repo;
@@ -257,12 +259,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
             db_repo = new FavoriteMovieRepository(getApplication());
             favoriteMovie = db_repo.getFavoriteMovieDetails(mMovieId);
             
-            if (favoriteMovie != null) {
-                Log.i(TAG, "onCreate: thisMovie title: " + favoriteMovie.getOriginal_title());
+            if (favoriteMovie != null && !checkNetworkStatus()) {
+                // if its a favorite AND there is no network get the info from the db
+                favoriteUseDatabase = true;
+                mFavoritesIcon.setImageDrawable(favoriteIconFilled);
                 loadFromFavorite();
             } else {
-                Log.i(TAG, "onCreate: thisMovie is null");
-                getMovieInfo();
+                // if its a favorite but there is a network use it, might as well so you can get
+                // the full experience. Still need to set the heart though.
+                if (favoriteMovie != null) {
+                    mFavoritesIcon.setImageDrawable(favoriteIconFilled);
+                }
+
+                loadFromApi();
             }
 
             toggleFavorites();
@@ -274,7 +283,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putParcelable(MOVIE_API_RESULTS_SAVE_STATE, mMovieInfo);
         outState.putString(TITLE_SAVE_STATE, mMovieTitle);
         outState.putString(MPAA_SAVE_STATE, mMpaa_rating);
         outState.putString(GENRES_SAVE_STATE, mGenreString);
@@ -283,111 +291,117 @@ public class MovieDetailsActivity extends AppCompatActivity {
         outState.putString(WRITERS_SAVE_STATE, mWriters.getText().toString());
         outState.putString(CAST_INTRO_SAVE_STATE, mCastIntro.getText().toString());
 
-        // time to get the cast members.
-        // need to get the scroll position of the layout manage
-        mCastRecycler = layoutManagerCast.onSaveInstanceState();
-        outState.putParcelable(CAST_RECYCLER_SAVE_STATE, mCastRecycler);
+        if (!favoriteUseDatabase) {
+            outState.putParcelable(MOVIE_API_RESULTS_SAVE_STATE, mMovieInfo);
 
-        // need to get mCast which is a List<MovieAllDetailsResult.CastResults>
-        outState.putParcelableArrayList(CAST_API_RESULTS_SAVE_STATE, new ArrayList<>(mCast));
+            // time to get the cast members.
+            // need to get the scroll position of the layout manage
+            mCastRecycler = layoutManagerCast.onSaveInstanceState();
+            outState.putParcelable(CAST_RECYCLER_SAVE_STATE, mCastRecycler);
 
-        // need to get the adapter, mCreditsCast which is a Parcelable ArrayList<Credit>
-        outState.putParcelableArrayList(CAST_ADAPTER_SAVE_STATE, new ArrayList<>(mCreditsCast));
+            // need to get mCast which is a List<MovieAllDetailsResult.CastResults>
+            outState.putParcelableArrayList(CAST_API_RESULTS_SAVE_STATE, new ArrayList<>(mCast));
 
-        // time to get the crew members.
-        // need to get the scroll position of the layout manage
-        mCrewRecycler = layoutManagerCrew.onSaveInstanceState();
-        outState.putParcelable(CREW_RECYCLER_SAVE_STATE, mCastRecycler);
+            // need to get the adapter, mCreditsCast which is a Parcelable ArrayList<Credit>
+            outState.putParcelableArrayList(CAST_ADAPTER_SAVE_STATE, new ArrayList<>(mCreditsCast));
 
-        // need to get mCast which is a List<MovieAllDetailsResult.CastResults>
-        outState.putParcelableArrayList(CREW_API_RESULTS_SAVE_STATE, new ArrayList<>(mCrew));
+            // time to get the crew members.
+            // need to get the scroll position of the layout manage
+            mCrewRecycler = layoutManagerCrew.onSaveInstanceState();
+            outState.putParcelable(CREW_RECYCLER_SAVE_STATE, mCastRecycler);
 
-        // need to get the adapter, mCreditsCast which is a Parcelable ArrayList<Credit>
-        outState.putParcelableArrayList(CREW_ADAPTER_SAVE_STATE, new ArrayList<>(mCreditsCrew));
+            // need to get mCast which is a List<MovieAllDetailsResult.CastResults>
+            outState.putParcelableArrayList(CREW_API_RESULTS_SAVE_STATE, new ArrayList<>(mCrew));
 
+            // need to get the adapter, mCreditsCast which is a Parcelable ArrayList<Credit>
+            outState.putParcelableArrayList(CREW_ADAPTER_SAVE_STATE, new ArrayList<>(mCreditsCrew));
 
-        // time to get the videos.
-        // need to get the scroll position of the layout manage
-        mVideosRecycler = layoutManagerVideos.onSaveInstanceState();
-        outState.putParcelable(VIDEOS_RECYCLER_SAVE_STATE, mVideosRecycler);
+            // time to get the videos.
+            // need to get the scroll position of the layout manage
+            mVideosRecycler = layoutManagerVideos.onSaveInstanceState();
+            outState.putParcelable(VIDEOS_RECYCLER_SAVE_STATE, mVideosRecycler);
 
-        // need to get mCast which is a List<MovieAllDetailsResult.VideoResults>
-        outState.putParcelableArrayList(VIDEO_API_RESULTS_SAVE_STATE, new ArrayList<>(mVideos));
+            // need to get mCast which is a List<MovieAllDetailsResult.VideoResults>
+            outState.putParcelableArrayList(VIDEO_API_RESULTS_SAVE_STATE, new ArrayList<>(mVideos));
 
-        // time to get the similar movies.
-        // there is no scrolling for similar images at the moment, but that may change. Future
-        // proof all the things!
-        mSimilarMoviesRecycler = layoutManagerSimilar.onSaveInstanceState();
-        outState.putParcelable(SIMILAR_RECYCLER_SAVE_STATE, mCastRecycler);
+            // time to get the similar movies.
+            // there is no scrolling for similar images at the moment, but that may change. Future
+            // proof all the things!
+            mSimilarMoviesRecycler = layoutManagerSimilar.onSaveInstanceState();
+            outState.putParcelable(SIMILAR_RECYCLER_SAVE_STATE, mCastRecycler);
 
-        // need to get mCast which is a List<MovieAllDetailsResult.SimilarResults>
-        outState.putParcelableArrayList(SIMILAR_API_RESULTS_SAVE_STATE, new ArrayList<>(mSimilarMovies));
+            // need to get mCast which is a List<MovieAllDetailsResult.SimilarResults>
+            outState.putParcelableArrayList(SIMILAR_API_RESULTS_SAVE_STATE, new ArrayList<>(mSimilarMovies));
 
-        // time to get the reviews.
-        // need to get the scroll position of the layout manage
-        if (mReviewsAdapter != null) {
-            mReviewsRecycler = layoutManagerReviews.onSaveInstanceState();
-            outState.putParcelable(REVIEWS_RECYCLER_SAVE_STATE, mReviewsRecycler);
+            // time to get the reviews.
+            // need to get the scroll position of the layout manage
+            if (mReviewsAdapter != null) {
+                mReviewsRecycler = layoutManagerReviews.onSaveInstanceState();
+                outState.putParcelable(REVIEWS_RECYCLER_SAVE_STATE, mReviewsRecycler);
+            }
+
+            // need to get mCast which is a List<MovieAllDetailsResult.ReviewResults>
+            outState.putParcelableArrayList(REVIEW_API_RESULTS_SAVE_STATE, new ArrayList<>(mReviews));
         }
-
-        // need to get mCast which is a List<MovieAllDetailsResult.ReviewResults>
-        outState.putParcelableArrayList(REVIEW_API_RESULTS_SAVE_STATE, new ArrayList<>(mReviews));
 
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+
         if(savedInstanceState != null) {
             getSupportActionBar().setTitle(savedInstanceState.getString(TITLE_SAVE_STATE));
-            mMovieInfo = savedInstanceState.getParcelable(MOVIE_API_RESULTS_SAVE_STATE);
-            mGenreString = savedInstanceState.getString(GENRES_SAVE_STATE);
-            mMpaa_rating = savedInstanceState.getString(MPAA_SAVE_STATE);
-
-            // temps. these get set in the adapter setup for each
+            mTitle.setText(savedInstanceState.getString(TITLE_SAVE_STATE));
             mCastIntro.setText(savedInstanceState.getString(CAST_INTRO_SAVE_STATE));
             mDirector.setText(savedInstanceState.getString(DIRECTOR_SAVE_STATE));
             mProducers.setText(savedInstanceState.getString(PRODUCERS_SAVE_STATE));
             mWriters.setText(savedInstanceState.getString(WRITERS_SAVE_STATE));
             mCastIntro.setText(savedInstanceState.getString(CAST_INTRO_SAVE_STATE));
+            mGenreString = savedInstanceState.getString(GENRES_SAVE_STATE);
+            mMpaa_rating = savedInstanceState.getString(MPAA_SAVE_STATE);
 
-            // time to set the cast members.
-            // need to populate mCast.
-            mCast = savedInstanceState.getParcelableArrayList(CAST_API_RESULTS_SAVE_STATE);
+            if (!favoriteUseDatabase) {
+                mMovieInfo = savedInstanceState.getParcelable(MOVIE_API_RESULTS_SAVE_STATE);
 
-            // need to set the cast adapter
-            mCreditsCast = savedInstanceState.getParcelableArrayList(CAST_ADAPTER_SAVE_STATE);
+                // time to set the cast members.
+                // need to populate mCast.
+                mCast = savedInstanceState.getParcelableArrayList(CAST_API_RESULTS_SAVE_STATE);
 
-            // need to set scroll position
-            mCastRecycler = savedInstanceState.getParcelable(CAST_RECYCLER_SAVE_STATE);
+                // need to set the cast adapter
+                mCreditsCast = savedInstanceState.getParcelableArrayList(CAST_ADAPTER_SAVE_STATE);
 
-            // time to set the cast members.
-            // need to populate mCast.
-            mCrew = savedInstanceState.getParcelableArrayList(CREW_API_RESULTS_SAVE_STATE);
+                // need to set scroll position
+                mCastRecycler = savedInstanceState.getParcelable(CAST_RECYCLER_SAVE_STATE);
 
-            // need to set the cast adapter
-            mCreditsCrew = savedInstanceState.getParcelableArrayList(CREW_ADAPTER_SAVE_STATE);
+                // time to set the cast members.
+                // need to populate mCast.
+                mCrew = savedInstanceState.getParcelableArrayList(CREW_API_RESULTS_SAVE_STATE);
 
-            // need to set scroll position
-            mCrewRecycler = savedInstanceState.getParcelable(CREW_RECYCLER_SAVE_STATE);
+                // need to set the cast adapter
+                mCreditsCrew = savedInstanceState.getParcelableArrayList(CREW_ADAPTER_SAVE_STATE);
 
-            // time to set similar movies.
-            mSimilarMovies = savedInstanceState.getParcelableArrayList(SIMILAR_API_RESULTS_SAVE_STATE);
+                // need to set scroll position
+                mCrewRecycler = savedInstanceState.getParcelable(CREW_RECYCLER_SAVE_STATE);
 
-            // need to set scroll position
-            mSimilarMoviesRecycler = savedInstanceState.getParcelable(SIMILAR_RECYCLER_SAVE_STATE);
+                // time to set similar movies.
+                mSimilarMovies = savedInstanceState.getParcelableArrayList(SIMILAR_API_RESULTS_SAVE_STATE);
 
-            // need to set the videos adapter
-            mVideos = savedInstanceState.getParcelableArrayList(VIDEO_API_RESULTS_SAVE_STATE);
+                // need to set scroll position
+                mSimilarMoviesRecycler = savedInstanceState.getParcelable(SIMILAR_RECYCLER_SAVE_STATE);
 
-            // set the scroll position
-            mVideosRecycler = savedInstanceState.getParcelable(VIDEOS_RECYCLER_SAVE_STATE);
+                // need to set the videos adapter
+                mVideos = savedInstanceState.getParcelableArrayList(VIDEO_API_RESULTS_SAVE_STATE);
 
-            // need to set the videos adapter
-            mReviews = savedInstanceState.getParcelableArrayList(REVIEW_API_RESULTS_SAVE_STATE);
+                // set the scroll position
+                mVideosRecycler = savedInstanceState.getParcelable(VIDEOS_RECYCLER_SAVE_STATE);
 
-            // set the scroll position
-            mReviewsRecycler = savedInstanceState.getParcelable(REVIEWS_RECYCLER_SAVE_STATE);
+                // need to set the videos adapter
+                mReviews = savedInstanceState.getParcelableArrayList(REVIEW_API_RESULTS_SAVE_STATE);
+
+                // set the scroll position
+                mReviewsRecycler = savedInstanceState.getParcelable(REVIEWS_RECYCLER_SAVE_STATE);
+            }
 
             loadFromSavedInstanceState(savedInstanceState);
         }
@@ -399,8 +413,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mPosterBlocker.setVisibility(View.GONE);
 
         if (savedInstanceState != null) {
-            setImageViews();
-            setTextViews();
+            setDetailViews();
             setCastMembers();
             setCrewMembers();
             similarMovieViewSetup();
@@ -411,7 +424,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
     private void toggleFavorites() {
         // NOTE: Cast, Crew, Similar Movies, Videos, and Reviews RecyclerViews are not available
-        // offline for favorite movies
+        // offline for favorite movies. Text will be shown instead.
         mFavoritesIcon.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -419,15 +432,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 Drawable currentIcon = mFavoritesIcon.getDrawable();
                 Drawable.ConstantState currentIconState = currentIcon.getConstantState();
                 Drawable.ConstantState outlineIconState = favoriteIconOutline.getConstantState();
-                Drawable.ConstantState filledIconState = favoriteIconFilled.getConstantState();
 
                 if (currentIconState.equals(outlineIconState)) {
                     mFavoritesIcon.setImageDrawable(favoriteIconFilled);
-                    // set this movie as a favorite
+                    // set this movie as a favorite. it's just the greatest ever.
                     saveFavorite();
                 } else {
                     mFavoritesIcon.setImageDrawable(favoriteIconOutline);
-                    // user doesn't like this movie anymore so get rid of it. its garbage.
+                    // user doesn't like this movie anymore so get rid of it. its garbage anyway. the cinematography is total crap.
                     deleteFavorite();
                 }
             }
@@ -435,7 +447,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void loadFromFavorite() {
-        mFavoritesIcon.setImageDrawable(favoriteIconFilled);
         mMovieTitle = favoriteMovie.getOriginal_title();
         mLanguage = favoriteMovie.getOriginal_language();
         mTaglineText = favoriteMovie.getTagline();
@@ -447,21 +458,47 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mGenreString = favoriteMovie.getGenres();
         mRuntimeText = favoriteMovie.getRuntime();
         mReleaseDateText = favoriteMovie.getRelease_date();
-        mCastMembersString = favoriteMovie.getCast_members();
-        mCrewMembersString = favoriteMovie.getCrew_members();
+        mDirectorText = favoriteMovie.getDirector();
+        mWritersText = favoriteMovie.getWriters();
+        mProducersText = favoriteMovie.getProducers();
+        mCastMembersString = favoriteMovie.getCast();
         mSimilarMovieTitles = favoriteMovie.getSimilar_movie_titles();
+
+        updateUi(favoriteUseDatabase);
     }
 
     private void saveFavorite() {
-        favoriteMovie = new FavoriteMovie(mMovieId, mImdbId, mMovieTitle, mLanguage, mTaglineText, mOverviewText, String.valueOf(mVoteAverage), mMpaa_rating, mBackdropPath, mPosterPath, mGenreString, mRuntimeText, mReleaseDateText, mCastMembersString, mCrewMembersString, mSimilarMovieTitles);
+        // save the poster and the backdrop images to the device because why the F not.
+        String backdropImageName = mBackdropPath.substring(1);
+        String posterImageName = mPosterPath.substring(1);
+        String backdropUrl = getResources().getString(R.string.backdrop_url) + mBackdropPath;
+        String posterUrl = getResources().getString(R.string.backdrop_url) + mPosterPath;
+
+        Picasso.get().load(backdropUrl).into(picassoImageTarget(getApplicationContext(), APP_DIR, backdropImageName));
+        Picasso.get().load(posterUrl).into(picassoImageTarget(getApplicationContext(), APP_DIR, posterImageName));
+
+        favoriteMovie = new FavoriteMovie(mMovieId, mImdbId, mMovieTitle, mLanguage, mTaglineText, mOverviewText, String.valueOf(mVoteAverage), mMpaa_rating, mBackdropPath, mPosterPath, mGenreString, mRuntimeText, mReleaseDateText, mDirectorText, mWritersText, mProducersText, mCastMembersString, mSimilarMovieTitles);
         db_repo.insert(favoriteMovie);
     }
 
     private void deleteFavorite() {
         db_repo.delete(favoriteMovie);
+
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        File directory = cw.getDir(APP_DIR, Context.MODE_PRIVATE);
+        File posterImageFile = new File(directory, mPosterPath.substring(1));
+        File backdropImageFile = new File(directory, mBackdropPath.substring(1));
+
+        if(posterImageFile.exists()) {
+            posterImageFile.delete();
+        }
+
+        if(backdropImageFile.exists()) {
+            backdropImageFile.delete();
+        }
     }
 
-    private void getMovieInfo() {
+    private void loadFromApi() {
         Call<MovieAllDetailsResult> call;
         ApiInterface api = ApiClient.getRetrofit().create(ApiInterface.class);
         call = api.getAllMovieDetails(mMovieId);
@@ -470,53 +507,47 @@ public class MovieDetailsActivity extends AppCompatActivity {
             public void onResponse(Call<MovieAllDetailsResult> call, Response<MovieAllDetailsResult> response) {
                 mMovieInfo = response.body();
 
-                // get the genres and built the genre string
-                // the genres come back as an array of objects, genres: [ {...}, {...}, etc ]
-                // in the results file this was just making them a List<> of type MovieGenreResult
-                // which is the id and name (actual object keys)
-                // the list can be looped through like this to get the data
-                // this same setup will work for production_companies, production_countries, and spoken_languages
-                mGenresList = mMovieInfo.getGenres();
-                for (MovieAllDetailsResult.MovieGenreResult genre : mGenresList) {
-                    mGenreString += genre.getName() + ", ";
-                }
-
-                // fix comma formatting for genres string. needs a comma, then kill the last comma in the string
-                mGenreString = mGenreString.substring(0, mGenreString.length()-2);
-                mImdbId = mMovieInfo.getImdb_id();
-                mLanguage = mMovieInfo.getOriginalLanguage();
-                mTaglineText = mMovieInfo.getTagline();
-                mOverviewText = mMovieInfo.getOverview();
-                mVoteAverage = mMovieInfo.getVoteAverage();
-                mBackdropPath = mMovieInfo.getBackdrop_path();
-                mReleaseDateText = mMovieInfo.getReleaseDate();
-
-                int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
-                mRuntimeText = convertRuntime(runtime);
-                mReleaseDateText = convertReleaseDate(mReleaseDateText);
-
-                mMpaa_rating = getMpaaRating();
-
-                // get the cast and crew lists
+                // get the cast, crew, similar movies, videos, and reviews lists
                 mCast = mMovieInfo.getCredits().getCast();
                 mCrew = mMovieInfo.getCredits().getCrew();
-
-                // get the similar movies
                 mSimilarMovies = mMovieInfo.getSimilar().getResults();
-
-                mSimilarMovieTitles = "Similar Movies: ";
-                for (MovieAllDetailsResult.SimilarResults similar : mSimilarMovies) {
-                    mSimilarMovieTitles += similar.getOriginalTitle() + ", ";
-                }
-                mSimilarMovieTitles = mSimilarMovieTitles.substring(0, mSimilarMovieTitles.length()-2);
-
-                // get the videos
                 mVideos = mMovieInfo.getVideos().getResults();
-
-                // get the reviews
                 mReviews = mMovieInfo.getReviews().getResults();
 
-                updateUi(false);
+                if (!favoriteUseDatabase) {
+                    // get the genres and built the genre string
+                    // the genres come back as an array of objects, genres: [ {...}, {...}, etc ]
+                    mGenresList = mMovieInfo.getGenres();
+                    for (MovieAllDetailsResult.MovieGenreResult genre : mGenresList) {
+                        mGenreString += genre.getName() + ", ";
+                    }
+
+                    // fix comma formatting for genres string. needs a comma, then kill the last comma in the string
+                    mGenreString = mGenreString.substring(0, mGenreString.length() - 2);
+
+                    mImdbId = mMovieInfo.getImdb_id();
+                    mLanguage = mMovieInfo.getOriginalLanguage();
+                    mTaglineText = mMovieInfo.getTagline();
+                    mOverviewText = mMovieInfo.getOverview();
+                    mVoteAverage = mMovieInfo.getVoteAverage();
+                    mBackdropPath = mMovieInfo.getBackdrop_path();
+                    mReleaseDateText = mMovieInfo.getReleaseDate();
+
+                    int runtime = mMovieInfo.getRuntime() != null ? mMovieInfo.getRuntime() : 0;
+                    mRuntimeText = convertRuntime(runtime);
+                    mReleaseDateText = convertReleaseDate(mReleaseDateText);
+
+                    mMpaa_rating = getMpaaRating();
+
+                    // similar movies but just the titles to save in the db.
+                    mSimilarMovieTitles = "Similar Movies: ";
+                    for (MovieAllDetailsResult.SimilarResults similar : mSimilarMovies) {
+                        mSimilarMovieTitles += similar.getOriginalTitle() + ", ";
+                    }
+                    mSimilarMovieTitles = mSimilarMovieTitles.substring(0, mSimilarMovieTitles.length() - 2);
+
+                    updateUi(favoriteUseDatabase);
+                }
             }
 
             @Override
@@ -527,17 +558,27 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void updateUi(boolean isFavorite) {
-        setImageViews();
-        setTextViews();
-
         if (!isFavorite) {
             setCastMembers();
             setCrewMembers();
             similarMovieViewSetup();
-            hideImageBlocker();
             videosViewSetup();
             reviewsSetup();
+        } else {
+            castRecyclerView.setVisibility(View.GONE);
+            crewRecyclerView.setVisibility(View.GONE);
+            mVideosRecyclerView.setVisibility(View.GONE);
+            similarMoviesRecyclerView.setVisibility(View.GONE);
+            mReviewsRecyclerView.setVisibility(View.GONE);
+            mCastHeader.setVisibility(View.GONE);
+            mCrewHeader.setVisibility(View.GONE);
+            mSimilarHeader.setVisibility(View.GONE);
+            mVideosHeader.setVisibility(View.GONE);
+            mReviewsHeader.setVisibility(View.GONE);
         }
+
+        setDetailViews();
+        hideImageBlocker();
     }
 
     private String getMpaaRating() {
@@ -619,7 +660,21 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 });
     }
 
-    private void setTextViews() {
+    private void setDetailViews() {
+        if (favoriteUseDatabase) {
+            ContextWrapper cw = new ContextWrapper(getApplicationContext());
+            File directory = cw.getDir(APP_DIR, Context.MODE_PRIVATE);
+            File posterImageFile = new File(directory, mPosterPath.substring(1));
+            File backdropImageFile = new File(directory, mBackdropPath.substring(1));
+            Picasso.get().load(posterImageFile).placeholder(R.color.windowBackground).into(mPoster);
+            Picasso.get().load(backdropImageFile).placeholder(R.color.windowBackground).into(mBackdrop);
+        } else {
+            String backdropUrl = getResources().getString(R.string.backdrop_url) + mBackdropPath;
+            final String posterUrl = getResources().getString(R.string.backdrop_url) + mPosterPath;
+            Picasso.get().load(backdropUrl).placeholder(R.color.windowBackground).into(mBackdrop);
+            Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(mPoster);
+        }
+
         mTitle.setText(mMovieTitle);
         mGenres.setText(mGenreString);
         mRuntime.setText(mRuntimeText);
@@ -627,6 +682,18 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mReleaseDate.setText(mReleaseDateText);
         mTagline.setText(mTaglineText);
         mOverview.setText(mOverviewText);
+        mDirector.setText(mDirectorText);
+        mWriters.setText(mWritersText);
+        mProducers.setText(mProducersText);
+        mCastIntro.setText(mCastMembersString);
+
+        if (favoriteUseDatabase) {
+            // makes the Director: Producers: etc bold
+            setSpannableText(mProducersText, mProducers);
+            setSpannableText(mWritersText, mWriters);
+            setSpannableText(mDirectorText, mDirector);
+            setSpannableText(mCastMembersString, mCastIntro);
+        }
 
         if (mMpaa_rating != null && !mMpaa_rating.isEmpty()) {
             // if the movie is rated R make the background red. other wise its green, which
@@ -640,20 +707,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mMpaaRating.setVisibility(View.GONE);
         }
 
-        mIMDB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToImdb(mImdbId);
-            }
-        });
-    }
-
-    private void setImageViews() {
-        String backdropUrl = getResources().getString(R.string.backdrop_url) + mBackdropPath;
-        final String posterUrl = getResources().getString(R.string.backdrop_url) + mPosterPath;
-
-        Picasso.get().load(backdropUrl).placeholder(R.color.windowBackground).into(mBackdrop);
-        Picasso.get().load(posterUrl).placeholder(R.color.windowBackground).into(mPoster);
+        if (checkNetworkStatus()) {
+            mIMDB.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToImdb(mImdbId);
+                }
+            });
+        }
     }
 
     private String convertReleaseDate(String date) {
@@ -691,7 +752,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         return parts[0].length();
     }
 
-    private void setSpanableText(String str, TextView v) {
+    private void setSpannableText(String str, TextView v) {
         str = str.substring(0, str.length()-2);
         SpannableString strSpan = new SpannableString(str);
         strSpan.setSpan(new StyleSpan(Typeface.BOLD),0,getSpannableCount(str),0);
@@ -720,20 +781,16 @@ public class MovieDetailsActivity extends AppCompatActivity {
         } else {
             mCastMembersString = mCastIntro.getText().toString();
         }
-
-        setSpanableText(mCastMembersString, mCastIntro);
+        setSpannableText(mCastMembersString, mCastIntro);
         castRecyclerViewSetup();
     }
 
     private void setCrewMembers() {
-        String director;
-        String writers;
-        String producers;
 
         if(mCreditsCrew.size() == 0) {
-            director = getResources().getString(R.string.details_director) +  " ";
-            writers = getResources().getString(R.string.details_writers) +  " ";;
-            producers = getResources().getString(R.string.details_producers) +  " ";
+            mDirectorText = getResources().getString(R.string.details_director) +  " ";
+            mWritersText = getResources().getString(R.string.details_writers) +  " ";;
+            mProducersText = getResources().getString(R.string.details_producers) +  " ";
 
             int count = 0;
             for (MovieAllDetailsResult.CrewResults crew_member : mCrew) {
@@ -745,45 +802,43 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 }
 
                 if(crew_member.getJob().equals("Story") || crew_member.getJob().equals("Screenplay")) {
-                    writers += crew_member.getCrew_name() + ", ";
+                    mWritersText += crew_member.getCrew_name() + ", ";
                 }
 
                 if(crew_member.getJob().equals("Producer") || crew_member.getJob().equals("Executive Producer")) {
-                    producers += crew_member.getCrew_name() + ", ";
+                    mProducersText += crew_member.getCrew_name() + ", ";
                 }
 
                 if(crew_member.getJob().equals("Director")) {
                     // i want a total of 8. if the directory was found i want them at the start
                     // if the directory was not found, i need to add them later
-                    director += crew_member.getCrew_name() + ", ";
+                    mDirectorText += crew_member.getCrew_name() + ", ";
                     mCreditsCrew.add(0,new Credit(crew_member.getCrew_image(), crew_member.getCrew_name(), crew_member.getJob()));
                 }
             }
 
             // removes the last comma from the strings
-            writers = writers.substring(0, writers.length()-2);
-            producers = producers.substring(0, producers.length()-2);
-            director = director.substring(0, director.length()-2);
+            mWritersText = mWritersText.substring(0, mWritersText.length()-2);
+            mProducersText = mProducersText.substring(0, mProducersText.length()-2);
+            mDirectorText = mDirectorText.substring(0, mDirectorText.length()-2);
 
             // some movies have more than 1 director. Adjust the "Director" text to be "Directors" if so
-            if (director.contains(",")) {
-                StringBuilder sb = new StringBuilder(director);
-                sb.insert(getSpannableCount(director), "s");
-                director = sb.toString();
+            if (mDirectorText.contains(",")) {
+                StringBuilder sb = new StringBuilder(mDirectorText);
+                sb.insert(getSpannableCount(mDirectorText), "s");
+                mDirectorText = sb.toString();
             }
         } else {
-            producers = mProducers.getText().toString();
-            writers = mWriters.getText().toString();
-            director = mDirector.getText().toString();
+            mProducersText = mProducers.getText().toString();
+            mWritersText = mWriters.getText().toString();
+            mDirectorText = mDirector.getText().toString();
         }
 
 
         // makes the Director: Producers: etc bold
-        setSpanableText(producers, mProducers);
-        setSpanableText(writers, mWriters);
-        setSpanableText(director, mDirector);
-
-        mCrewMembersString = director + "\n" + producers + "\n" + writers;
+        setSpannableText(mProducersText, mProducers);
+        setSpannableText(mWritersText, mWriters);
+        setSpannableText(mDirectorText, mDirector);
 
         crewRecyclerViewSetup();
     }
@@ -974,5 +1029,47 @@ public class MovieDetailsActivity extends AppCompatActivity {
         fadeBlockerIn();
 
         super.onBackPressed();
+    }
+
+    private Target picassoImageTarget(Context context, final String imageDir, final String imageName) {
+        ContextWrapper cw = new ContextWrapper(context);
+
+        // path to /data/data/yourapp/app_imageDir
+        final File directory = cw.getDir(imageDir, Context.MODE_PRIVATE);
+        return new Target() {
+
+            @Override
+            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final File myImageFile = new File(directory, imageName); // Create image file
+                        FileOutputStream fos = null;
+                        try {
+                            fos = new FileOutputStream(myImageFile);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                fos.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }).start();
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                if (placeHolderDrawable != null) {}
+            }
+        };
     }
 }

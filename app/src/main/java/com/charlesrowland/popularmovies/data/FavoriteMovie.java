@@ -20,11 +20,13 @@ public class FavoriteMovie {
     private String genres;
     private String runtime;
     private String release_date;
-    private String cast_members;
-    private String crew_members;
+    private String director;
+    private String writers;
+    private String producers;
+    private String cast;
     private String similar_movie_titles;
 
-    public FavoriteMovie(int movie_id, String imdb_id, String original_title, String original_language, String tagline, String overview, String vote_average, String mpaa_rating, String backdrop_path, String poster_path, String genres, String runtime, String release_date, String cast_members, String crew_members, String similar_movie_titles) {
+    public FavoriteMovie(int movie_id, String imdb_id, String original_title, String original_language, String tagline, String overview, String vote_average, String mpaa_rating, String backdrop_path, String poster_path, String genres, String runtime, String release_date, String director, String writers, String producers, String cast, String similar_movie_titles) {
         this.movie_id = movie_id;
         this.imdb_id = imdb_id;
         this.original_title = original_title;
@@ -38,8 +40,10 @@ public class FavoriteMovie {
         this.genres = genres;
         this.runtime = runtime;
         this.release_date = release_date;
-        this.cast_members = cast_members;
-        this.crew_members = crew_members;
+        this.director = director;
+        this.writers = writers;
+        this.producers = producers;
+        this.cast = cast;
         this.similar_movie_titles = similar_movie_titles;
     }
 
@@ -95,12 +99,20 @@ public class FavoriteMovie {
         return release_date;
     }
 
-    public String getCast_members() {
-        return cast_members;
+    public String getDirector() {
+        return director;
     }
 
-    public String getCrew_members() {
-        return crew_members;
+    public String getWriters() {
+        return writers;
+    }
+
+    public String getProducers() {
+        return producers;
+    }
+
+    public String getCast() {
+        return cast;
     }
 
     public String getSimilar_movie_titles() {
