@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.charlesrowland.popularmovies.adapters.FavoriteMovieAdapter;
 import com.charlesrowland.popularmovies.data.FavoriteMovie;
 import com.charlesrowland.popularmovies.interfaces.ApiInterface;
 import com.charlesrowland.popularmovies.adapters.MovieAdapter;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     public static int POSTER_FADE_OUT_DELAY = 400;
     private final static String RECYCLER_STATE = "recycler_state";
     private final static String POSTERS_STATE = "posters";
+    private final static String FAVORITES_STATE = "favs";
     private Parcelable mRecyclerState = null;
 
     // quick intro to ButterKnife here: @BindView gets the views,
@@ -75,12 +77,14 @@ public class MainActivity extends AppCompatActivity {
 
     private FavoriteMovieViewModel favoriteMovieViewModel;
     private MovieAdapter mAdapter;
+    private FavoriteMovieAdapter mFavAdapter;
     private List<MovieInfoResult> results;
     private GridLayoutManager gridLayoutManager;
     private View alertLayout;
     private SharedPreferences mPreferences;
     private SharedPreferences.Editor mEditor;
     private String appBarTitle = "";
+    private boolean loadFavorites = false;
 
     @Override
     protected void onStart() {
@@ -95,12 +99,11 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         favoriteMovieViewModel = ViewModelProviders.of(this).get(FavoriteMovieViewModel.class);
-        favoriteMovieViewModel.getAllFavoriteMovies().observe(this, new Observer<List<FavoriteMovie>>() {
-            @Override
-            public void onChanged(@Nullable List<FavoriteMovie> favoriteMovies) {
-
-            }
-        });
+        // check the network/internet status and show the proper layout
+        if (!checkNetworkStatus()) {
+            showNoNetwork();
+            return;
+        }
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         appBarTitle = getResources().getString(R.string.appBarTitle_popular);
@@ -109,12 +112,9 @@ public class MainActivity extends AppCompatActivity {
         setSwipeRefreshLayout();
 
         // separate method for RecyclerView setup
-        setupRecyclerView(savedInstanceState);
+        //setupRecyclerView(savedInstanceState);
 
-        // check the network/internet status and show the proper layout
-        if (!checkNetworkStatus()) {
-            showNoNetwork();
-        }
+        loadFromFavorites();
     }
 
     private void setTitle() {
@@ -194,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(Bundle savedInstanceState) {
-        mMoviePosterRecyclerView = findViewById(R.id.movie_poster_recyclerview);
         noNetwork = findViewById(R.id.no_network);
         gridLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span_count));
         mMoviePosterRecyclerView.setLayoutManager(gridLayoutManager);
@@ -202,10 +201,8 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             // Then the application is being reloaded
             results = savedInstanceState.getParcelableArrayList(POSTERS_STATE);
-            fetchMoviesView.setVisibility(View.GONE);
-            mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
             setTitle();
-            attachAdapter();
+            attachAdapter(loadFavorites);
         } else {
             buildAdapter(false);
         }
@@ -217,94 +214,147 @@ public class MainActivity extends AppCompatActivity {
         String prefValue = getSharedPreferenceOrderbyValue();
 
         if(prefValue.equals(getResources().getString(R.string.settings_order_by_favorites_value))) {
-            loadFavorites();
+            loadFromFavorites();
         } else {
 
             Call<MovieSortingWrapper> call;
             ApiInterface api = ApiClient.getRetrofit().create(ApiInterface.class);
 
             if (prefValue.equals(getResources().getString(R.string.settings_order_by_default))) {
+                loadFavorites = false;
                 call = api.getPopularMovies();
                 appBarTitle = getResources().getString(R.string.appBarTitle_popular);
-            } else {
+            } else if (prefValue.equals(getResources().getString(R.string.settings_order_by_toprated_value))) {
+                loadFavorites = false;
                 call = api.getTopRatedMovies();
                 appBarTitle = getResources().getString(R.string.appBarTitle_toprated);
+            }  else  {
+                loadFavorites = true;
+                call = null;
+                appBarTitle = getResources().getString(R.string.appBarTitle_favorites);
             }
 
-            call.enqueue(new Callback<MovieSortingWrapper>() {
-                @Override
-                public void onResponse(Call<MovieSortingWrapper> call, Response<MovieSortingWrapper> response) {
-                    // i found an issue with some errors coming back and not triggering onFailure so this
-                    // was my solution.
-                    if (response.code() != 200) {
-                        showNoResults();
-                        return;
-                    }
+            loadFavorites = true;
+            if (loadFavorites) {
+                showPosters();
+                setTitle();
+                attachAdapter(loadFavorites);
+            }
 
-                    // we have a response so show the posters
-                    showPosters();
-
-                    final MovieSortingWrapper movie = response.body();
-                    if (mRecyclerState == null) {
-                        results = movie.getResults();
-                    }
-
-                    if (prefSwap) {
-                        results = movie.getResults();
-                        mAdapter = null;
-                    }
-
-                    // wtf is this about! I am removing all results that are not english movies.
-                    // this isn't because I don't like non english movies though. Some of the movies
-                    // from other countries have various pieces of data missing and its crashing the app
-                    // adding in region=US in the api call is supposed to do this, but guess what, it
-                    // doesn't always work....
-                    if (getSharedPreferenceOrderbyValue().equals(getResources().getString(R.string.settings_order_by_default))) {
-                        List<MovieInfoResult> non_english_results = new ArrayList<>();
-                        for (MovieInfoResult m : results) {
-                            if (!m.getOriginalLanguage().equals("en")) {
-                                non_english_results.add(m);
-                            }
+            if (!loadFavorites && call != null) {
+                call.enqueue(new Callback<MovieSortingWrapper>() {
+                    @Override
+                    public void onResponse(Call<MovieSortingWrapper> call, Response<MovieSortingWrapper> response) {
+                        // i found an issue with some errors coming back and not triggering onFailure so this
+                        // was my solution.
+                        if (response.code() != 200) {
+                            showNoResults();
+                            return;
                         }
-                        results.removeAll(non_english_results);
+
+                        // we have a response so show the posters
+                        showPosters();
+
+                        final MovieSortingWrapper movie = response.body();
+                        if (mRecyclerState == null) {
+                            results = movie.getResults();
+                        }
+
+                        if (prefSwap) {
+                            results = movie.getResults();
+                            mAdapter = null;
+                        }
+
+                        // wtf is this about! I am removing all results that are not english movies.
+                        // this isn't because I don't like non english movies though. Some of the movies
+                        // from other countries have various pieces of data missing and its crashing the app
+                        // adding in region=US in the api call is supposed to do this, but guess what, it
+                        // doesn't always work....
+                        if (getSharedPreferenceOrderbyValue().equals(getResources().getString(R.string.settings_order_by_default))) {
+                            List<MovieInfoResult> non_english_results = new ArrayList<>();
+                            for (MovieInfoResult m : results) {
+                                if (!m.getOriginalLanguage().equals("en")) {
+                                    non_english_results.add(m);
+                                }
+                            }
+                            results.removeAll(non_english_results);
+                        }
+
+                        attachAdapter(loadFavorites);
+                        setTitle();
                     }
 
-                    attachAdapter();
-                    setTitle();
-                }
+                    @Override
+                    public void onFailure(Call<MovieSortingWrapper> call, Throwable t) {
+                        showNoResults();
+                    }
+                });
+            }
+        }
+    }
 
+    private void attachAdapter(boolean loadFromDb) {
+        Log.i(TAG, "attachAdapter: loadFromDb: " + loadFromDb);
+
+        if (loadFromDb) {
+            mFavAdapter = new FavoriteMovieAdapter();
+            mMoviePosterRecyclerView.setAdapter(mFavAdapter);
+            favoriteMovieViewModel = ViewModelProviders.of(this).get(FavoriteMovieViewModel.class);
+            favoriteMovieViewModel.getAllFavoriteMovies().observe(this, new Observer<List<FavoriteMovie>>() {
                 @Override
-                public void onFailure(Call<MovieSortingWrapper> call, Throwable t) {
-                    showNoResults();
+                public void onChanged(@Nullable List<FavoriteMovie> favoriteMovies) {
+                    Log.i(TAG, "onChanged: favoriteMovies size: " + favoriteMovies.size());
+                    mFavAdapter.setData(favoriteMovies);
+                }
+            });
+        } else {
+            mAdapter = new MovieAdapter(results);
+            mAdapter.setData(results);
+            mMoviePosterRecyclerView.setAdapter(mAdapter);
+
+            mAdapter.setOnClickListener(new MovieAdapter.OnItemClickListener() {
+                @SuppressLint("ClickableViewAccessibility")
+                @Override
+                public void onItemClick(int position, String movieId, String posterPath, String movieTitle) {
+                    goToDetails(position, movieId, posterPath, movieTitle);
                 }
             });
         }
     }
 
-    private void attachAdapter() {
-        mAdapter = new MovieAdapter(results);
-        mAdapter.setData(results);
-        mMoviePosterRecyclerView.setAdapter(mAdapter);
-
-        mAdapter.setOnClickListener(new MovieAdapter.OnItemClickListener() {
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public void onItemClick(int position, String movieId, String posterPath, String movieTitle) {
-                View selectedView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(position);
-                ImageView imageView = selectedView.findViewById(R.id.movie_poster_view);
-
-                Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
-                intent.putExtra(getResources().getString(R.string.parcelable_intent_key), results.get(position));
-
-                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, imageView, ViewCompat.getTransitionName(imageView));
-                startActivity(intent, options.toBundle());
-            }
-        });
-    }
-
-    private void loadFavorites() {
+    private void loadFromFavorites() {
         appBarTitle = getResources().getString(R.string.appBarTitle_favorites);
         setTitle();
+        showPosters();
+
+        gridLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.grid_span_count));
+        mMoviePosterRecyclerView.setLayoutManager(gridLayoutManager);
+        mMoviePosterRecyclerView.hasFixedSize();
+
+        final FavoriteMovieAdapter adapter = new FavoriteMovieAdapter();
+        mMoviePosterRecyclerView.setAdapter(adapter);
+
+        favoriteMovieViewModel.getAllFavoriteMovies().observe(this, new Observer<List<FavoriteMovie>>() {
+            @Override
+            public void onChanged(@Nullable List<FavoriteMovie> favoriteMovies) {
+                Log.i(TAG, "onChanged: favoriteMovies size: " + favoriteMovies.size());
+                adapter.setData(favoriteMovies);
+            }
+        });
+
+        fetchMoviesView.setVisibility(View.GONE);
+        mMoviePosterRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void goToDetails(int position, String movieId, String posterPath, String movieTitle) {
+        View selectedView = mMoviePosterRecyclerView.getLayoutManager().findViewByPosition(position);
+        ImageView imageView = selectedView.findViewById(R.id.movie_poster_view);
+
+        Intent intent =  new Intent(MainActivity.this, MovieDetailsActivity.class);
+        intent.putExtra(getResources().getString(R.string.parcelable_intent_key), results.get(position));
+
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, imageView, ViewCompat.getTransitionName(imageView));
+        startActivity(intent, options.toBundle());
     }
 
     private String getSharedPreferenceOrderbyValue() {
@@ -333,6 +383,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerState = gridLayoutManager.onSaveInstanceState();
         outState.putParcelable(RECYCLER_STATE, mRecyclerState);
         outState.putParcelableArrayList(POSTERS_STATE, new ArrayList<>(results));
+        outState.putBoolean(FAVORITES_STATE, loadFavorites);
     }
 
     @Override
@@ -340,6 +391,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         if(savedInstanceState != null) {
             mRecyclerState = savedInstanceState.getParcelable(RECYCLER_STATE);
+            loadFavorites = savedInstanceState.getBoolean(FAVORITES_STATE);
         }
     }
 

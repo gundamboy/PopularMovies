@@ -13,7 +13,6 @@ import java.util.List;
 public class FavoriteMovieViewModel extends AndroidViewModel {
     private FavoriteMovieRepository repository;
     private LiveData<List<FavoriteMovie>> allFavoriteMovies;
-    private List<FavoriteMovie> favoriteMovie;
 
     public FavoriteMovieViewModel(@NonNull Application application) {
         super(application);
@@ -35,10 +34,6 @@ public class FavoriteMovieViewModel extends AndroidViewModel {
 
     public LiveData<List<FavoriteMovie>> getAllFavoriteMovies() {
         return allFavoriteMovies;
-    }
-
-    public List<FavoriteMovie> getFavoriteMovieDetails(int movie_id) {
-        return favoriteMovie;
     }
 
 }
