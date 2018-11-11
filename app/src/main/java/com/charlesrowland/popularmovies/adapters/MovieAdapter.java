@@ -25,7 +25,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
     private OnItemClickListener mListener;
 
     public interface OnItemClickListener {
-        void onItemClick(int position, String movieId, String posterPath, String movieTitle);
+        void onItemClick(int position, int movieId, String posterPath, String movieTitle);
     }
 
     public void setOnClickListener(OnItemClickListener listener) {
@@ -92,7 +92,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieHolder>
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
-                    String movieId = mMovieId.getText().toString();
+                    int movieId = Integer.parseInt(mMovieId.getText().toString());
                     String posterPath = mPosterPath.getText().toString();
                     String movieTitle = mTitleView.getText().toString();
 

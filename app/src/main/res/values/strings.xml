@@ -5,6 +5,7 @@
     <string name="no_movies">That\'s odd, it looks like there are no movies to show you. </string>
     <string name="no_internet">The movie Gods cannot smile upon you as it looks like there is a problem with your internet connection. You should probably get that fixed.</string>
     <string name="no_results">The movie Gods do not smile upon you. They have no results for you right now. Perhaps if you try later you will be smiled upon and given the gift of entertainment.</string>
+    <string name="no_results_favorites">The movie Gods do not smile upon you… No… Wait a minute… This is YOUR fault! You have no favorite movies! Really!!! That heart button isn\'t there for looks you know…</string>
     <string name="getting_movies">Currently getting all the latest movies for you. Sit back and relax, this won\'t take long.</string>
     <string name="contacting_gods">Contacting the movie Gods</string>
 

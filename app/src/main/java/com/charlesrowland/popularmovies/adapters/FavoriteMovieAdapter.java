@@ -32,7 +32,7 @@ public class FavoriteMovieAdapter extends RecyclerView.Adapter<FavoriteMovieAdap
     private static final String APP_DIR = "movie_night";
 
     public interface OnItemClickListener {
-        void onItemClick(int position);
+        void onItemClick(int position, int movieId, String posterPath, String movieTitle);
     }
 
     public void setOnClickListener(OnItemClickListener listener) {
@@ -43,7 +43,6 @@ public class FavoriteMovieAdapter extends RecyclerView.Adapter<FavoriteMovieAdap
     @Override
     public FavoriteMovieHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_poster_recycler_item, parent, false);
-        Log.i(TAG, "onCreateViewHolder: here?");
         return new FavoriteMovieHolder(view, mListener);
     }
 
@@ -60,10 +59,6 @@ public class FavoriteMovieAdapter extends RecyclerView.Adapter<FavoriteMovieAdap
         holder.mMovieId.setText(String.valueOf(currentMovie.getMovie_id()));
         holder.mPosterPath.setText(currentMovie.getPoster_path());
         holder.mTitleView.setText(currentMovie.getOriginal_title());
-
-        Log.i(TAG, "onBindViewHolder: inside of here");
-        Log.i(TAG, "onBindViewHolder: posterUrl: " + posterUrl);
-        Log.i(TAG, "onBindViewHolder: title: " + currentMovie.getOriginal_title());
 
         Picasso.get().load(posterImageFile)
                 .networkPolicy(NetworkPolicy.OFFLINE)
@@ -86,8 +81,8 @@ public class FavoriteMovieAdapter extends RecyclerView.Adapter<FavoriteMovieAdap
     }
 
     public void setData(List<FavoriteMovie> favoriteMovies) {
-        Log.i(TAG, "setData: set the data damnit!");
         this.favoriteMovies = favoriteMovies;
+        notifyDataSetChanged();
     }
 
     class FavoriteMovieHolder extends RecyclerView.ViewHolder {
@@ -99,7 +94,6 @@ public class FavoriteMovieAdapter extends RecyclerView.Adapter<FavoriteMovieAdap
         public FavoriteMovieHolder(View itemView, final OnItemClickListener listener) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            Log.i(TAG, "FavoriteMovieHolder: what about here?");
 
             // sends some info out of the adapter into the parent activity for handling clicks
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -107,10 +101,11 @@ public class FavoriteMovieAdapter extends RecyclerView.Adapter<FavoriteMovieAdap
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
-
-                    if (position != RecyclerView.NO_POSITION) {
-                        //listener.onItemClick(position, db_id);
-                        listener.onItemClick(position);
+                    int movieId = favoriteMovies.get(position).getMovie_id();
+                    String posterPath = favoriteMovies.get(position).getPoster_path();
+                    String movieTitle = favoriteMovies.get(position).getOriginal_title();
+                    if (listener != null && position != RecyclerView.NO_POSITION) {
+                        listener.onItemClick(position, movieId, posterPath, movieTitle);
                     }
                 }
             });
