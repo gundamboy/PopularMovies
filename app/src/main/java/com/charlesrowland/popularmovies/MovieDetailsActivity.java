@@ -78,6 +78,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private static final String MOVIE_POSTER = "poster_path";
     private static final String IS_SIMILAR = "is_similar";
     private static final String APP_DIR = "movie_night";
+    private static final String MOVIE_SORTED_BY_FAVS = "sorted_by_favs";
     private static final int START_DELAY = 2000;
     private static final int POSTER_FADE_OUT_DELAY = 400;
 
@@ -200,6 +201,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private String mProducersText;
     private boolean isSimilar = false;
     private boolean favoriteUseDatabase = false;
+    private boolean postersSortedByFavorite = false;
+    private boolean doBackAnimation = true;
     private Drawable favoriteIconOutline;
     private Drawable favoriteIconFilled;
     private FavoriteMovieRepository db_repo;
@@ -221,6 +224,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         MovieInfoResult passedInfo = intent.getParcelableExtra(getResources().getString(R.string.parcelable_intent_key));
         Bundle extras = intent.getExtras();
+
+        if (intent.hasExtra(MOVIE_SORTED_BY_FAVS)) {
+            postersSortedByFavorite = true;
+        }
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -495,6 +502,10 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         if(backdropImageFile.exists()) {
             backdropImageFile.delete();
+        }
+
+        if (postersSortedByFavorite) {
+            doBackAnimation = false;
         }
     }
 
@@ -1021,14 +1032,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 super.onAnimationEnd(animation);
             }
         });
+
     }
 
     @Override
     public void onBackPressed() {
-
         fadeBlockerIn();
 
-        super.onBackPressed();
+        if (!doBackAnimation) {
+            finish();
+        } else {
+            super.onBackPressed();
+        }
+
     }
 
     private Target picassoImageTarget(Context context, final String imageDir, final String imageName) {

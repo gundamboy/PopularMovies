@@ -6,7 +6,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,7 +26,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,7 +47,6 @@ import com.charlesrowland.popularmovies.adapters.MovieAdapter;
 import com.charlesrowland.popularmovies.model.MovieSortingWrapper;
 import com.charlesrowland.popularmovies.model.MovieInfoResult;
 import com.charlesrowland.popularmovies.network.ApiClient;
-import com.charlesrowland.popularmovies.ui.FavoriteMovieViewModel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String MOVIE_ID = "movie_id";
     private static final String MOVIE_TITLE = "original_title";
     private static final String MOVIE_POSTER = "poster_path";
+    private static final String MOVIE_SORTED_BY_FAVS = "sorted_by_favs";
     public static int FADE_DELAY = 600;
     public static int START_DELAY = 1000;
     public static int POSTER_FADE_OUT_DELAY = 400;
@@ -339,14 +337,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable List<FavoriteMovie> favoriteMovies) {
                 adapter.setData(favoriteMovies);
+                if (adapter.getItemCount() == 0) {
+                    showNoResults();
+                } else {
+                    showPosters();
+                }
             }
         });
 
-        if (adapter.getItemCount() == 0) {
-           showNoResults();
-        } else {
-            showPosters();
-        }
+
 
         adapter.setOnClickListener(new FavoriteMovieAdapter.OnItemClickListener() {
             @Override
@@ -366,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(MOVIE_ID, movieId);
             intent.putExtra(MOVIE_POSTER, posterPath);
             intent.putExtra(MOVIE_TITLE, movieTitle);
+            intent.putExtra(MOVIE_SORTED_BY_FAVS, true);
         } else {
             intent.putExtra(getResources().getString(R.string.parcelable_intent_key), results.get(position));
         }
