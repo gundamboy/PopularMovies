@@ -345,13 +345,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
         adapter.setOnClickListener(new FavoriteMovieAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position, int movieId, String posterPath, String movieTitle) {
                 goToDetails(position, movieId, posterPath, movieTitle, true);
-
             }
         });
     }
