@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Result implements Parcelable{
+/**
+ * Holds retrofit api results
+ */
+public class MovieInfoResult implements Parcelable {
 
     @SerializedName("vote_count")
     @Expose
@@ -19,7 +22,7 @@ public class Result implements Parcelable{
 
     @SerializedName("id")
     @Expose
-    private Integer id;
+    private Integer movieId;
 
     @SerializedName("video")
     @Expose
@@ -83,7 +86,7 @@ public class Result implements Parcelable{
         dest.writeString(this.overview);
         dest.writeString(this.releaseDate);
         dest.writeList(this.genreIds);
-        dest.writeValue(this.id);
+        dest.writeValue(this.movieId);
         dest.writeString(this.originalTitle);
         dest.writeString(this.originalLanguage);
         dest.writeString(this.title);
@@ -94,14 +97,14 @@ public class Result implements Parcelable{
         dest.writeValue(this.voteAverage);
     }
 
-    protected Result(Parcel in) {
+    protected MovieInfoResult(Parcel in) {
         this.posterPath = in.readString();
         this.adult = in.readByte() != 0;
         this.overview = in.readString();
         this.releaseDate = in.readString();
         this.genreIds = new ArrayList();
         in.readList(this.genreIds, Integer.class.getClassLoader());
-        this.id = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.movieId = (Integer) in.readValue(Integer.class.getClassLoader());
         this.originalTitle = in.readString();
         this.originalLanguage = in.readString();
         this.title = in.readString();
@@ -114,13 +117,13 @@ public class Result implements Parcelable{
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         @Override
-        public Result createFromParcel(Parcel source) {
-            return new Result(source);
+        public MovieInfoResult createFromParcel(Parcel source) {
+            return new MovieInfoResult(source);
         }
 
         @Override
-        public Result[] newArray(int size) {
-            return new Result[size];
+        public MovieInfoResult[] newArray(int size) {
+            return new MovieInfoResult[size];
         }
     };
 
@@ -132,12 +135,12 @@ public class Result implements Parcelable{
         this.voteCount = voteCount;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getMovieId() {
+        return movieId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setMovieId(Integer id) {
+        this.movieId = id;
     }
 
     public Boolean getVideo() {

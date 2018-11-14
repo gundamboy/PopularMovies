@@ -17,33 +17,28 @@
             android:id="@+id/movie_poster_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             tools:listitem="@layout/movie_poster_recycler_item"
             tools:spanCount="2"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/no_network"
-        android:layout_width="match_parent"
+    <include
+        android:id="@+id/fetching_movies"
+        layout="@layout/fetching_movies_view"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        app:layout_constraintBottom_toBottomOf="@+id/swipe_refresh"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <TextView
-            android:id="@+id/internet_out_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/no_internet"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:gravity="center_horizontal"
-            android:textColor="#000000"/>
+    <include
+        android:id="@+id/no_network"
+        android:visibility="gone"
+        layout="@layout/no_network_view" />
 
-    </android.support.constraint.ConstraintLayout>
+    <include layout="@layout/no_results_view"
+        android:id="@+id/no_results"
+        android:visibility="gone" />
 
 </android.support.constraint.ConstraintLayout>

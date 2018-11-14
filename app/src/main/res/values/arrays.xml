@@ -1,4 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="settings_order_by_labels">
+        <item>@string/settings_order_by_popularity_label</item>
+        <item>@string/settings_order_by_toprated_label</item>
+    </string-array>
 
+    <string-array name="settings_order_by_values">
+        <item>@string/settings_order_by_popularity_value</item>
+        <item>@string/settings_order_by_toprated_value</item>
+    </string-array>
+
+    <string-array name="title_screen_credits">
+        <item>charles rowland</item>
+        <item>presents</item>
+        <item>\"movie night\"</item>
+        <item>in association with</item>
+        <item>udacity as part of the</item>
+        <item>android develoer nanodegree</item>
+        <item>an app by</item>
+        <item>charles rowland</item>
+        <item>art direction</item>
+        <item>lillian rowland</item>
+        <item>and</item>
+        <item>charles rowland</item>
+        <item>distractions by</item>
+        <item>ethan rowland</item>
+        <item>emotional support</item>
+        <item>daisey the dog</item>
+        <item>development music</item>
+        <item>a lot of heavy metal</item>
+        <item>and always remember</item>
+        <item>thanos did nothing wrong</item>
+    </string-array>
+
+    <string-array name="title_screen_credits_big">
+        <item>charles rowland</item>
+        <item>“movie night”</item>
+        <item>udacity as part of the</item>
+        <item>an app by</item>
+        <item>art direction</item>
+        <item>and</item>
+        <item>distractions by</item>
+        <item>emotional support</item>
+        <item>development music</item>
+        <item>and always remember</item>
+    </string-array>
+
+    <string-array name="title_screen_credits_normal">
+        <item>charles rowland</item>
+        <item>“movie night”</item>
+        <item>udacity as part of the</item>
+        <item>an app by</item>
+        <item>art direction</item>
+        <item>and</item>
+        <item>distractions by</item>
+        <item>emotional support</item>
+        <item>development music</item>
+        <item>and always remember</item>
+    </string-array>
 </resources>

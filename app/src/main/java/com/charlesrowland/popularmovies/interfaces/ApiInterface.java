@@ -1,23 +1,25 @@
 package com.charlesrowland.popularmovies.interfaces;
 
-import com.charlesrowland.popularmovies.model.Movie;
+import com.charlesrowland.popularmovies.BuildConfig;
+import com.charlesrowland.popularmovies.model.MovieAllDetailsResult;
+import com.charlesrowland.popularmovies.model.MovieSortingWrapper;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 public interface ApiInterface {
-    @GET("movie/popular")
-    Call<Movie> getPopularMovies(@Query("api_key") String apiKey);
+    // gets the api key from the super secret hidden file
+    String API_KEY = BuildConfig.ApiKey;
 
-    @GET("movie/top_rated")
-    Call getTopRatedMovies(@Query("api_key") String apiKey);
+    // these methods are for retrofit 2. they do the api calls
+    @GET("movie/popular?region=US&api_key="+API_KEY)
+    Call<MovieSortingWrapper> getPopularMovies();
 
-    @GET("movie/{movie_id}/videos")
-    Call getMovieTrailer(@Path("movie_id") int id, @Query("api_key") String apiKey);
+    @GET("movie/top_rated?api_key="+API_KEY)
+    Call<MovieSortingWrapper> getTopRatedMovies();
 
-    @GET("movie/{movie_id}/credits")
-    Call getMovieCredits(@Path("movie_id") int id, @Query("api_key") String apiKey);
+    @GET("movie/{movie_id}?api_key="+API_KEY+"&append_to_response=release_dates,credits,videos,reviews,similar")
+    Call<MovieAllDetailsResult> getAllMovieDetails(@Path("movie_id") int id);
 
 }

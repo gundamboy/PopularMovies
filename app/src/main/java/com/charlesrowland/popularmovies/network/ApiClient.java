@@ -5,6 +5,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
 
+    // this is the retrofit instantiation class
+
     public static final String MOVIE_DB_API_URL = "https://api.themoviedb.org/3/";
 
     public static Retrofit getRetrofit() {

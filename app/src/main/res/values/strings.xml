@@ -1,17 +1,79 @@
 <resources>
-    <string name="app_name">Popular Movies</string>
+    <string name="app_name">Movie Night</string>
 
     <!-- Strings for network/internet errors -->
     <string name="no_movies">That\'s odd, it looks like there are no movies to show you. </string>
-    <string name="no_internet">Ah nuts, it looks like there is a problem with your internet connection. You should probably get that fixed.</string>
+    <string name="no_internet">The movie Gods cannot smile upon you as it looks like there is a problem with your internet connection. You should probably get that fixed.</string>
+    <string name="no_results">The movie Gods do not smile upon you. They have no results for you right now. Perhaps if you try later you will be smiled upon and given the gift of entertainment.</string>
+    <string name="no_results_favorites">The movie Gods do not smile upon you… No… Wait a minute… This is YOUR fault! You have no favorite movies! Really!!! That heart button isn\'t there for looks you know…</string>
+    <string name="getting_movies">Currently getting all the latest movies for you. Sit back and relax, this won\'t take long.</string>
+    <string name="contacting_gods">Contacting the movie Gods</string>
+
+    <string name="backdrop_url">https://image.tmdb.org/t/p/w500</string>
+    <string name="poster_url">https://image.tmdb.org/t/p/w185</string>
+    <string name="poster_342_url">https://image.tmdb.org/t/p/w342</string>
+    <string name="youtube_image_url">https://img.youtube.com/vi/%1$s/hqdefault.jpg</string>
+    <string name="youtube_video_url">https://www.youtube.com/watch?v=%1$s</string>
+
+    <string name="appBarTitle_popular">Popular Movies</string>
+    <string name="appBarTitle_toprated">Top Rated Movies</string>
+    <string name="appBarTitle_favorites">Favorite Movies</string>
 
     <string name="menu_title_options">Options</string>
+    <string name="menu_dialog_title">Options</string>
 
-    <string name="settings_order_by_label">Order Movies By</string>
     <string name="settings_order_by_key" translatable="false">order_by</string>
-    <string name="settings_order_by_default" translatable="false">popularity.desc</string>
-    <!--SORTING VALUES:
-    popularity.asc, popularity.desc, release_date.asc, release_date.desc, revenue.asc, revenue.desc, primary_release_date.asc, primary_release_date.desc, original_title.asc, original_title.desc, vote_average.asc, vote_average.desc, vote_count.asc, vote_count.desc-->
+    <string name="settings_order_by_default" translatable="false">popularity</string>
 
+    <string name="settings_order_by_popularity_label">Popularity</string>
+    <string name="settings_order_by_popularity_value" translatable="false">popularity</string>
+
+    <string name="settings_order_by_toprated_label">Top Rated</string>
+    <string name="settings_order_by_toprated_value" translatable="false">top rated</string>
+
+    <string name="settings_order_by_favorites_label">Favorites</string>
+    <string name="settings_order_by_favorites_value" translatable="false">favorites</string>
+
+    <!--<string name="title_activity_movie_details">MovieDetailsActivity</string>-->
+    <string name="title_activity_movie_details">Movie Details</string>
+    <string name="details_overview_header">Overview:</string>
+    <string name="details_tagline_header">Tagline:</string>
+    <string name="details_cast_header">Cast:</string>
+    <string name="details_crew_header">Crew:</string>
+    <string name="details_video_header">Videos:</string>
+    <string name="details_reviews_header">Reviews:</string>
+    <string name="details_similar_header">Similar Movies:</string>
+    <string name="details_runtime_hour_abbr">h</string>
+    <string name="details_runtime_min_abbr">min</string>
+    <string name="details_imdb_link">IMDB</string>
+    <string name="details_out_of_10">/10</string>
+    <string name="details_director">Director: </string>
+    <string name="details_writers">Writers: </string>
+    <string name="details_producers">Producers: </string>
+    <string name="details_staring">Stars: </string>
+
+    <string name="action_settings">Settings</string>
+    <string name="parcelable_intent_key">movie_info</string>
+    <string name="movie_camera_image_content_description">movie camera image</string>
+    <string name="app_description_title_screen">Popular and top rated movie information in one convenient place</string>
+
+    <string name="title_screen_credits_string">charles rowland presents “movie night” in association with udacity as part of the android develoer nanodegree an app by charles rowland art direction lillian rowland and charles rowland distractions by ethan rowland emotional support daisey the dog development music a lot of heavy metal and always remember thanos did nothing wrong</string>
+    <string name="poster_scale_transition">poster_scale_transition</string>
+    <string name="similar_poster_scale_transition">similar_poster_scale_transition</string>
+
+    <string name="description_movie_poster">Movie poster for current movie</string>
+    <string name="description_movie_backdrop">Movie backdrop picture for current movie</string>
+    <string name="description_movie_trailer">Movie trailer for current movie</string>
+
+    <string name="review_fake_title">Movie trailer for current movie</string>
+    <string name="review_fake_author">Movie Queen41</string>
+    <string name="review_fake_text">I have been a Star Wars fan since childhood. In fact, Star Wars: A New Hope was one of the first movies I ever saw in a theater. And I really enjoyed this movie. Don\'t believe the naysayers. There has been a lot of bad press surrounding the movie since the directors got fired and had to be replaced by Ron Howard. There was also some controversy of whether the lead actor was any good as Han Solo. The movie is not the mess we were led to believe. It works pretty well. Good action and special effects and lots of interesting alien creatures, as we would expect from a Star Wars movie. Alden Ehrenreich does a good job to make the role his own instead of doing an impression of Harrison Ford. Woody Harrelson, Phoebe Walter-Bridge, Donald Glover, and Paul Bettany also do good work in the film. Recommended for Star Wars fans.</string>
+    <string name="review_fake_url">https://www.themoviedb.org/review/5b0ad5609251411e6a008396</string>
+    <string name="review_read_more">read more...</string>
+    <string name="review_bs_author">Author:</string>
+    <string name="review_bs_review_header">Review:</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
